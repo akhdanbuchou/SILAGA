@@ -1,3 +1,14 @@
+# SILAGA
+
+## How to Use 
+- clone this repo 
+- install the latest python 3
+- make your own environment by `virtualenv venv`
+- run `venv\Scripts\activate` if you're on Windows
+- run `pip install -r requirements.txt`
+- run `python3 online_media_hbase.py`
+- Congrats, your flask server is already running !
+
 # [Vuetify Material Dashboard](https://www.creative-tim.com/vuetify-material-dashboard) [![Tweet](https://img.shields.io/twitter/url/http/shields.io.svg?style=social&logo=twitter)](https://twitter.com/home?status=Vuetify%20Material%20Dashboard%20-%20Admin%20Template%20for%20Vue.js%20https%3A//www.creative-tim.com/product/vuetify-material-dashboard%20%23vuejs%20%23vuex%20%23dashboard%20%23vuetify%20%23vuetify%20material%20%20%40creativetim)
 
 

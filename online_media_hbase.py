@@ -116,7 +116,75 @@ def getUserByUsername():
     resp = Response(json.dumps(found_user), status=200, mimetype='application/json')
     return resp
 
+@app.route('/createUser',methods = ['POST'])
+def createUser():
+   content = request.get_json()
+   # to-do
+   # encrypt password
+   # input validation
+   new_user = {
+       'nama':content['nama'],
+       'role':content['role'],
+       'username':content['username'],
+       'password':content['password']
+       }
+   mysql.create_user(new_user)
+   return 'success'
 
+@app.route('/updateUser',methods = ['POST'])
+def updateUser():
+   content = request.get_json()
+   # to-do
+   # encrypt password
+   # input validation
+   updated_user = {
+       'id':content['id'],
+       'nama':content['nama'],
+       'role':content['role'],
+       'username':content['username'],
+       'password':content['password']
+       }
+   mysql.update_user(updated_user)
+   return 'success'
+
+@app.route('/deleteUser',methods = ['POST'])
+def deleteUser():
+   content = request.get_json()
+   # to-do
+   # encrypt password
+   # input validation
+   id_user = content['idUser']
+   mysql.delete_user(id_user)
+   return 'success'
+
+@app.route('/createKeyword',methods = ['POST'])
+def createKeyword():
+   content = request.get_json()
+   # to-do
+   # encrypt password
+   # input validation
+   new_kw = {
+       'keyword':content['keyword'],
+       'kategori_layer_3':content['kategori3']
+       }
+   mysql.create_kw(new_kw)
+   return 'success'
+
+@app.route('/deleteKeyword',methods = ['POST'])
+def deleteKeyword():
+   content = request.get_json()
+   # to-do
+   # encrypt password
+   # input validation
+   id_kw = content['idKeyword']
+   mysql.delete_kw(id_kw)
+   return 'success'
+
+@app.route("/keywords")
+def getKeywords():
+    list_keywords = mysql.get_all_keywords()
+    resp = Response(json.dumps(list_keywords), status=200, mimetype='application/json')
+    return resp
 
 if __name__ == '__main__':
     app.run(debug=True)

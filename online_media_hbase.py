@@ -135,7 +135,7 @@ def createUser():
 def updateUser():
    content = request.get_json()
    # to-do
-   # encrypt password
+   # encrypt password kalo ganti password
    # input validation
    updated_user = {
        'id':content['id'],
@@ -150,9 +150,6 @@ def updateUser():
 @app.route('/deleteUser',methods = ['POST'])
 def deleteUser():
    content = request.get_json()
-   # to-do
-   # encrypt password
-   # input validation
    id_user = content['idUser']
    mysql.delete_user(id_user)
    return 'success'
@@ -160,9 +157,6 @@ def deleteUser():
 @app.route('/createKeyword',methods = ['POST'])
 def createKeyword():
    content = request.get_json()
-   # to-do
-   # encrypt password
-   # input validation
    new_kw = {
        'keyword':content['keyword'],
        'kategori_layer_3':content['kategori3']
@@ -173,9 +167,6 @@ def createKeyword():
 @app.route('/deleteKeyword',methods = ['POST'])
 def deleteKeyword():
    content = request.get_json()
-   # to-do
-   # encrypt password
-   # input validation
    id_kw = content['idKeyword']
    mysql.delete_kw(id_kw)
    return 'success'
@@ -185,6 +176,17 @@ def getKeywords():
     list_keywords = mysql.get_all_keywords()
     resp = Response(json.dumps(list_keywords), status=200, mimetype='application/json')
     return resp
+
+@app.route("/validate")
+def validate():
+    content = request.get_json()
+    data = {
+        'username':content['username'],
+        'password':content['password']
+        }
+    result = mysql.validate(data)
+    return result
+
 
 if __name__ == '__main__':
     app.run(debug=True)

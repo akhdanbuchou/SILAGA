@@ -1,4 +1,5 @@
 import mysql.connector
+import security as security
 
 QUERY_USER = ("SELECT * FROM user")
 
@@ -118,12 +119,26 @@ def get_all_users():
         cur.close()
         conn.close()
         return users
+    
+def get_user_by_username(uname):
+    list_user = get_all_users()
+    for user in list_user:
+        if user['username']==uname:
+            return user
+
+def validate(data):
+    #find user
+    user = get_user_by_username(data['username'])
+    pw = data['password']
+    result = str(security.check(pw, user['password']))
+    print(result)
+    return result
 
 def create_user(data):
     nama = data['nama']
     role = data['role']
     username = data['username']
-    password = data['password']
+    password = security.encrypt(data['password'])
     query = ("INSERT INTO user (nama, role, username, password) values(\'{}\',\'{}\',\'{}\',\'{}\')".format(nama, role, username, password))
     execute_query(query)
     

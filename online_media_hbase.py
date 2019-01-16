@@ -185,8 +185,8 @@ def validate():
         'password':content['password']
         }
     result = mysql.validate(data)
-    resp = Response(json.dumps(list_keywords), status=200, mimetype='application/json')
-    return result
+    resp = Response(json.dumps(result), status=200, mimetype='application/json')
+    return resp
 
 
 if __name__ == '__main__':

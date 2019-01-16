@@ -34,7 +34,7 @@
                   <v-container grid-list-md>
                     <v-layout wrap>
                       <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.name" label="Dessert name"></v-text-field>
+                        <v-text-field v-model="editedItem.no" label="No"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md4>
                         <v-text-field v-model="editedItem.calories" label="Calories"></v-text-field>
@@ -63,15 +63,14 @@
           </v-card-title>
           <v-data-table
             :headers="headers"
-            :items="desserts"
+            :items="lokasi"
             :search="search"
           >
             <template slot="items" slot-scope="props">
-              <td>{{ props.item.name }}</td>
-              <td class="text-xs-left">{{ props.item.calories }}</td>
-              <td class="text-xs-left">{{ props.item.fat }}</td>
-              <td class="text-xs-left">{{ props.item.carbs }}</td>
-              <td class="text-xs-left">{{ props.item.protein }}</td>
+              <td>{{ props.item.no }}</td>
+              <td class="text-xs-left">{{ props.item.nama }}</td>
+              <td class="text-xs-left">{{ props.item.username }}</td>
+              <td class="text-xs-left">{{ props.item.role }}</td>
               <td class="justify-left pl-3 layout px-0">
                 <v-icon
                   small
@@ -103,19 +102,13 @@ export default {
   data: () => ({
     search: '',
     headers: [
-      {
-        text: 'Dessert (100g serving)',
-        align: 'left',
-        sortable: false,
-        value: 'name'
-      },
-      { text: 'Calories', value: 'calories' },
-      { text: 'Fat (g)', value: 'fat' },
-      { text: 'Carbs (g)', value: 'carbs' },
-      { text: 'Protein (g)', value: 'protein' },
-      { text: 'Action', value: 'action' }
+      {text: 'No',value: 'no'},
+      { text: 'Nama', value: 'nama' },
+      { text: 'Username', value: 'username' },
+      { text: 'Role', value: 'role' },
+      { text: 'Action', value: 'action' },
     ],
-    desserts: [],
+    lokasi: [],
     editedIndex: -1,
     editedItem: {
         name: '',
@@ -148,76 +141,30 @@ export default {
     },
     methods: {
       initialize () {
-        this.desserts = [
+        this.lokasi = [
           {
-            name: 'Frozen Yogurt',
-            calories: 159,
-            fat: 6.0,
-            carbs: 24,
-            protein: 4.0
+            no: '1',
+            nama: 'Adi',
+            username: 'adisubagja',
+            role: 'bintang',
           },
           {
-            name: 'Ice cream sandwich',
-            calories: 237,
-            fat: 9.0,
-            carbs: 37,
-            protein: 4.3
+            no: '2',
+            nama: 'Budi',
+            username: 'budisubagja',
+            role: 'melati menengah',
           },
           {
-            name: 'Eclair',
-            calories: 262,
-            fat: 16.0,
-            carbs: 23,
-            protein: 6.0
+            no: '3',
+            nama: 'Cipto',
+            username: 'ciptosubagja',
+            role: 'melati pertama',
           },
           {
-            name: 'Cupcake',
-            calories: 305,
-            fat: 3.7,
-            carbs: 67,
-            protein: 4.3
-          },
-          {
-            name: 'Gingerbread',
-            calories: 356,
-            fat: 16.0,
-            carbs: 49,
-            protein: 3.9
-          },
-          {
-            name: 'Jelly bean',
-            calories: 375,
-            fat: 0.0,
-            carbs: 94,
-            protein: 0.0
-          },
-          {
-            name: 'Lollipop',
-            calories: 392,
-            fat: 0.2,
-            carbs: 98,
-            protein: 0
-          },
-          {
-            name: 'Honeycomb',
-            calories: 408,
-            fat: 3.2,
-            carbs: 87,
-            protein: 6.5
-          },
-          {
-            name: 'Donut',
-            calories: 452,
-            fat: 25.0,
-            carbs: 51,
-            protein: 4.9
-          },
-          {
-            name: 'KitKat',
-            calories: 518,
-            fat: 26.0,
-            carbs: 65,
-            protein: 7
+            no: '4',
+            nama: 'Deni',
+            username: 'denosubagja',
+            role: 'personil',
           }
         ]
       },

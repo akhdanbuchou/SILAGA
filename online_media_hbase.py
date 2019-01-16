@@ -177,7 +177,7 @@ def getKeywords():
     resp = Response(json.dumps(list_keywords), status=200, mimetype='application/json')
     return resp
 
-@app.route("/validate")
+@app.route("/validate", methods =['POST'])
 def validate():
     content = request.get_json()
     data = {
@@ -186,7 +186,7 @@ def validate():
         }
     result = mysql.validate(data)
     resp = Response(json.dumps(result), status=200, mimetype='application/json')
-    return resp
+    return result
 
 
 if __name__ == '__main__':

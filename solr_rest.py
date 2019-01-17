@@ -55,22 +55,28 @@ def get_all_online_media():
             loc = []
     return list_berita
 
-def add_or_update_to_omed_classified(data):
+def add_or_update_to_omed_classified(bulk):
     '''
     fungsi insert atau update ke solr collection : omed_classified
     param type : json
     '''
+    data = {}
+    # memindakan data dari input web ke data yang akan dimasukkan ke solr : omed_classified
+    for k,v in bulk.items():
+        if k in ["id","title","kategori1","kategori2","kategori3","lokasi","tanggal"]:
+            data[k]=v
+
     headers = {
         'Content-Type': 'application/json',
     }
     json_data = {
-        "judul":data['judul'],
+        "id":data['id'],
+        "judul":data['title'],
         "kategori1":data['kategori1'],
         "kategori2":data['kategori2'],
         "kategori3":data['kategori3'],
         "lokasi":data['lokasi'],
-        "tanggal":data['tanggal'],
-        "isi":data['isi']
+        "tanggal":data['tanggal']
         }
     data = json.dumps(json_data)
     response = requests.post('http://localhost:3333/solr/omed_classified/update/json/docs', headers=headers, data=data)

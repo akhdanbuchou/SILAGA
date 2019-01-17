@@ -14,6 +14,7 @@ import mysql_rest as mysql
 
 # mendapatkan id berita dari solr 
 app = Flask(__name__)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 ROW_NUM = 3000
 
 connection = urllib2.urlopen('http://localhost:3333/solr/online_media/select?indent=on&q=*:*&rows=' + str(ROW_NUM) + '&wt=python')
@@ -80,7 +81,6 @@ for berita in list_berita:
         if "content" in cold:
             val['isi'] = cond
     list_berita_hbase.append(val)
-
 
 #web service untuk mengambil semua berita yang ada
 @app.route("/allnews")
@@ -180,6 +180,7 @@ def getKeywords():
 @app.route("/validate", methods =['POST'])
 def validate():
     content = request.get_json()
+    print(content)
     data = {
         'username':content['username'],
         'password':content['password']

@@ -6,6 +6,7 @@
 - make your own environment by `virtualenv venv`
 - run `venv\Scripts\activate` if you're on Windows
 - run `pip install -r requirements.txt`
+- set tunnel localhost:4444 ke 10.32.6.225:16001 dan localhost:3333 ke 10.32.6.225:8983
 - run `python3 online_media_hbase.py`
 - Congrats, your flask server is already running !
 

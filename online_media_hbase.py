@@ -11,11 +11,11 @@ from flask import jsonify
 from flask import Response
 from flask import request
 import mysql_rest as mysql
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 
 # mendapatkan id berita dari solr 
 app = Flask(__name__)
-cors = CORS(app)
+cors = CORS(app, resources={r"/*": {"origins": "*"}})
 ROW_NUM = 3000
 
 connection = urllib2.urlopen('http://localhost:3333/solr/online_media/select?indent=on&q=*:*&rows=' + str(ROW_NUM) + '&wt=python')
@@ -118,6 +118,7 @@ def getUserByUsername():
     return resp
 
 @app.route('/createUser',methods = ['POST'])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def createUser():
    content = request.get_json()
    # to-do
@@ -133,7 +134,7 @@ def createUser():
    return 'success'
 
 @app.route('/updateUser',methods = ['POST'])
-@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def updateUser():
    content = request.get_json()
    # to-do
@@ -150,7 +151,7 @@ def updateUser():
    return 'success'
 
 @app.route('/deleteUser',methods = ['POST'])
-@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def deleteUser():
    content = request.get_json()
    id_user = content['idUser']
@@ -158,7 +159,7 @@ def deleteUser():
    return 'success'
 
 @app.route('/createKeyword',methods = ['POST'])
-@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def createKeyword():
    content = request.get_json()
    new_kw = {
@@ -169,7 +170,7 @@ def createKeyword():
    return 'success'
 
 @app.route('/deleteKeyword',methods = ['POST'])
-@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def deleteKeyword():
    content = request.get_json()
    id_kw = content['idKeyword']
@@ -183,7 +184,7 @@ def getKeywords():
     return resp
 
 @app.route("/validate", methods =['POST'])
-@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
+@cross_origin(origin='*',headers=['Content-Type','Authorization'])
 def validate():
     content = request.get_json()
     print(content)

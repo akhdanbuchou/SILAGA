@@ -188,7 +188,7 @@ def validate():
         }
     result = mysql.validate(data)
     resp = Response(json.dumps(result), status=200, mimetype='application/json')
-    return result
+    return resp
 
 if __name__ == '__main__':
     app.run(debug=True)

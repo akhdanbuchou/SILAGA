@@ -15,7 +15,7 @@ from flask_cors import CORS
 
 # mendapatkan id berita dari solr 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
+cors = CORS(app)
 ROW_NUM = 3000
 
 connection = urllib2.urlopen('http://localhost:3333/solr/online_media/select?indent=on&q=*:*&rows=' + str(ROW_NUM) + '&wt=python')
@@ -133,6 +133,7 @@ def createUser():
    return 'success'
 
 @app.route('/updateUser',methods = ['POST'])
+@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def updateUser():
    content = request.get_json()
    # to-do
@@ -149,6 +150,7 @@ def updateUser():
    return 'success'
 
 @app.route('/deleteUser',methods = ['POST'])
+@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def deleteUser():
    content = request.get_json()
    id_user = content['idUser']
@@ -156,6 +158,7 @@ def deleteUser():
    return 'success'
 
 @app.route('/createKeyword',methods = ['POST'])
+@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def createKeyword():
    content = request.get_json()
    new_kw = {
@@ -166,6 +169,7 @@ def createKeyword():
    return 'success'
 
 @app.route('/deleteKeyword',methods = ['POST'])
+@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def deleteKeyword():
    content = request.get_json()
    id_kw = content['idKeyword']
@@ -179,6 +183,7 @@ def getKeywords():
     return resp
 
 @app.route("/validate", methods =['POST'])
+@crossdomain(origin='*',headers=['access-control-allow-origin','Content-Type'])
 def validate():
     content = request.get_json()
     print(content)

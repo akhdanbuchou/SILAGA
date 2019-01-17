@@ -11,6 +11,7 @@ from flask import jsonify
 from flask import Response
 from flask import request
 import mysql_rest as mysql
+from flask_cors import CORS
 
 # mendapatkan id berita dari solr 
 app = Flask(__name__)

@@ -46,10 +46,9 @@ def get_all_online_media(list_id):
         cells = data['Row'][0]['Cell']
         val['lokasi'] = lokasi
         val['kategori'] = 'netral'
-        for v in data["Row"][0]["Cell"]:
+        for v in cells:
             col = b64decode(v['column'])
             cold = bdecode(col)
-            time = v['timestamp']
             con = b64decode(v['$'])
             cond = bdecode(con)
             if "timestamp" in cold:
@@ -66,22 +65,20 @@ def put_online_media(bulk):
     insert data ke hbase online_media
     param : json (author, content, language, sitename, url)
     '''
-    id_news = hashlib.md5(bulk['url'].encode()).hexdigest() # id berita didapat dari md5 dari url berita 
-
+      
     data = {}
     # memindakan data dari input web ke data yang akan dimasukkan ke hbase : online_media
     for k,v in bulk.items():
-        if k in ["author","title","content","language","sitename","url"]:
+        if k in ["author","title","content","language","sitename","url","id"]:
             data[k]=v
 
     # preparing data yang akan dimasukkan ke hbase, menyesuaikan struktur data 
     ts =int(time.time()) 
-    result = {"Row":[{"key":id_news,"Cell":[]}]}
+    result = {"Row":[{"key":data["id"],"Cell":[]}]}
     cell = [] # nantinya akan dimasukkan ke Cell 
     for k,v in data.items():
         col = {}
         column = 'nodejs:' + k
-        timestamp = ts
         value = v
         col['column'] = bungkus(column)
         col['timestamp'] = ts
@@ -98,24 +95,6 @@ def put_online_media(bulk):
     # post using culr to hbase 
     response = requests.put('http://localhost:4444/online_media/'+id_news, headers=headers, data=data)
     print(response)
+    print("success adding to hbase")
 
-    # also post to solt collection : omed_classified dengan id yang sama dengan yang di hbase
-    bulk['id'] = id_news
-    solr.add_or_update_to_omed_classified(bulk)
 
-'''
-# (author, content, language, sitename, url)
-news = {
-    "author":"syafiq",
-    "title":"beli semangka",
-    "content":"syafiq membeli semangka",
-    "language":"id",
-    "sitename":"www.takoyakijajajajaja.com",
-    "url":"www.takoyakijajajajaja.com/asdasdas",
-    "kategori1":"kejahatan",
-    "kategori2":"konvensional",
-    "kategori3":"pembelian",
-    "lokasi":"bontang",
-    "tanggal":"2018/2/2",
-}
-'''

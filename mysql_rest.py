@@ -3,7 +3,6 @@ import security as security
 
 QUERY_USER = ("SELECT * FROM user")
 
-    
 def execute_query(query):
     print(query)
     try:
@@ -27,6 +26,8 @@ def special_query(query):
         type_fixed_row = tuple([el.decode('utf-8') if type(el) is bytearray else el for el in response])
         res.append(type_fixed_row)
         #print(type_fixed_row)
+    cur.close()
+    conn.close()
     return res
    
 def get_all_keywords():
@@ -103,7 +104,6 @@ def get_all_users():
     try:
         conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
         cur = conn.cursor()
-        
         cur.execute(q)
         result = cur.fetchall()
         for response in result:

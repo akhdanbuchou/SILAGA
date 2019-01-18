@@ -6,6 +6,7 @@ import base64
 import urllib.request as urllib2
 from datetime import datetime
 import time
+import hashlib
 from flask import Flask
 from flask import jsonify
 from flask import Response
@@ -139,6 +140,34 @@ def validate():
         }
     result = mysql.validate(data)
     return result
+
+@app.route('/createUpdateBerita',methods = ['POST'])
+def createBerita():
+    content = request.get_json()
+    new_berita = {
+       "author":"None", # belum ada di form
+       "title":content['title'],
+       "language":"id", 
+       "content":content["content"],
+       "url":content['url'], # belum ada di form 
+       "sitename":content['sitename'], # belum ada di form 
+       "kategori1":content['kategori1'],
+       "kategori2":content["kategori2"],
+       "kategori3":content["kategori3"],
+       "lokasi":content["lokasi"],
+       "tanggal":content["tanggal"]
+       }
+    # menentukan id dari berita untuk di solr : omed_classified dan hbase : online_media
+    id_news = hashlib.md5(new_berita['url'].encode()).hexdigest() # id berita didapat dari md5 dari url berita 
+    new_berita['id'] = id_news
+
+    # post to hbase collection : online_media
+    hbase.put_online_media(new_berita)
+
+    # also post to solr collection : omed_classified dengan id yang sama 
+    solr.add_or_update_to_omed_classified(new_berita)
+
+    return 'success'
 
 if __name__ == '__main__':
     app.run(debug=True)

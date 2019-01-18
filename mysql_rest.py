@@ -27,7 +27,18 @@ def special_query(query):
     cur.close()
     conn.close()
     return res
-   
+
+def get_keywords_category():
+    QUERY_KEY = ("SELECT * FROM keyword")
+    keytup = special_query(QUERY_KEY)
+    keylist = []
+    for key in keytup:
+        k = {'id':key[0],
+              'keyword':key[1],
+              'kategori_layer_3':key[2]}
+        keylist.append(k)
+    return keylist
+
 def get_all_keywords():
     QUERY_CAT_1 = ("SELECT * FROM kategori_layer_1")
     QUERY_CAT_2 = ("SELECT * FROM kategori_layer_2")

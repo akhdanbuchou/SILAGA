@@ -83,6 +83,15 @@ def add_or_update_to_omed_classified(bulk):
     print(response)
     print("success adding to solr : omed_classified")
 
+def get_keywords_from_news(id_berita):
+    '''
+    mengembalikan list keywords dari suatu berita yang disimpan di solr 
+    '''
+    connection = urllib2.urlopen('http://localhost:3333/solr/online_media/select?q=id:'+id_berita+'&wt=python')
+    response = eval(connection.read())
+    doc = response['response']['docs'][0]
+    return doc['keywords']
+
 def delete_from_omed_classified(id_berita):
     '''
     fungsi delete row dengan id=id_berita dari solr collection : omed_classified
@@ -110,6 +119,8 @@ def get_all_omed_classified():
             list_berita.append(doc['id'])
     return list_berita
 
+
+
 def get_from_omed_classified(id_berita):
     '''
     mengembalikan json data suatu berita di solr collection : omed_classified
@@ -119,3 +130,5 @@ def get_from_omed_classified(id_berita):
     print(str(response['response']['numFound'] )+ " documents found.")
     for doc in response['response']['docs']:
         print(doc)
+
+get_keywords_from_news('b6fc135aa8ad5df17fee3b490832de01')

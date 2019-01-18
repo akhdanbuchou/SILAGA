@@ -14,6 +14,7 @@ from flask import request
 import mysql_rest as mysql
 import hbase_rest as hbase
 import solr_rest as solr
+import classifier_rest as classifier 
 from flask_cors import CORS, cross_origin
 
 # instantiate flask app
@@ -39,6 +40,16 @@ def getNewsById():
             found_news = news
     resp = Response(json.dumps(found_news), status=200, mimetype='application/json')
     return resp
+
+@app.route("/classify")
+def classify():
+    '''
+    menerima array, mengembalikan string id kategori layer 3 dari array tsb 
+    '''
+    content = request.get_json()
+    arr = content['array']
+    category = classifier.classify(arr)
+    return category
 
 @app.route("/users")
 def getUsers():

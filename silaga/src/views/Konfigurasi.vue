@@ -23,7 +23,7 @@
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
 
-            <v-dialog v-model="dialog" max-width="500px">
+            <v-dialog max-width="500px">
               <v-btn slot="activator" color="green darken-1 " dark class="mb-2 ml-3">Tambah Pengguna</v-btn>
               <v-card>
                 <v-card-title>
@@ -34,16 +34,16 @@
                   <v-container grid-list-md>
                     <v-layout wrap>
                       <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.name" label="Nama"></v-text-field>
+                        <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.calories" label="Role"></v-text-field>
+                        <v-text-field v-model="editedItem.role" label="Role"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.fat" label="Username"></v-text-field>
+                        <v-text-field v-model="editedItem.username" label="Username"></v-text-field>
                       </v-flex>
                       <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.carbs" label="Password"></v-text-field>
+                        <v-text-field type="password" v-model="editedItem.password" label="Password"></v-text-field>
                       </v-flex>
                     </v-layout>
                   </v-container>
@@ -52,7 +52,7 @@
                 <v-card-actions>
                   <v-spacer></v-spacer>
                   <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-                  <v-btn color="blue darken-1" flat @click="createUser">Save</v-btn>
+                  <v-btn color="blue darken-1" flat @click="createUser(editedItem)">Save</v-btn>
                 </v-card-actions>
               </v-card>
             </v-dialog>
@@ -71,7 +71,8 @@
               <td class="justify-left pl-3 layout px-0">
                 <v-icon
                   small
-                  @click="deleteItem(props.item)"
+                  class="mr-2"
+                  @click="deleteUser(props.item)"
                 >
                   mdi-delete
                 </v-icon>
@@ -100,6 +101,7 @@ export default {
       { text: 'Username', value: 'username' },
       { text: 'Action', value: 'action' }
     ],
+    urutan:1,
     editedIndex: -1,
     editedItem: {
         nama: '',
@@ -119,7 +121,7 @@ export default {
           users:'getUsers'
       }),
       formTitle () {
-        return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+        return 'Buat Pengguna Baru'
       },
       pengguna(){
         var pengguna = []
@@ -142,14 +144,8 @@ export default {
       }
     },
     methods: {
-      editItem (item) {
-        this.editedIndex = this.desserts.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
-      },
-      deleteItem (item) {
-        const index = this.desserts.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.desserts.splice(index, 1)
+      deleteUser (item) {
+        console.log(item)
       },
       close () {
         this.dialog = false
@@ -158,14 +154,13 @@ export default {
           this.editedIndex = -1
         }, 300)
       },
-      save () {
-        if (this.editedIndex > -1) {
-          Object.assign(this.desserts[this.editedIndex], this.editedItem)
-        } else {
-          this.desserts.push(this.editedItem)
-        }
+      createUser (newUser) {
+        this.$store.dispatch('createUser', newUser)
         this.close()
-      }
+      },
+      deleteUser (user) {
+        
+      },
     },
     beforeMount(){
       this.$store.dispatch('getAllUsers')

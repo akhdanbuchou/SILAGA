@@ -43,6 +43,10 @@ def get_all_online_media(list_id):
         #list of values
         val = {}
         val['id'] = bdecode(b64decode(data["Row"][0]["key"]))
+        '''
+        print(type(data["Row"][0]["key"]))
+        print(data["Row"][0]["key"])
+        '''
         cells = data['Row'][0]['Cell']
         val['lokasi'] = lokasi
         val['kategori'] = 'netral'
@@ -74,7 +78,7 @@ def put_online_media(bulk):
 
     # preparing data yang akan dimasukkan ke hbase, menyesuaikan struktur data 
     ts =int(time.time()) 
-    id_news = data["id"]
+    id_news = bungkus(data["id"]) # cuma bisa simpen kalo keynya diencode 
     result = {"Row":[{"key":id_news,"Cell":[]}]}
     cell = [] # nantinya akan dimasukkan ke Cell 
     for k,v in data.items():
@@ -91,7 +95,6 @@ def put_online_media(bulk):
         'Accept': 'application/json',
         'Content-Type': 'application/json',
     }
-    print(result)
     data = json.dumps(result)
     # post using culr to hbase 
     response = requests.put('http://localhost:4444/online_media/'+id_news, headers=headers, data=data)

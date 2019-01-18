@@ -65,7 +65,7 @@ def add_or_update_to_omed_classified(bulk):
     for k,v in bulk.items():
         if k in ["id","title","kategori1","kategori2","kategori3","lokasi","tanggal"]:
             data[k]=v
-
+    print(data['id'])
     headers = {
         'Content-Type': 'application/json',
     }

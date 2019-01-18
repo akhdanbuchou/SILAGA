@@ -147,13 +147,13 @@ def createBerita():
     # menentukan id dari berita untuk di solr : omed_classified dan hbase : online_media
     id_news = hashlib.md5(new_berita['url'].encode()).hexdigest() # id berita didapat dari md5 dari url berita 
     new_berita['id'] = id_news
-
+    
     # post to hbase collection : online_media
     hbase.put_online_media(new_berita)
-
+    
     # also post to solr collection : omed_classified dengan id yang sama 
     solr.add_or_update_to_omed_classified(new_berita)
-
+    
     return 'success'
 
 if __name__ == '__main__':

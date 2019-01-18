@@ -81,6 +81,7 @@ def add_or_update_to_omed_classified(bulk):
     data = json.dumps(json_data)
     response = requests.post('http://localhost:3333/solr/omed_classified/update/json/docs', headers=headers, data=data)
     print(response)
+    print("success adding to solr : omed_classified")
 
 def delete_from_omed_classified(id_berita):
     '''

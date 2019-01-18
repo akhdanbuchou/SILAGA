@@ -40,19 +40,6 @@ def getNewsById():
     resp = Response(json.dumps(found_news), status=200, mimetype='application/json')
     return resp
 
-@app.route("/put", methods=['POST'])
-def putNews(news):
-    content = request.get_json()
-    
-    headers = {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-    }
-
-    data = '{"Row":{"@key":"$KEY","Cell":{"@column":"$COLUMN", "$":"$DATA"}}}'
-
-    response = requests.put('http:///', headers=headers, data=data)
-
 @app.route("/users")
 def getUsers():
     list_users = mysql.get_all_users()

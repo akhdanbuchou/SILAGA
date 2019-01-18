@@ -74,7 +74,8 @@ def put_online_media(bulk):
 
     # preparing data yang akan dimasukkan ke hbase, menyesuaikan struktur data 
     ts =int(time.time()) 
-    result = {"Row":[{"key":data["id"],"Cell":[]}]}
+    id_news = data["id"]
+    result = {"Row":[{"key":id_news,"Cell":[]}]}
     cell = [] # nantinya akan dimasukkan ke Cell 
     for k,v in data.items():
         col = {}
@@ -95,6 +96,6 @@ def put_online_media(bulk):
     # post using culr to hbase 
     response = requests.put('http://localhost:4444/online_media/'+id_news, headers=headers, data=data)
     print(response)
-    print("success adding to hbase")
+    print("success adding to hbase : online_media")
 
 

@@ -5,15 +5,13 @@ QUERY_USER = ("SELECT * FROM user")
 
 def execute_query(query):
     print(query)
-    try:
-        conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
-        cur = conn.cursor()
-        cur.execute(query)
-        conn.commit()
-    finally:
-        cur.close()
-        conn.close()
-        return query + ' executed, connection closed'
+    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    cur = conn.cursor()
+    cur.execute(query)
+    conn.commit()
+    cur.close()
+    conn.close()
+    return query + ' executed, connection closed'
 
 def special_query(query):
     print(query)
@@ -86,39 +84,27 @@ def get_all_keywords():
                 subkategori2.append(k2)
         k1['subkategori2'] = subkategori2
         result.append(k1)
-    '''
-    for k1 in result:
-        print(">" + k1['kategori1'])
-        for k2 in k1['subkategori2']:
-            print(" >" + k2['kategori2'])
-            for k3 in k2['subkategori3']:
-                print("  >" + k3['kategori3'])
-                for key in k3['keyword']:
-                    print("   >" + key['keyword'])
-    '''
     return result
     
 def get_all_users():
     users = []
     q = QUERY_USER
-    try:
-        conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
-        cur = conn.cursor()
-        cur.execute(q)
-        result = cur.fetchall()
-        for response in result:
-            type_fixed_row = tuple([el.decode('utf-8') if type(el) is bytearray else el for el in response])
-            new_user = {
-                'id':type_fixed_row[0],
-                'nama':type_fixed_row[1],
-                'role':type_fixed_row[2],
-                'username':type_fixed_row[3],
-                'password':type_fixed_row[4]}
-            users.append(new_user)
-    finally:
-        cur.close()
-        conn.close()
-        return users
+    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    cur = conn.cursor()
+    cur.execute(q)
+    result = cur.fetchall()
+    for response in result:
+        type_fixed_row = tuple([el.decode('utf-8') if type(el) is bytearray else el for el in response])
+        new_user = {
+            'id':type_fixed_row[0],
+            'nama':type_fixed_row[1],
+            'role':type_fixed_row[2],
+            'username':type_fixed_row[3],
+            'password':type_fixed_row[4]}
+        users.append(new_user)
+    cur.close()
+    conn.close()
+    return users
     
 def get_user_by_username(uname):
     list_user = get_all_users()

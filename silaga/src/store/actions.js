@@ -32,6 +32,12 @@ export default {
         role: newUser.role
       }
       }).then(response => {
+        axios({
+          method: 'get',
+          url: defaultApi + 'users'
+          }).then(res => {
+              commit('setAllUsers', res.data)
+          })
       })
   }
 }

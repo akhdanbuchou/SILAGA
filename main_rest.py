@@ -153,8 +153,19 @@ def createBerita():
     
     # also post to solr collection : omed_classified dengan id yang sama 
     solr.add_or_update_to_omed_classified(new_berita)
-    
     return 'success'
+
+@app.route('/deleteNews',methods = ['POST'])
+def delete_news():
+   content = request.get_json()
+   id_news = content['id']
+
+   # delete from hbase online_media
+   hbase.delete_a_news(id_news)
+
+   # delete from solr omed_classified
+   solr.delete_from_omed_classified(id_news)
+   return 'success'
 
 if __name__ == '__main__':
     app.run(debug=True)

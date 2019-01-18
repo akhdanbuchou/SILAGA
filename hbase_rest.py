@@ -25,6 +25,13 @@ def sencode(s):
 def b64encode(b):
     return base64.b64encode(b)
 
+def delete_a_news(id_news):
+    '''
+    menghapus berita dari hbase online_media 
+    '''
+    response = requests.delete('http://localhost:4444/online_media/'+id_news)
+    print(response)
+
 def get_all_online_media(list_id):
     '''
     mengembalikan json data berita dari hbase online_media : id, judul, lokasi, isi, kategori, timestamp

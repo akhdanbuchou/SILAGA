@@ -1,6 +1,12 @@
 import mysql_rest as mysql
+from time import sleep
 
 def classify(data):
+    '''
+    mengembalikan id kategori hasil klasifikasi
+    param: array of string 
+    
+    '''
     # keywords dari MySQL database 
     kw_cat = mysql.get_keywords_category()
     
@@ -29,3 +35,12 @@ def classify(data):
     result = max(categories, key=lambda k: categories[k])    
 
     return result
+
+def classify_omed_periodically():
+    # iterate all row in solr : online_media and get all the id's and keywords 
+        print("classify")
+        # while in that, classify it with classify()
+
+        # save the results in solr : omed_classified 
+    
+ 

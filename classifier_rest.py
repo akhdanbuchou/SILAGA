@@ -33,11 +33,11 @@ def classify(data):
 
     # result adalah id dari kategori dengan counter tertinggi 
     result = max(categories, key=lambda k: categories[k])    
-
     return result
 
 def classify_omed_periodically():
-    # iterate all row in solr : online_media and get all the id's and keywords 
+    # iterate all row in solr : online_media and get all the id's and keywords
+    
         print("classify")
         # while in that, classify it with classify()
 

@@ -7,8 +7,22 @@ import urllib.request as urllib2
 from datetime import datetime
 import time
 import mysql_rest as mysql
+import classifier_rest as classifier 
 
 ROW_NUM = 3000
+
+def classify_and_store_to_omed_classified():
+    connection = urllib2.urlopen('http://localhost:3333/solr/online_media/select?indent=on&q=*:*&rows='+str(ROW_NUM)+'&wt=python') # coba 10.000 row
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    for doc in docs:
+        if len(doc['id'].split('_')) < 2:
+            kategori = classifier.classify(doc['keywords']) # clasify it 
+            new_dict = {
+                'id':doc['id'],
+                'kategori':kategori
+            }
+            add_or_update_to_omed_classified(new_dict) # store it in solr : omed_classified
 
 def get_all_online_media_id():
     '''
@@ -26,7 +40,14 @@ def get_all_online_media_id():
         except:
             pass   
         if len(doc['id'].split('_')) < 2:
-            list_id_berita.append((doc['id'],loc[0][0]))
+            new_dict = {
+                'id':doc['id'],
+                'lokasi':loc[0][0],
+                'url':doc['url'][0],
+                'sitename':doc['sitename'][0],
+                'author':doc['author'][0]
+                }
+            list_id_berita.append(new_dict)
             loc = []
     return list_id_berita
 
@@ -50,8 +71,14 @@ def get_all_online_media():
         if len(doc['id'].split('_')) < 2:
             new_dict = {'id': doc['id'],
                         'loc': loc,
-                        'time': doc['timestamp']}
+                        'time': doc['timestamp'],
+                        'author':doc['author'],
+                        'url':doc['url'],
+                        'sitename':doc['sitename'],
+                        }
             list_berita.append(new_dict)
+            print(new_dict)
+            print()
             loc = []
     return list_berita
 
@@ -63,7 +90,7 @@ def add_or_update_to_omed_classified(bulk):
     data = {}
     # memindakan data dari input web ke data yang akan dimasukkan ke solr : omed_classified
     for k,v in bulk.items():
-        if k in ["id","title","kategori1","kategori2","kategori3","lokasi","tanggal"]:
+        if k in ["id","kategori"]:
             data[k]=v
     print(data['id'])
     headers = {
@@ -71,12 +98,7 @@ def add_or_update_to_omed_classified(bulk):
     }
     json_data = {
         "id":data['id'],
-        "judul":data['title'],
-        "kategori1":data['kategori1'],
-        "kategori2":data['kategori2'],
-        "kategori3":data['kategori3'],
-        "lokasi":data['lokasi'],
-        "tanggal":data['tanggal']
+        "category":data['kategori']
         }
     data = json.dumps(json_data)
     response = requests.post('http://localhost:3333/solr/omed_classified/update/json/docs', headers=headers, data=data)
@@ -130,5 +152,3 @@ def get_from_omed_classified(id_berita):
     print(str(response['response']['numFound'] )+ " documents found.")
     for doc in response['response']['docs']:
         print(doc)
-
-get_keywords_from_news('b6fc135aa8ad5df17fee3b490832de01')

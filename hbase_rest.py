@@ -42,8 +42,8 @@ def get_all_online_media(list_id):
         'Accept': 'application/json',
     }
     for lst in list_id:
-        id_berita=lst[0]
-        lokasi=lst[1]
+        id_berita=lst['id']
+        lokasi=lst['lokasi']
         response = requests.get('http://localhost:4444/online_media/' + id_berita, headers=headers)
         text64 = response.text
         data = json.loads(text64)
@@ -56,6 +56,9 @@ def get_all_online_media(list_id):
         '''
         cells = data['Row'][0]['Cell']
         val['lokasi'] = lokasi
+        val['url'] = lst['url']
+        val['sitename'] = lst['sitename']
+        val['author'] = lst['author']
         val['kategori'] = 'netral'
         for v in cells:
             col = b64decode(v['column'])

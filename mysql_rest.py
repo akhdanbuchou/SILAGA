@@ -39,6 +39,50 @@ def get_keywords_category():
         keylist.append(k)
     return keylist
 
+def get_all_categories():
+    QUERY_CAT_1 = ("SELECT * FROM kategori_layer_1")
+    QUERY_CAT_2 = ("SELECT * FROM kategori_layer_2")
+    QUERY_CAT_3 = ("SELECT * FROM kategori_layer_3")
+
+    kat1tup = special_query(QUERY_CAT_1)
+    kat1list = []
+    for tup in kat1tup:
+        k1 = {'id':tup[0],
+              'kategori1':tup[1]}
+        kat1list.append(k1)
+
+    kat2tup = special_query(QUERY_CAT_2)
+    kat2list = []
+    for tup in kat2tup:
+        k2 = {'id':tup[0],
+              'kategori2':tup[1],
+              'kategori_layer_1':tup[2]}
+        kat2list.append(k2)
+    
+    kat3tup = special_query(QUERY_CAT_3)
+    kat3list = []
+    for tup in kat3tup:
+        k3 = {'id':tup[0],
+              'kategori3':tup[1],
+              'kategori_layer_2':tup[2]}
+        kat3list.append(k3)
+
+    result = []
+    
+    for k1 in kat1list:
+        subkategori2 = []
+        for k2 in kat2list:
+            if k2['kategori_layer_1']==k1['id']:
+                subkategori3 = []
+                for k3 in kat3list:
+                    if k3['kategori_layer_2']==k2['id']:      
+                        subkategori3.append(k3)
+                k2['subkategori3'] = subkategori3
+                subkategori2.append(k2)
+        k1['subkategori2'] = subkategori2
+        result.append(k1)
+    return result
+
 def get_all_keywords():
     QUERY_CAT_1 = ("SELECT * FROM kategori_layer_1")
     QUERY_CAT_2 = ("SELECT * FROM kategori_layer_2")

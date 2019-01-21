@@ -24,7 +24,8 @@ cors = CORS(app)
 # routing path
 @app.route("/allnews")
 def viewallNews():
-    list_id = solr.get_all_online_media_id()
+    # list_id = solr.get_all_online_media_id()
+    list_id = solr.get_all_omed_classified()
     all_news = hbase.get_all_online_media(list_id)
     resp = Response(json.dumps(all_news), status=200, mimetype='application/json')
     return resp
@@ -50,6 +51,15 @@ def classify():
     arr = content['array']
     category = classifier.classify(arr)
     return category
+
+@app.route("/classifySolr")
+def classifySolr():
+    '''
+    menerima array, mengembalikan string id kategori layer 3 dari array tsb 
+    '''
+    solr.classify_online_media_and_store_to_omed_classified()
+    # resp = Response('success', status=200, mimetype='application/json')
+    return "success"
 
 @app.route("/users")
 def getUsers():

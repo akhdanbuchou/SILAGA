@@ -58,8 +58,7 @@ def get_all_online_media(list_id):
         val['lokasi'] = lokasi
         val['url'] = lst['url']
         val['sitename'] = lst['sitename']
-        val['author'] = lst['author']
-        val['kategori'] = 'netral'
+        val['kategori'] = lst['kategori']
         for v in cells:
             col = b64decode(v['column'])
             cold = bdecode(col)
@@ -67,6 +66,8 @@ def get_all_online_media(list_id):
             cond = bdecode(con)
             if "timestamp" in cold:
                 val['timestamp'] = cond
+            if "author" in cold:
+                val['author'] = cond                
             if "title" in cold:
                 val['judul'] = cond
             if "content" in cold:

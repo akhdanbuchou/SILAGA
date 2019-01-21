@@ -4,7 +4,6 @@ import security as security
 QUERY_USER = ("SELECT * FROM user")
 
 def execute_query(query):
-    print(query)
     conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
     cur = conn.cursor()
     cur.execute(query)
@@ -14,7 +13,6 @@ def execute_query(query):
     return query + ' executed, connection closed'
 
 def special_query(query):
-    print(query)
     conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
     cur = conn.cursor()
     cur.execute(query)

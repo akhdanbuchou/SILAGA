@@ -132,6 +132,7 @@ def get_all_omed_classified():
         kat_name = classifier.get_category_name(kat)
         doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
         doc['kategori'] = kat_name # override 
+        doc['isi'] = doc['isi'][0]
     return docs
 
 def add_or_update_to_omed_classified(bulk): # checked 

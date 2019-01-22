@@ -23,72 +23,63 @@
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
 
-            <v-dialog max-width="500px">
-              <v-btn slot="activator" color="green darken-1 " dark class="mb-2 ml-3">Tambah Laporan</v-btn>
-              <v-card>
-                <v-card-title>
-                  <span class="headline">{{ formTitle }}</span>
-                </v-card-title>
+            <ModalCreateBerita :categories="categories"></ModalCreateBerita>
 
-                <v-card-text>
-                  <v-container grid-list-md>
-                    <v-layout wrap>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.id" label="No Berita"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.judul" label="Judul"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.kategori" label="Kategori"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.lokasi" label="Lokasi"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.timestamp" label="Waktu"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.isi" label="Konten"></v-text-field>
-                      </v-flex>
-                    </v-layout>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-                  <v-btn color="blue darken-1" flat @click="save">Save</v-btn>
-                </v-card-actions>
-              </v-card>
+            <v-dialog v-model="modalDetail" max-width="500px">
+              <ModalDetailBerita 
+              :selectedNews="selectedNews" 
+              :modalDetail="modalDetail" v-on:closeDetail="closeDetail($event)"
+              ></ModalDetailBerita>
+            </v-dialog>
+          
+            <v-dialog v-model="modalEdit" max-width="500px">
+              <ModalUpdateBerita 
+              :categories="categories"
+              :selectedNews="selectedNews" 
+              :modalEdit="modalEdit" v-on:closeEdit="closeEdit($event)"
+              ></ModalUpdateBerita>
             </v-dialog>
             
+          
           </v-card-title>
-          <v-data-table
+          <v-progress-circular v-if="news.length == 0" class="mb-3 ml-3"
+              row wrap align-center justify-center
+              :width="3"
+              color="green"
+              indeterminate
+            ></v-progress-circular>
+          <v-data-table v-else
             :headers="headers"
             :items="berita"
             :search="search"
           >
             <template slot="items" slot-scope="props">
-              <td class="text-xs-left">{{ props.item.judul }}</td>
-              <td class="text-xs-left">{{ props.item.kategori }}</td>
+              <td class="text-xs-left">{{ props.item.title }}</td>
+              <td class="text-xs-left">{{ props.item.kategori3 }}</td>
               <td class="text-xs-left">{{ props.item.lokasi }}</td>
               <td class="text-xs-left">{{ props.item.waktu }}</td>
-              <td class="text-xs-left">{{ props.item.isi }}</td>
+              <td class="text-xs-left">{{ conciseNews(props.item.isi) }}</td>
               <td class="justify-left pl-3 layout px-0">
                 <v-icon
                   small
                   class="mr-2"
-                  @click="editItem(props.item)"
+                  @click="popDetail(props.item)"
                 >
-                  mdi-pencil
+                  mdi-feature-search-outline
                 </v-icon>
                 <v-icon
                   small
-                  @click="deleteItem(props.item)"
+                  class="mr-2"
+                  @click="popEdit(props.item)"
+                >
+                  mdi-pencil
+                </v-icon>
+                <!--<v-icon
+                  small
+                  @click="popDelete(props.item)"
                 >
                   mdi-delete
-                </v-icon>
+                </v-icon>-->
               </td>
             </template>
             <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
@@ -104,9 +95,23 @@
 <script>
 import { mapGetters } from 'vuex';
 
+import ModalCreateBerita from "@/components/utilities/berita/ModalCreateBerita.vue";
+import ModalDetailBerita from "@/components/utilities/berita/ModalDetailBerita.vue";
+import ModalUpdateBerita from "@/components/utilities/berita/ModalUpdateBerita.vue";
+
 import axios from 'axios'
 export default {
+  components: {
+    ModalCreateBerita,
+    ModalDetailBerita,
+    ModalUpdateBerita
+  },
   data: () => ({
+    alertCreate: false,
+    alertUpdate: false,
+    modalDetail: false,
+    modalEdit: false,
+    selectedNews:{},
     search: '',
     headers: [
       { text: 'Judul Berita', value: 'judul' },
@@ -134,7 +139,8 @@ export default {
     }),
     computed: {
       ...mapGetters({
-          news:'getNews'
+          news:'getNews',
+          categories:'getCategories'
       }),
       formTitle () {
         return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
@@ -143,12 +149,47 @@ export default {
         var berita = []
         var tempBerita
           for(var i = 0; i < this.news.length; i++){
+            console.log(this.news[i].tanggal)
+            var tempKategori = ""
+            var tempLokasi = ""
+            var toLoopKategori = this.news[i].kategori
+            var toLoopLokasi =  this.news[i].lokasi
+
+            for(var j = 0; j < toLoopKategori.length; j++){
+              if(toLoopKategori.length - j == 1){
+                tempKategori += this.news[i].kategori[j]
+              }else{
+                tempKategori += this.news[i].kategori[j] + " - "
+              }
+            }
+
+            for(var j = 0; j < toLoopLokasi.length; j++){
+              if(toLoopLokasi.length - j == 1){
+                tempLokasi += this.news[i].lokasi[j]
+              }else{
+                tempLokasi += this.news[i].lokasi[j] + ", "
+              }
+            }
+
+            var tempDate = this.news[i].timestamp.split(' ')
+            var date = tempDate[0]
+            var tempClock = tempDate[1]
+            var clock = tempClock.substring(0,5)
+
             tempBerita = {
-              judul: this.news[i].judul,
-              kategori: this.news[i].kategori,
-              lokasi: this.news[i].lokasi,
+              title: this.news[i].title,
+              location: toLoopLokasi,
+              idKategori: '',
+              language:'id',
+              kategori3: tempKategori,
+              lokasi: tempLokasi,
               waktu: this.news[i].timestamp,
-              isi: this.news[i].isi
+              jam: clock,
+              date: date,
+              isi: this.news[i].content,
+              url: this.news[i].url,
+              sitename: this.news[i].sitename,
+              author: this.news[i].author 
             }
             berita.push(tempBerita)
           }
@@ -161,21 +202,22 @@ export default {
       }
     },
     methods: {
-      editItem (item) {
-        this.editedIndex = this.news.indexOf(item)
-        this.editedItem = Object.assign({}, item)
-        this.dialog = true
+      closeDetail(event){
+        this.modalDetail = event
       },
-      deleteItem (item) {
-        const index = this.news.indexOf(item)
-        confirm('Are you sure you want to delete this item?') && this.news.splice(index, 1)
+      closeEdit(event){
+        this.modalEdit = event
       },
-      close () {
-        this.dialog = false
-        setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        }, 300)
+      popEdit (berita) {
+        this.selectedNews = berita
+        this.modalEdit = true
+      },
+      /*popDelete () {
+        this.modalDelete = true
+      },*/
+      popDetail(berita){
+        this.selectedNews = berita
+        this.modalDetail = true
       },
       save () {
         if (this.editedIndex > -1) {
@@ -184,10 +226,15 @@ export default {
           this.news.push(this.editedItem)
         }
         this.close()
+      },
+      conciseNews(text){
+        var result = text.substring(0,120) + "..."
+        return result
       }
     },
     beforeMount() {
         this.$store.dispatch('getAllNews')
+        this.$store.dispatch('getAllCategories')
     }
 }
 </script>

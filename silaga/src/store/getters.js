@@ -9,5 +9,8 @@ export default {
   },
   getKeywords(state){
     return state.keywords
+  },
+  getCategories(state){
+    return state.categories
   }
 }

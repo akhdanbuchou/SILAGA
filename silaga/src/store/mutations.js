@@ -6,5 +6,8 @@ export default {
   },
   setAllUsers(state, data) {
       state.users = data
+  },
+  setCategories(state, data){
+      state.categories = data
   }
 }

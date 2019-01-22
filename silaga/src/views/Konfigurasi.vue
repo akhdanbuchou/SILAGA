@@ -23,7 +23,7 @@
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
 
-            <v-dialog max-width="500px">
+            <v-dialog v-model="modalCreate" max-width="500px">
               <v-btn slot="activator" color="green darken-1 " dark class="mb-2 ml-3">Tambah Pengguna</v-btn>
               <v-card>
                 <v-card-title>
@@ -93,6 +93,7 @@ import { mapGetters } from 'vuex';
 
 export default {
   data: () => ({
+    modalCreate: false,
     search: '',
     headers: [
       { text: 'No', value: 'id'},
@@ -147,20 +148,10 @@ export default {
       deleteUser (item) {
         console.log(item)
       },
-      close () {
-        this.dialog = false
-        setTimeout(() => {
-          this.editedItem = Object.assign({}, this.defaultItem)
-          this.editedIndex = -1
-        }, 300)
-      },
       createUser (newUser) {
         this.$store.dispatch('createUser', newUser)
         this.close()
-      },
-      deleteUser (user) {
-        
-      },
+      }
     },
     beforeMount(){
       this.$store.dispatch('getAllUsers')

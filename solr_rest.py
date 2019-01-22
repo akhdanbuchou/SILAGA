@@ -127,7 +127,8 @@ def get_all_omed_classified():
     response = eval(connection.read())
     docs = response['response']['docs']
     for doc in docs:
-        # olah bagian kategori 
+        # olah bagian kategori
+        # print('{} {}'.format(doc['id'], doc['kategori']))
         kat = doc['kategori'][0]
         kat_name = classifier.get_category_name(kat)
         doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
@@ -135,6 +136,7 @@ def get_all_omed_classified():
         doc['content'] = doc['content'][0]
         doc['title'] = doc['title'][0]
     return docs
+
 
 def add_or_update_to_omed_classified(bulk): # checked 
     '''

@@ -21,7 +21,7 @@ from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 cors = CORS(app)
 
-# routing path
+# routing paths
 @app.route("/allnews")
 def viewallNews():
     # list_id = solr.get_all_online_media_id()
@@ -45,7 +45,7 @@ def getNewsById():
 @app.route("/classify")
 def classify():
     '''
-    menerima array, mengembalikan string id kategori layer 3 dari array tsb 
+    menerima array, mengembalikan array string hasil karegori [kategori1, kategori2, kategori3]
     '''
     content = request.get_json()
     arr = content['array']
@@ -55,7 +55,8 @@ def classify():
 @app.route("/classifySolr")
 def classifySolr():
     '''
-    menerima array, mengembalikan string id kategori layer 3 dari array tsb 
+    mengambil semua berita dari solr : online_media, mengkategorikan ulang berita tersebut,
+    kemudian menyimpan ke solr : omed_classified
     '''
     solr.classify_online_media_and_store_to_omed_classified()
     # resp = Response('success', status=200, mimetype='application/json')
@@ -63,12 +64,18 @@ def classifySolr():
 
 @app.route("/users")
 def getUsers():
+    '''
+    mengembalikan data semua user 
+    '''
     list_users = mysql.get_all_users()
     resp = Response(json.dumps(list_users), status=200, mimetype='application/json')
     return resp
 
 @app.route("/user")
 def getUserByUsername():
+    '''
+    menerima username, mengembalikan data user dengan username tersebut 
+    '''
     username = request.args.get('username')
     list_users = mysql.get_all_users()
     found_user = {}
@@ -80,11 +87,14 @@ def getUserByUsername():
 
 @app.route('/createUser',methods = ['POST'])
 def createUser():
-   content = request.get_json()
-   # to-do
-   # encrypt password
-   # input validation
-   new_user = {
+    '''
+    menerima data user, menyimpan data tsb di DB MySQL
+    '''
+    content = request.get_json()
+    # to-do
+    # encrypt password
+    # input validation
+    new_user = {
        'nama':content['nama'],
        'role':content['role'],
        'username':content['username'],
@@ -95,11 +105,14 @@ def createUser():
 
 @app.route('/updateUser',methods = ['POST'])
 def updateUser():
-   content = request.get_json()
-   # to-do
-   # encrypt password kalo ganti password
-   # input validation
-   updated_user = {
+    '''
+    mengubah data user di DB 
+    '''
+    content = request.get_json()
+    # to-do
+    # encrypt password kalo ganti password
+    # input validation
+    updated_user = {
        'id':content['id'],
        'nama':content['nama'],
        'role':content['role'],
@@ -111,42 +124,64 @@ def updateUser():
 
 @app.route('/deleteUser',methods = ['POST'])
 def deleteUser():
-   content = request.get_json()
-   id_user = content['idUser']
-   mysql.delete_user(id_user)
-   return 'success'
+    '''
+    menghapus data user
+    '''
+    content = request.get_json()
+    id_user = content['idUser']
+    mysql.delete_user(id_user)
+    return 'success'
 
 @app.route('/createKeyword',methods = ['POST'])
 def createKeyword():
-   content = request.get_json()
-   new_kw = {
+    '''
+    membuat keyword baru 
+    param {keywords, id dari kategori3}
+    '''
+    content = request.get_json()
+    new_kw = {
        'keyword':content['keyword'],
        'kategori_layer_3':content['kategori3']
        }
-   mysql.create_kw(new_kw)
-   return 'success'
+    mysql.create_kw(new_kw)
+    return 'success'
 
 @app.route('/deleteKeyword',methods = ['POST'])
 def deleteKeyword():
-   content = request.get_json()
-   id_kw = content['idKeyword']
-   mysql.delete_kw(id_kw)
-   return 'success'
+    '''
+    param : id 
+    menghapus keyword dengan id tersebut 
+    '''
+    content = request.get_json()
+    id_kw = content['idKeyword']
+    mysql.delete_kw(id_kw)
+    return 'success'
 
 @app.route("/keywords")
 def getKeywords():
+    '''
+    mengembalikan semua keyword yang ada di DB 
+    '''
     list_keywords = mysql.get_all_keywords()
     resp = Response(json.dumps(list_keywords), status=200, mimetype='application/json')
     return resp
     
 @app.route("/categories")
 def getCategories():
+    '''
+    mengembalikan semua kategori yang ada di DB 
+    '''
     list_cat = mysql.get_all_categories()
     resp = Response(json.dumps(list_cat), status=200, mimetype='application/json')
     return resp
 
 @app.route("/validate",methods = ['POST','OPTION'])
 def validate():
+    '''
+    param : username dan password
+    mengembalikan boolean apakah password tersebut cocok dengan username di DB 
+    cek menggunakan BCrypt, sehingga programmer tidak tahu password asli dari user 
+    '''
     content = request.get_json()
     data = {
         'username':content['username'],
@@ -155,8 +190,12 @@ def validate():
     result = mysql.validate(data)
     return result
 
-@app.route('/createUpdateBerita',methods = ['POST'])
+@app.route('/createUpdateBerita',methods = ['POST']) # perlu diuji lagi 
 def createBerita():
+    '''
+    param : json berita seperti di bawah 
+    menyimpan berita tersebut di solr : omed_classified dan hbase : online_media
+    '''
     content = request.get_json()
     new_berita = {
        "author":"None", # belum ada di form
@@ -184,15 +223,18 @@ def createBerita():
 
 @app.route('/deleteNews',methods = ['POST'])
 def delete_news():
-   content = request.get_json()
-   id_news = content['id']
+    '''
+    menghapus berita dari hbase : online_media dan solr : omed_classified
+    '''
+    content = request.get_json()
+    id_news = content['id']
 
-   # delete from hbase online_media
-   hbase.delete_a_news(id_news)
+    # delete from hbase online_media
+    hbase.delete_a_news(id_news)
 
-   # delete from solr omed_classified
-   solr.delete_from_omed_classified(id_news)
-   return 'success'
+    # delete from solr omed_classified
+    solr.delete_from_omed_classified(id_news)
+    return 'success'
 
 if __name__ == '__main__':
     app.run(debug=True)

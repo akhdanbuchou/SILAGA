@@ -10,34 +10,22 @@ import mysql_rest as mysql
 import classifier_rest as classifier 
 
 ROW_NUM = 10000
-HOST = 'http://localhost:3333/solr'
+HOST = 'http://localhost:3333/'
 
 def getNumFound_online_media():
-    connection = urllib2.urlopen(HOST + '/online_media/select?indent=on&q=*:*&rows=10&wt=python')
+    connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows=10&wt=python')
     response = eval(connection.read())
     numfound = response['response']['numFound']
     return numfound
 
-def getNumFOund_omed_classified():
-    connection = urllib2.urlopen(HOST + '/omed_classified/select?indent=on&q=*:*&rows=10&wt=python')
+def getNumFound_omed_classified():
+    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=10&wt=python')
     response = eval(connection.read())
     numfound = response['response']['numFound']
     return numfound
-
-def delete_all_omed_classified():
-    num = getNumFOund_omed_classified()
-    lst = []
-    connection = urllib2.urlopen(HOST + '/omed_classified/select?indent=on&q=*:*&rows=10'+str(num)+'&wt=python')
-    response = eval(connection.read())
-    docs = response['response']['docs']
-    for doc in docs:
-        lst.append(doc['id'])
-
-    for i in lst: #hapus
-        delete_from_omed_classified(i)
 
 def classify_online_media_and_store_to_omed_classified(): #checked
-    connection = urllib2.urlopen(HOST + '/online_media/select?indent=on&q=*:*&rows='+str(ROW_NUM)+'&wt=python') 
+    connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows='+str(ROW_NUM)+'&wt=python') 
     response = eval(connection.read())
     docs = response['response']['docs']
     list_id_berita = []
@@ -74,28 +62,11 @@ def classify_online_media_and_store_to_omed_classified(): #checked
             loc = []
             add_or_update_to_omed_classified(new_dict) # store it in solr : omed_classified
 
-
-
-def get_all_omed_classified():
-    '''
-    mengembalikan semua berita dari solr : omed_classified
-    '''
-    num = getNumFOund_omed_classified()
-    connection = urllib2.urlopen(HOST + '/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
-    response = eval(connection.read())
-    docs = response['response']['docs']
-    for doc in docs:
-        # olah bagian kategori 
-        kat = doc['kategori'][0]
-        kat_name = classifier.get_category_name(kat)
-        doc['kategori'] = kat_name # override 
-    return docs
-
 def get_all_online_media_id(): # checked
     '''
     mengembalikan semua id berita dan 1 lokasi di solr collection : online_media
     '''
-    connection = urllib2.urlopen(HOST + '/online_media/select?indent=on&q=*:*&rows=' + str(ROW_NUM) + '&wt=python')
+    connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows=' + str(ROW_NUM) + '&wt=python')
     response = eval(connection.read())
     docs = response['response']['docs']
     list_id_berita = []
@@ -128,6 +99,22 @@ def get_all_online_media_id(): # checked
             loc = []
     return list_id_berita
 
+
+def get_all_omed_classified():
+    '''
+    mengembalikan semua berita dari solr : omed_classified
+    '''
+    num = getNumFound_omed_classified()
+    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    for doc in docs:
+        # olah bagian kategori 
+        kat = doc['kategori'][0]
+        kat_name = classifier.get_category_name(kat)
+        doc['kategori'] = kat_name # override 
+    return docs
+
 def add_or_update_to_omed_classified(bulk): # checked 
     '''
     fungsi insert atau update ke solr collection : omed_classified
@@ -154,7 +141,7 @@ def add_or_update_to_omed_classified(bulk): # checked
         }
     print(json_data)
     data = json.dumps(json_data)
-    response = requests.post(HOST + '/omed_classified/update/json/docs', headers=headers, data=data)
+    response = requests.post(HOST + 'solr/omed_classified/update/json/docs', headers=headers, data=data)
     print(response)
     print()
 
@@ -169,5 +156,17 @@ def delete_from_omed_classified(id_berita): # checked
         ('commit', 'true'),
     ) 
     data = '<delete><id>'+id_berita+'</id></delete>'
-    response = requests.post(HOST + '/omed_classified/update', headers=headers, params=params, data=data)
+    response = requests.post(HOST + 'solr/omed_classified/update', headers=headers, params=params, data=data)
     print(response)
+
+def delete_all_omed_classified():
+    num = getNumFound_omed_classified()
+    lst = []
+    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=10'+str(num)+'&wt=python')
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    for doc in docs:
+        lst.append(doc['id'])
+
+    for i in lst: #hapus
+        delete_from_omed_classified(i)

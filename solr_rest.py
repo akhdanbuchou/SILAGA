@@ -51,10 +51,10 @@ def classify_online_media_and_store_to_omed_classified(): #checked
                 'language':doc['language'],
                 'timestamp':doc['timestamp'],
                 'sentiment':doc['sentiment'],
-                'isi':''
+                'content':''
             }
             isi = hbase.get_isi_news(doc['id'])
-            new_dict['isi']=isi
+            new_dict['content']=isi
             list_id_berita.append(new_dict)
             loc = []
             add_or_update_to_omed_classified(new_dict) # store it in solr : omed_classified
@@ -132,7 +132,7 @@ def get_all_omed_classified():
         kat_name = classifier.get_category_name(kat)
         doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
         doc['kategori'] = kat_name # override 
-        doc['isi'] = doc['isi'][0]
+        doc['content'] = doc['content'][0]
         doc['title'] = doc['title'][0]
     return docs
 
@@ -144,7 +144,7 @@ def add_or_update_to_omed_classified(bulk): # checked
     data = {}
     # memindakan data dari input web ke data yang akan dimasukkan ke solr : omed_classified
     for k,v in bulk.items():
-        if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','sentiment','isi']:
+        if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','sentiment','content']:
             data[k]=v
     headers = {
         'Content-Type': 'application/json',
@@ -160,7 +160,7 @@ def add_or_update_to_omed_classified(bulk): # checked
         'lokasi':data['lokasi'],
         'timestamp':data['timestamp'],
         'sentiment':data['sentiment'],
-        'isi':data['isi']
+        'content':data['content']
         }
     print(json_data)
     data = json.dumps(json_data)
@@ -196,4 +196,3 @@ def delete_all_omed_classified():
 
     for i in lst: #hapus
         delete_from_omed_classified(i)
-

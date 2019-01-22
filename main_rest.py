@@ -205,8 +205,7 @@ def createBerita():
        "timestamp":content['timestamp'],
        "sitename":content['sitename'], 
        "kategori":content["kategori3"],
-       "lokasi":content["lokasi"],
-       "tanggal":content["tanggal"]
+       "lokasi":content["lokasi"]
        }
     # menentukan id dari berita untuk di solr : omed_classified dan hbase : online_media
     id_news = hashlib.md5(new_berita['url'].encode()).hexdigest() # id berita didapat dari md5 dari url berita 

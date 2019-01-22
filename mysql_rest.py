@@ -217,7 +217,16 @@ def update_user(data):
     role = data['role']
     username = data['username']
     password = data['password']
-    query = ("UPDATE user SET nama=\'{}\', role=\'{}\', username=\'{}\', password=\'{}\' WHERE id=\'{}\'".format(nama, role, username, password, id_user))
+    user_config_flag = 0
+    berita_config_flag = 0
+    see_report_flag = 1
+    # CRUD Matrix 
+    if role.lower()=="admin":
+        user_config_flag = 1
+        berita_config_flag = 1
+    elif role.lower()=="staff":
+        berita_config_flag = 1
+    query = ("UPDATE user SET nama=\'{}\', role=\'{}\', username=\'{}\', password=\'{}\', user_config_flag=\'{}\', berita_config_flag=\'{}\', see_report_flag=\'{}\' WHERE id=\'{}\'".format(nama, role, username, password, user_config_flag, berita_config_flag, see_report_flag, id_user))
     execute_query(query)
 
 def delete_user(id_user):

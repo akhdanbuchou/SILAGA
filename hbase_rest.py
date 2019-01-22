@@ -7,7 +7,6 @@ import urllib.request as urllib2
 from datetime import datetime
 import time
 import mysql_rest as mysql
-import solr_rest as solr
 import hashlib
 
 def b64decode(b): # basis 64 decoder
@@ -35,6 +34,28 @@ def delete_a_news(id_news):
     '''
     response = requests.delete('http://localhost:4444/online_media/'+id_news)
     print(response)
+
+def get_isi_news(id_news):
+    '''
+    mengembalikan isi suatu berita dengan id tersebut
+    '''
+    headers = {
+        'Accept': 'application/json',
+    }
+    response = requests.get('http://localhost:4444/online_media/' + id_news, headers=headers)
+    text64 = response.text
+    data = json.loads(text64)
+    #list of values
+    result = ""
+    cells = data['Row'][0]['Cell']
+    for v in cells:
+        col = b64decode(v['column'])
+        cold = bdecode(col)
+        con = b64decode(v['$'])
+        cond = bdecode(con)
+        if "content" in cold:
+            result = cond
+    return result
 
 def get_all_online_media(list_id):
     '''

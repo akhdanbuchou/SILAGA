@@ -1,6 +1,5 @@
 import mysql_rest as mysql
 import time
-import solr_rest as solr
 
 def classify(data):
     '''

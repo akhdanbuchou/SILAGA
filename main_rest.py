@@ -28,12 +28,9 @@ UPDATE_INTERVAL = 24 # interval update
 @app.route("/allnews")
 def viewallNews():
     # list_id = solr.get_all_online_media_id()
-    list_id = solr.get_all_omed_classified()
-    start = time.time()
-    all_news = hbase.get_all_online_media(list_id)
-    end = time.time()
-    print(end-start)
-    resp = Response(json.dumps(all_news), status=200, mimetype='application/json')
+    news = solr.get_all_omed_classified()
+    # all_news = hbase.get_all_online_media(list_id)
+    resp = Response(json.dumps(news), status=200, mimetype='application/json')
     return resp
 
 @app.route("/news")

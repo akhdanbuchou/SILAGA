@@ -8,6 +8,7 @@ from datetime import datetime
 import time
 import mysql_rest as mysql
 import classifier_rest as classifier
+import hbase_rest as hbase
 
 
 ROW_NUM = 10000
@@ -19,7 +20,6 @@ def classify_online_media_and_store_to_omed_classified(): #checked
     '''
     mengambil data dari online_media, klasifikasi, dan menyimpan ke omed_classified
     '''
-    
     connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows='+str(ROW_NUM)+'&wt=python') 
     response = eval(connection.read())
     docs = response['response']['docs']
@@ -34,25 +34,27 @@ def classify_online_media_and_store_to_omed_classified(): #checked
         if len(doc['id'].split('_')) < 2:
             if len(loc)==0:
                 loc = ['-']
-
             author = '-'
-
             try:
                 author = doc['author'][0]
             except:
                 pass
-            kategori = classifier.classify(doc['keywords']) # clasify it 
+            kategori = classifier.classify(doc['keywords'])
             new_dict = {
                 'id':doc['id'],
                 'kategori':kategori,
                 'url':doc['url'],
                 'sitename':doc['sitename'],
                 'title':doc['title'],
+                'author':author,
                 'lokasi':loc,
                 'language':doc['language'],
                 'timestamp':doc['timestamp'],
-                'sentiment':doc['sentiment']
+                'sentiment':doc['sentiment'],
+                'isi':''
             }
+            isi = hbase.get_isi_news(doc['id'])
+            new_dict['isi']=isi
             list_id_berita.append(new_dict)
             loc = []
             add_or_update_to_omed_classified(new_dict) # store it in solr : omed_classified
@@ -139,7 +141,7 @@ def add_or_update_to_omed_classified(bulk): # checked
     data = {}
     # memindakan data dari input web ke data yang akan dimasukkan ke solr : omed_classified
     for k,v in bulk.items():
-        if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','sentiment']:
+        if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','sentiment','isi']:
             data[k]=v
     headers = {
         'Content-Type': 'application/json',
@@ -153,7 +155,8 @@ def add_or_update_to_omed_classified(bulk): # checked
         'language':data['language'],
         'lokasi':data['lokasi'],
         'timestamp':data['timestamp'],
-        'sentiment':data['sentiment']
+        'sentiment':data['sentiment'],
+        'isi':data['isi']
         }
     print(json_data)
     data = json.dumps(json_data)
@@ -189,3 +192,5 @@ def delete_all_omed_classified():
 
     for i in lst: #hapus
         delete_from_omed_classified(i)
+
+

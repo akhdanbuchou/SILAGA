@@ -217,7 +217,7 @@ def createBerita():
        "url":content['url'],
        "timestamp":content['timestamp'],
        "sitename":content['sitename'], 
-       "kategori3":content["kategori3"],
+       "kategori":content["kategori3"],
        "lokasi":content["lokasi"],
        "tanggal":content["tanggal"]
        }
@@ -226,7 +226,7 @@ def createBerita():
     new_berita['id'] = id_news
     
     # post to hbase collection : online_media
-    hbase.put_online_media(new_berita)
+    # hbase.put_online_media(new_berita) 
     
     # also post to solr collection : omed_classified dengan id yang sama 
     solr.add_or_update_to_omed_classified(new_berita)

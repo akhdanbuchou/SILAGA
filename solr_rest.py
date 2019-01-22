@@ -144,7 +144,7 @@ def add_or_update_to_omed_classified(bulk): # checked
     data = {}
     # memindakan data dari input web ke data yang akan dimasukkan ke solr : omed_classified
     for k,v in bulk.items():
-        if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','sentiment','content']:
+        if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','content']:
             data[k]=v
     headers = {
         'Content-Type': 'application/json',
@@ -159,7 +159,6 @@ def add_or_update_to_omed_classified(bulk): # checked
         'language':data['language'],
         'lokasi':data['lokasi'],
         'timestamp':data['timestamp'],
-        'sentiment':data['sentiment'],
         'content':data['content']
         }
     print(json_data)

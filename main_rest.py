@@ -100,8 +100,8 @@ def createUser():
        'username':content['username'],
        'password':content['password']
        }
-   mysql.create_user(new_user)
-   return 'success'
+    mysql.create_user(new_user)
+    return 'success'
 
 @app.route('/updateUser',methods = ['POST'])
 def updateUser():
@@ -119,8 +119,8 @@ def updateUser():
        'username':content['username'],
        'password':content['password']
        }
-   mysql.update_user(updated_user)
-   return 'success'
+    mysql.update_user(updated_user)
+    return 'success'
 
 @app.route('/deleteUser',methods = ['POST'])
 def deleteUser():
@@ -173,6 +173,15 @@ def getCategories():
     '''
     list_cat = mysql.get_all_categories()
     resp = Response(json.dumps(list_cat), status=200, mimetype='application/json')
+    return resp
+
+@app.route("/categories3")
+def getCategories3():
+    '''
+    mengembalikan semua kategori 3 yang ada di DB
+    '''
+    list_cat_3 = mysql.get_all_category_3()
+    resp = Response(json.dumps(list_cat_3), status=200, mimetype='application/json')
     return resp
 
 @app.route("/validate",methods = ['POST','OPTION'])

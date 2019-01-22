@@ -37,7 +37,7 @@
                                 </v-list-tile>
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn color="brown darken-1" @click="login()">Login</v-btn>
+                                    <v-btn color="green darken-1" @click="login()">Login</v-btn>
                                 </v-card-actions>
                             </v-form>
                         </v-card-text>
@@ -77,7 +77,6 @@ export default{
                 password: this.user.password,
             }
             }).then(response => {
-                console.log(response.data)
                 if(response.data){
                     this.$session.set('currentUser', this.user)
                     this.$router.push({path: '/'})

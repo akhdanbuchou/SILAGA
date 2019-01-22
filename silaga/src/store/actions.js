@@ -10,6 +10,7 @@ export default {
       method: 'get',
       url: defaultApi + 'allnews'
       }).then(response => {
+          //console.log(response.data[0])
           commit('setAllNews', response.data)
       })
   },
@@ -39,5 +40,38 @@ export default {
               commit('setAllUsers', res.data)
           })
       })
+  },
+  getAllCategories({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'categories3',
+    }).then(response => {
+        commit('setCategories', response.data)
+    })
+  },
+  createUpdateBerita({commit}, newBerita){
+    axios({
+      method: 'post',
+      url: defaultApi + 'createUpdateBerita',
+      data:{
+        title: newBerita.title,
+        language: newBerita.language,
+        kategori3: newBerita.kategori3,
+        lokasi: newBerita.lokasi,
+        timestamp: newBerita.timestamp,
+        content: newBerita.isi,
+        url: newBerita.url,
+        sitename: newBerita.sitename,
+        author: newBerita.author
+      }
+    }).then(response => {
+      axios({
+        method: 'get',
+        url: defaultApi + 'allnews'
+        }).then(response => {
+            commit('setAllNews', response.data)
+        })
+    })
   }
+  
 }

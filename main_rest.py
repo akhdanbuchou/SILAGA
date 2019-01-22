@@ -210,14 +210,13 @@ def createBerita():
     '''
     content = request.get_json()
     new_berita = {
-       "author":"None", # belum ada di form
+       "author":content['author'], # belum ada di form
        "title":content['title'],
-       "language":"id", 
+       "language":content['language'], 
        "content":content["content"],
-       "url":content['url'], # belum ada di form 
-       "sitename":content['sitename'], # belum ada di form 
-       "kategori1":content['kategori1'],
-       "kategori2":content["kategori2"],
+       "url":content['url'],
+       "timestamp":content['timestamp'],
+       "sitename":content['sitename'], 
        "kategori3":content["kategori3"],
        "lokasi":content["lokasi"],
        "tanggal":content["tanggal"]

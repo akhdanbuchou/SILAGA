@@ -110,11 +110,13 @@ def put_online_media(bulk):
     data = {}
     # memindakan data dari input web ke data yang akan dimasukkan ke hbase : online_media
     for k,v in bulk.items():
-        if k in ["author","title","content","language","sitename","url","id"]:
+        if k in ["author","title","content","language","sitename","url","id","timestamp"]:
             data[k]=v
 
     # preparing data yang akan dimasukkan ke hbase, menyesuaikan struktur data 
-    ts =int(time.time()) 
+    #ts =int(time.time()) 
+    ts = data['timestamp']
+    
     id_news = bungkus(data["id"]) # cuma bisa simpen kalo keynya diencode 
     result = {"Row":[{"key":id_news,"Cell":[]}]}
     cell = [] # nantinya akan dimasukkan ke Cell 

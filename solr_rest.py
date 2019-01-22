@@ -148,6 +148,7 @@ def add_or_update_to_omed_classified(bulk): # checked
     }
     json_data = {
         'id':data['id'],
+        'author':data['author'],
         'kategori':data['kategori'],
         'url':data['url'],
         'sitename':data['sitename'],
@@ -192,5 +193,4 @@ def delete_all_omed_classified():
 
     for i in lst: #hapus
         delete_from_omed_classified(i)
-
 

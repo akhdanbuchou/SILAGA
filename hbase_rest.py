@@ -17,6 +17,10 @@ def bdecode(b): # byte to string decoder
     return b.decode('utf-8')
 
 def bungkus(s):
+    '''
+    param : string 
+    encode byte -> encode 64 -> decode string 
+    '''
     return bdecode(b64encode(sencode(s)))
 
 def sencode(s):

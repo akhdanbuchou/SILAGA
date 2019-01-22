@@ -62,19 +62,11 @@ def classify_omed_periodically(hours):
     '''
     menjalankan solr.classify_online_media_and_store_to_omed_classified() tiap <hours> jam 
     '''
-    seconds = INTERVAL * hours
+    SECOND = INTERVAL * hours
     # iterate all row in solr : online_media and get all the id's and keywords
 
     print("classify")
     # while in that, classify it with classify()
 
     # save the results in solr : omed_classified 
-
-def asdasda():
-    start = time.time()
-    for i in [1,2,3]:
-        time.sleep(3)
-        print('.')
-    end = time.time()
-    print(end-start)
     

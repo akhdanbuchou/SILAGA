@@ -6,6 +6,9 @@ QUERY_USER = ("SELECT * FROM user")
 # QUERY-RELATED
 
 def execute_query(query):
+    '''
+    menjalankan query bersangkutan (utk user)
+    '''
     conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
     cur = conn.cursor()
     cur.execute(query)
@@ -15,6 +18,9 @@ def execute_query(query):
     return query + ' executed, connection closed'
 
 def special_query(query):
+    '''
+    menjalankan query bersangkutan (utk kategori)
+    '''
     conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
     cur = conn.cursor()
     cur.execute(query)
@@ -31,6 +37,9 @@ def special_query(query):
 # CATEGORY-RELATED 
 
 def get_all_category_3():
+    '''
+    mengembalikan semua kategori 3 dalam bentuk {'id':<id>, 'kategori': '<kategori1> - <kategori2> - <kategori3>'}
+    '''
     QUERY_CAT_1 = ("SELECT * FROM kategori_layer_1")
     QUERY_CAT_2 = ("SELECT * FROM kategori_layer_2")
     QUERY_CAT_3 = ("SELECT * FROM kategori_layer_3")
@@ -69,7 +78,7 @@ def get_all_category_3():
                     if k1['id']==k2['kategori_layer_1']:
                         a = k1['kategori1']
                         id_kat3 = k3['id']
-                        kategori = '{} - {} - {}'.format(a, aa, aaa)
+                        kategori = '{} - {} - {}'.format(a.capitalize(), aa.capitalize(), aaa.capitalize())
                         result.append({
                             'id':id_kat3,
                             'kategori':kategori
@@ -77,6 +86,9 @@ def get_all_category_3():
     return result
 
 def get_keywords_category():
+    '''
+    mengembalikan semua keyword dan kategori yang bersangkutan dengan keyword tersebut 
+    '''
     QUERY_KEY = ("SELECT * FROM keyword")
     keytup = special_query(QUERY_KEY)
     keylist = []
@@ -88,6 +100,9 @@ def get_keywords_category():
     return keylist
 
 def get_all_categories():
+    '''
+    mengembalikan semua kategori dengan struktur utuh 
+    '''
     QUERY_CAT_1 = ("SELECT * FROM kategori_layer_1")
     QUERY_CAT_2 = ("SELECT * FROM kategori_layer_2")
     QUERY_CAT_3 = ("SELECT * FROM kategori_layer_3")
@@ -134,6 +149,9 @@ def get_all_categories():
 # USER-RELATED
     
 def get_all_users():
+    '''
+    mengembalikan data semua user 
+    '''
     users = []
     q = QUERY_USER
     conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
@@ -160,6 +178,9 @@ def get_user_by_username(uname):
             return user
 
 def validate(data):
+    '''
+    mengembalikan boolean apakah password sesuai dengan username ybs 
+    '''
     #find user
     user = get_user_by_username(data['username'])
     pw = data['password']
@@ -168,6 +189,9 @@ def validate(data):
     return result
 
 def create_user(data):
+    '''
+    membuat user baru ke DB 
+    '''
     nama = data['nama']
     role = data['role']
     username = data['username']
@@ -176,6 +200,9 @@ def create_user(data):
     execute_query(query)
     
 def update_user(data):
+    '''
+    update user di DB 
+    '''
     id_user =  data['id']
     nama = data['nama']
     role = data['role']
@@ -185,22 +212,34 @@ def update_user(data):
     execute_query(query)
 
 def delete_user(id_user):
+    '''
+    hapus user dari DB 
+    '''
     query = ("DELETE FROM user WHERE id={}".format(id_user))
     execute_query(query)
 
 # KEYWORDS-RELATED
 
 def create_kw(data):
+    '''
+    buat keyword baru 
+    '''
     keyword = data['keyword']
     kategori_layer_3 = data['kategori_layer_3']
     query = ("INSERT INTO keyword (keyword, kategori_layer_3) values(\'{}\',\'{}\')".format(keyword, kategori_layer_3))
     execute_query(query)
 
 def delete_kw(id_kw):
+    '''
+    hapus keyword 
+    '''
     query = ("DELETE FROM keyword WHERE id={}".format(id_kw))
     execute_query(query)
 
 def get_all_keywords():
+    '''
+    mendapatkan semua keyword dengan struktur utuh 
+    '''
     QUERY_CAT_1 = ("SELECT * FROM kategori_layer_1")
     QUERY_CAT_2 = ("SELECT * FROM kategori_layer_2")
     QUERY_CAT_3 = ("SELECT * FROM kategori_layer_3")

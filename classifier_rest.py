@@ -2,17 +2,15 @@ import mysql_rest as mysql
 import time
 import solr_rest as solr
 
-INTERVAL = 24 * 60
-
 def classify(data):
     '''
-    mengembalikan array kategori hasil klasifikasi [layer 1, layer 2, layer 3]
+    mengembalikan id kategori3 
     param: array of string 
     '''
     # keywords dari MySQL database 
     kw_cat = mysql.get_keywords_category()
     
-    categories = {'0':1} # jika tidak ada keyword yang sesuai, hasil adalah default [0,0,0] yakni netral 
+    categories = {'0':1} # jika tidak ada keyword yang sesuai, hasil adalah default 0 yakni netral 
 
     # kumpulin semua kategori yang ada keywordnya menjadi dictionary {'category': counter} dengan counter awal 0 
     for kc in kw_cat:
@@ -56,17 +54,4 @@ def get_category_name(cat):
                         cat2=c2['kategori2']
                         cat3=c3['kategori3']
         return [cat1,cat2,cat3]
-    
-
-def classify_omed_periodically(hours):
-    '''
-    menjalankan solr.classify_online_media_and_store_to_omed_classified() tiap <hours> jam 
-    '''
-    SECOND = INTERVAL * hours
-    # iterate all row in solr : online_media and get all the id's and keywords
-
-    print("classify")
-    # while in that, classify it with classify()
-
-    # save the results in solr : omed_classified 
     

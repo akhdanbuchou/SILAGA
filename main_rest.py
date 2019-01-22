@@ -6,6 +6,7 @@ import base64
 import urllib.request as urllib2
 from datetime import datetime
 import time
+import atexit
 import hashlib
 from flask import Flask
 from flask import jsonify
@@ -16,17 +17,22 @@ import hbase_rest as hbase
 import solr_rest as solr
 import classifier_rest as classifier 
 from flask_cors import CORS, cross_origin
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # instantiate flask app
 app = Flask(__name__)
 cors = CORS(app)
+UPDATE_INTERVAL = 24 # interval update
 
 # routing paths
 @app.route("/allnews")
 def viewallNews():
     # list_id = solr.get_all_online_media_id()
     list_id = solr.get_all_omed_classified()
+    start = time.time()
     all_news = hbase.get_all_online_media(list_id)
+    end = time.time()
+    print(end-start)
     resp = Response(json.dumps(all_news), status=200, mimetype='application/json')
     return resp
 
@@ -244,6 +250,16 @@ def delete_news():
     # delete from solr omed_classified
     solr.delete_from_omed_classified(id_news)
     return 'success'
+
+# periodical method for periodically update the solr : omed_classified
+def periodic_update():
+    solr.classify_online_media_and_store_to_omed_classified()
+
+scheduler = BackgroundScheduler()
+scheduler.add_job(func=periodic_update, trigger="interval", seconds=UPDATE_INTERVAL*60*60)
+scheduler.start()
+
+atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == '__main__':
     app.run(debug=True)

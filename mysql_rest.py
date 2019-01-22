@@ -194,9 +194,18 @@ def create_user(data):
     '''
     nama = data['nama']
     role = data['role']
+    user_config_flag = 0
+    berita_config_flag = 0
+    see_report_flag = 1
+    # CRUD Matrix 
+    if role.lower()=="admin":
+        user_config_flag = 1
+        berita_config_flag = 1
+    elif role.lower()=="staff":
+        berita_config_flag = 1
     username = data['username']
     password = security.encrypt(data['password'])
-    query = ("INSERT INTO user (nama, role, username, password) values(\'{}\',\'{}\',\'{}\',\'{}\')".format(nama, role, username, password))
+    query = ("INSERT INTO user (nama, role, username, password, user_config_flag, berita_config_flag, see_report_flag) values(\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')".format(nama, role, username, password, user_config_flag, berita_config_flag, see_report_flag))
     execute_query(query)
     
 def update_user(data):

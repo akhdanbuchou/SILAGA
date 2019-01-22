@@ -45,6 +45,7 @@ def get_all_online_media(list_id):
     headers = {
         'Accept': 'application/json',
     }
+    
     for lst in list_id:
         id_berita=lst['id']
         lokasi=lst['lokasi']

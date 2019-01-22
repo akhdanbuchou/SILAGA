@@ -9,6 +9,7 @@ import time
 import mysql_rest as mysql
 import classifier_rest as classifier
 
+
 ROW_NUM = 10000
 HOST = 'http://localhost:3333/'
 
@@ -18,6 +19,7 @@ def classify_online_media_and_store_to_omed_classified(): #checked
     '''
     mengambil data dari online_media, klasifikasi, dan menyimpan ke omed_classified
     '''
+    
     connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows='+str(ROW_NUM)+'&wt=python') 
     response = eval(connection.read())
     docs = response['response']['docs']
@@ -109,7 +111,7 @@ def getNumFound_omed_classified():
     '''
     mengembalikan jumlah dokumen di omed_classified
     '''
-    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=10&wt=python')
+    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=1&wt=python')
     response = eval(connection.read())
     numfound = response['response']['numFound']
     return numfound
@@ -174,6 +176,9 @@ def delete_from_omed_classified(id_berita): # checked
     print(response)
 
 def delete_all_omed_classified():
+    '''
+    menghapus semua data di omed_classified
+    '''
     num = getNumFound_omed_classified()
     lst = []
     connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=10'+str(num)+'&wt=python')

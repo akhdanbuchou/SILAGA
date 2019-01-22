@@ -7,24 +7,17 @@ import urllib.request as urllib2
 from datetime import datetime
 import time
 import mysql_rest as mysql
-import classifier_rest as classifier 
+import classifier_rest as classifier
 
 ROW_NUM = 10000
 HOST = 'http://localhost:3333/'
 
-def getNumFound_online_media():
-    connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows=10&wt=python')
-    response = eval(connection.read())
-    numfound = response['response']['numFound']
-    return numfound
-
-def getNumFound_omed_classified():
-    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=10&wt=python')
-    response = eval(connection.read())
-    numfound = response['response']['numFound']
-    return numfound
+# online_media & omed_classified
 
 def classify_online_media_and_store_to_omed_classified(): #checked
+    '''
+    mengambil data dari online_media, klasifikasi, dan menyimpan ke omed_classified
+    '''
     connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows='+str(ROW_NUM)+'&wt=python') 
     response = eval(connection.read())
     docs = response['response']['docs']
@@ -61,6 +54,17 @@ def classify_online_media_and_store_to_omed_classified(): #checked
             list_id_berita.append(new_dict)
             loc = []
             add_or_update_to_omed_classified(new_dict) # store it in solr : omed_classified
+
+# solr : online_media RELATED
+
+def getNumFound_online_media():
+    '''
+    mengembalikan jumlah data di online_media
+    '''
+    connection = urllib2.urlopen(HOST + 'solr/online_media/select?indent=on&q=*:*&rows=10&wt=python')
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+    return numfound
 
 def get_all_online_media_id(): # checked
     '''
@@ -99,6 +103,16 @@ def get_all_online_media_id(): # checked
             loc = []
     return list_id_berita
 
+# omed_classified RELATED
+
+def getNumFound_omed_classified():
+    '''
+    mengembalikan jumlah dokumen di omed_classified
+    '''
+    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=10&wt=python')
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+    return numfound
 
 def get_all_omed_classified():
     '''

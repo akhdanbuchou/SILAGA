@@ -59,18 +59,21 @@ def get_all_category_3():
         kat3list.append(k3)
 
     result = []
-    
-    for k1 in kat1list:
+
+    for k3 in kat3list:
+        aaa = k3['kategori3']
         for k2 in kat2list:
-            for k3 in kat3list:
-                data = {
-                    'id':k3['id'],
-                    'kategori':'{} - {} - {}'.format(
-                        k1['kategori1'].capitalize(), 
-                        k2['kategori2'].capitalize(), 
-                        k3['kategori3'].capitalize())
-                }
-                result.append(data)
+            if k2['id']==k3['kategori_layer_2']:
+                aa = k2['kategori2']
+                for k1 in kat1list:
+                    if k1['id']==k2['kategori_layer_1']:
+                        a = k1['kategori1']
+                        id_kat3 = k3['id']
+                        kategori = '{} - {} - {}'.format(a, aa, aaa)
+                        result.append({
+                            'id':id_kat3,
+                            'kategori':kategori
+                        })
     return result
 
 def get_keywords_category():

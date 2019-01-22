@@ -1,5 +1,8 @@
 import mysql_rest as mysql
-from time import sleep
+import time
+import solr_rest as solr
+
+INTERVAL = 24 * 60
 
 def classify(data):
     '''
@@ -55,12 +58,23 @@ def get_category_name(cat):
         return [cat1,cat2,cat3]
     
 
-def classify_omed_periodically():
+def classify_omed_periodically(hours):
+    '''
+    menjalankan solr.classify_online_media_and_store_to_omed_classified() tiap <hours> jam 
+    '''
+    seconds = INTERVAL * hours
     # iterate all row in solr : online_media and get all the id's and keywords
-    
-        print("classify")
-        # while in that, classify it with classify()
 
-        # save the results in solr : omed_classified 
+    print("classify")
+    # while in that, classify it with classify()
+
+    # save the results in solr : omed_classified 
+
+def asdasda():
+    start = time.time()
+    for i in [1,2,3]:
+        time.sleep(3)
+        print('.')
+    end = time.time()
+    print(end-start)
     
- 

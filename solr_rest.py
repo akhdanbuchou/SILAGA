@@ -130,6 +130,7 @@ def get_all_omed_classified():
         # olah bagian kategori 
         kat = doc['kategori'][0]
         kat_name = classifier.get_category_name(kat)
+        doc['timestamp'] = str(doc['timestamp'])
         doc['kategori'] = kat_name # override 
     return docs
 

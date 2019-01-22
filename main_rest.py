@@ -32,28 +32,15 @@ def viewallNews():
     # all_news = hbase.get_all_online_media(list_id)
     resp = Response(json.dumps(news), status=200, mimetype='application/json')
     return resp
-
+'''
 @app.route("/news")
 def getNewsById():
     id_news = request.args.get('id')
     found_news = {}
-    list_id = solr.get_all_online_media_id()
-    all_news = hbase.get_all_online_media(list_id)
-    for news in all_news:
-        if news['id'] == id_news:
-            found_news = news
+    # todo ?
     resp = Response(json.dumps(found_news), status=200, mimetype='application/json')
     return resp
-
-@app.route("/classify")
-def classify():
-    '''
-    menerima array, mengembalikan array string hasil karegori [kategori1, kategori2, kategori3]
-    '''
-    content = request.get_json()
-    arr = content['array']
-    category = classifier.classify(arr)
-    return category
+'''
 
 @app.route("/classifySolr")
 def classifySolr():

@@ -106,6 +106,20 @@ def getRoles():
     resp = Response(json.dumps(list_role), status=200, mimetype='application/json')
     return resp
 
+@app.route("/role")
+def getRoleById():
+    '''
+    mengembalikan data role dengan id berikut 
+    '''
+    id_role = eval(request.args.get('id'))
+    list_role = mysql.get_all_roles()
+    found_role = {}
+    for role in list_role:
+        if role['id']==(id_role):
+            found_role = role
+    resp = Response(json.dumps(found_role), status=200, mimetype='application/json')
+    return resp
+
 @app.route('/updateRole',methods = ['POST'])
 def updateRole():
     '''

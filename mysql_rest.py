@@ -257,7 +257,6 @@ def update_role(roles):
     mengubah data wewenang 
     '''
     for data in roles:
-        # testing
         id_role = data['id']
         user_config = eval(data['user_config'])
         berita_config = eval(data['berita_config'])

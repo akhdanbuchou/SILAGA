@@ -49,7 +49,7 @@ def getUserByUsername():
     return resp
 
 @app.route('/createUser',methods = ['POST'])
-def createUser():
+def createUser(): # validasi username sudah ada 
     '''
     menerima data user, menyimpan data tsb di DB MySQL
     '''
@@ -67,7 +67,7 @@ def createUser():
     return 'success'
 
 @app.route('/updateUser',methods = ['POST'])
-def updateUser():
+def updateUser(): # validasi username sudah ada 
     '''
     mengubah data user di DB 
     '''

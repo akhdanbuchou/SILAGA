@@ -183,6 +183,9 @@ def validate(data):
     '''
     #find user
     user = get_user_by_username(data['username'])
+    if user==None:
+        print("False")
+        return "False"
     pw = data['password']
     result = str(security.check(pw, user['password']))
     print(result)

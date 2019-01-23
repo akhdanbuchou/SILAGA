@@ -21,26 +21,9 @@ import solr_rest as solr
 # instantiate flask app
 app = Flask(__name__)
 cors = CORS(app)
-UPDATE_INTERVAL = 24 # interval update, currently run update every 24 hours
+UPDATE_INTERVAL = 24 # currently run update every 24 hours
 
-# routing paths
-@app.route("/allnews")
-def viewallNews():
-    # list_id = solr.get_all_online_media_id()
-    news = solr.get_all_omed_classified()
-    # all_news = hbase.get_all_online_media(list_id)
-    resp = Response(json.dumps(news), status=200, mimetype='application/json')
-    return resp
-
-@app.route("/classifySolr")
-def classifySolr():
-    '''
-    mengambil semua berita dari solr : online_media, mengkategorikan ulang berita tersebut,
-    kemudian menyimpan ke solr : omed_classified
-    '''
-    solr.classify_online_media_and_store_to_omed_classified()
-    # resp = Response('success', status=200, mimetype='application/json')
-    return "success"
+# USER RELATED
 
 @app.route("/users")
 def getUsers():
@@ -174,6 +157,8 @@ def getKeywords():
     resp = Response(json.dumps(list_keywords), status=200, mimetype='application/json')
     return resp
     
+# KATEGORI RELATED
+
 @app.route("/categories")
 def getCategories():
     '''
@@ -206,6 +191,16 @@ def validate():
         }
     result = mysql.validate(data)
     return result
+
+# BERITA RELATED
+
+@app.route("/allnews")
+def viewallNews():
+    # list_id = solr.get_all_online_media_id()
+    news = solr.get_all_omed_classified()
+    # all_news = hbase.get_all_online_media(list_id)
+    resp = Response(json.dumps(news), status=200, mimetype='application/json')
+    return resp
 
 @app.route('/createUpdateBerita',methods = ['POST']) # perlu diuji lagi 
 def createBerita():
@@ -251,9 +246,22 @@ def delete_news():
     solr.delete_from_omed_classified(id_news)
     return 'success'
 
-# periodical method for periodically update the solr : omed_classified
+# CLASSIFIER RELATED
+
+@app.route("/classifySolr")
+def classifySolr():
+    '''
+    mengambil semua berita dari solr : online_media, mengkategorikan ulang berita tersebut,
+    kemudian menyimpan ke solr : omed_classified
+    '''
+    solr.classify_online_media_and_store_to_omed_classified()
+    # resp = Response('success', status=200, mimetype='application/json')
+    return "success"
+
 def periodic_update():
     solr.classify_online_media_and_store_to_omed_classified()
+
+###
 
 scheduler = BackgroundScheduler()
 scheduler.add_job(func=periodic_update, trigger="interval", seconds=UPDATE_INTERVAL*60*60)

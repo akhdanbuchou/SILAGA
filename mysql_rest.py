@@ -160,12 +160,15 @@ def get_all_users():
     result = cur.fetchall()
     for response in result:
         type_fixed_row = tuple([el.decode('utf-8') if type(el) is bytearray else el for el in response])
+        wewenang = get_nama_wewenang(type_fixed_row[2])
         new_user = {
             'id':type_fixed_row[0],
             'nama':type_fixed_row[1],
             'role':type_fixed_row[2],
             'username':type_fixed_row[3],
-            'password':type_fixed_row[4]}
+            'password':type_fixed_row[4],
+            'wewenang':wewenang
+            }
         users.append(new_user)
     cur.close()
     conn.close()
@@ -221,7 +224,14 @@ def delete_user(id_user):
     query = ("DELETE FROM user WHERE id={}".format(id_user))
     execute_query(query)
 
-# WEWENANG RELATED 
+# WEWENANG RELATED
+
+def get_nama_wewenang(id_role):
+    list_role = get_all_roles()
+    for role in list_role:
+        if role['id']==id_role:
+            return role['wewenang']
+
 def get_all_roles():
     roles = []
     q = "SELECT * FROM wewenang"

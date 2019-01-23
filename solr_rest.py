@@ -198,3 +198,36 @@ def delete_all_omed_classified():
 
     for i in lst: #hapus
         delete_from_omed_classified(i)
+
+# TELEGRAM RELATED
+
+def add_or_update_to_telegram(bulk): # ON PROGRESS 
+    '''
+    fungsi insert atau update ke solr collection : telegram
+    param type : json
+    '''
+    data = {}
+    # memindakan data dari input web ke data yang akan dimasukkan ke solr : telegram
+    for k,v in bulk.items():
+        if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','content']:
+            data[k]=v
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    json_data = {
+        'id':data['id'],
+        'author':data['author'],
+        'kategori':data['kategori'],
+        'url':data['url'],
+        'sitename':data['sitename'],
+        'title':data['title'],
+        'language':data['language'],
+        'lokasi':data['lokasi'],
+        'timestamp':data['timestamp'],
+        'content':data['content']
+        }
+    print(json_data)
+    data = json.dumps(json_data)
+    response = requests.post(HOST + 'solr/omed_classified/update/json/docs', headers=headers, data=data)
+    print(response)
+    print()

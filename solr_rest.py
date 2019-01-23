@@ -1,15 +1,16 @@
-import requests
-from xmljson import badgerfish as bf
-from xml.etree.ElementTree import fromstring
-import json
 import base64
+import json
+import time
 import urllib.request as urllib2
 from datetime import datetime
-import time
-import mysql_rest as mysql
+from xml.etree.ElementTree import fromstring
+
+import requests
+from xmljson import badgerfish as bf
+
 import classifier_rest as classifier
 import hbase_rest as hbase
-
+import mysql_rest as mysql
 
 ROW_NUM = 10000
 HOST = 'http://localhost:3333/'

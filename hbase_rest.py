@@ -1,13 +1,16 @@
-import requests
-from xmljson import badgerfish as bf
-from xml.etree.ElementTree import fromstring
-import json
 import base64
+import hashlib
+import json
+import time
 import urllib.request as urllib2
 from datetime import datetime
-import time
+from xml.etree.ElementTree import fromstring
+
+import requests
+from xmljson import badgerfish as bf
+
 import mysql_rest as mysql
-import hashlib
+
 
 def b64decode(b): # basis 64 decoder
     return base64.b64decode(b)
@@ -139,5 +142,3 @@ def put_online_media(bulk):
     response = requests.put('http://localhost:4444/online_media/'+id_news, headers=headers, data=data)
     print(response)
     print("success adding to hbase : online_media")
-
-

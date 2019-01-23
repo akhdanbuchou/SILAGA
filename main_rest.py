@@ -1,23 +1,22 @@
-import requests
-from xmljson import badgerfish as bf
-from xml.etree.ElementTree import fromstring
-import json
+import atexit
 import base64
+import hashlib
+import json
+import time
 import urllib.request as urllib2
 from datetime import datetime
-import time
-import atexit
-import hashlib
-from flask import Flask
-from flask import jsonify
-from flask import Response
-from flask import request
-import mysql_rest as mysql
-import hbase_rest as hbase
-import solr_rest as solr
-import classifier_rest as classifier 
-from flask_cors import CORS, cross_origin
+from xml.etree.ElementTree import fromstring
+
+import requests
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask import Flask, Response, jsonify, request
+from flask_cors import CORS, cross_origin
+from xmljson import badgerfish as bf
+
+import classifier_rest as classifier
+import hbase_rest as hbase
+import mysql_rest as mysql
+import solr_rest as solr
 
 # instantiate flask app
 app = Flask(__name__)
@@ -245,6 +244,3 @@ atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-    
-

@@ -259,9 +259,9 @@ def update_role(roles):
     '''
     for data in roles:
         id_role = data['id']
-        user_config = data['user_config']
-        berita_config = data['berita_config']
-        access_report = data['access_report']
+        user_config = eval(data['user_config'])
+        berita_config = eval(data['berita_config'])
+        access_report = eval(data['access_report'])
         query = ("UPDATE wewenang SET user_config=\'{}\', berita_config=\'{}\', access_report=\'{}\' WHERE id=\'{}\'".format(user_config, berita_config, access_report, id_role))
         execute_query(query)
 

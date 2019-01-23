@@ -243,16 +243,18 @@ def get_all_roles():
     conn.close()
     return roles
 
-def update_role(data):
+def update_role(roles):
     '''
     mengubah data wewenang 
     '''
-    id_role = data['id']
-    user_config = data['user_config']
-    berita_config = data['berita_config']
-    access_report = data['access_report']
-    query = ("UPDATE wewenang SET user_config=\'{}\', berita_config=\'{}\', access_report=\'{}\' WHERE id=\'{}\'".format(user_config, berita_config, access_report, id_role))
-    execute_query(query)
+    for data in roles:
+        id_role = data['id']
+        user_config = data['user_config']
+        berita_config = data['berita_config']
+        access_report = data['access_report']
+        query = ("UPDATE wewenang SET user_config=\'{}\', berita_config=\'{}\', access_report=\'{}\' WHERE id=\'{}\'".format(user_config, berita_config, access_report, id_role))
+        execute_query(query)
+        
 # KEYWORDS-RELATED
 
 def create_kw(data):

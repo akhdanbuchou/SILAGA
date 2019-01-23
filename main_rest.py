@@ -126,13 +126,8 @@ def updateRole():
     mengubah data wewenang di DB 
     '''
     content = request.get_json()
-    updated_role = {
-       'id':content['id'],
-       'user_config':content['user_config'],
-       'berita_config':content['berita_config'],
-       'access_report':content['access_report'],
-       }
-    mysql.update_role(updated_role)
+    updated_roles = content['updated_roles']
+    mysql.update_role(updated_roles)
     return 'success'
 
 # KEYWORD RELATED

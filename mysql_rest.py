@@ -234,9 +234,9 @@ def get_all_roles():
         role = {
             'id':type_fixed_row[0],
             'wewenang':type_fixed_row[1],
-            'user_config':type_fixed_row[2],
-            'berita_config':type_fixed_row[3],
-            'access_report':type_fixed_row[4]
+            'user_config':str(type_fixed_row[2]),
+            'berita_config':str(type_fixed_row[3]),
+            'access_report':str(type_fixed_row[4])
         }
         roles.append(role)
     cur.close()
@@ -254,7 +254,7 @@ def update_role(roles):
         access_report = data['access_report']
         query = ("UPDATE wewenang SET user_config=\'{}\', berita_config=\'{}\', access_report=\'{}\' WHERE id=\'{}\'".format(user_config, berita_config, access_report, id_role))
         execute_query(query)
-        
+
 # KEYWORDS-RELATED
 
 def create_kw(data):

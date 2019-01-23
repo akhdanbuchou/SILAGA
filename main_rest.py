@@ -21,7 +21,7 @@ import solr_rest as solr
 # instantiate flask app
 app = Flask(__name__)
 cors = CORS(app)
-UPDATE_INTERVAL = 24 # interval update
+UPDATE_INTERVAL = 24 # interval update, currently run update every 24 hours
 
 # routing paths
 @app.route("/allnews")
@@ -31,15 +31,6 @@ def viewallNews():
     # all_news = hbase.get_all_online_media(list_id)
     resp = Response(json.dumps(news), status=200, mimetype='application/json')
     return resp
-'''
-@app.route("/news")
-def getNewsById():
-    id_news = request.args.get('id')
-    found_news = {}
-    # todo ?
-    resp = Response(json.dumps(found_news), status=200, mimetype='application/json')
-    return resp
-'''
 
 @app.route("/classifySolr")
 def classifySolr():

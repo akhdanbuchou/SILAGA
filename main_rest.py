@@ -128,6 +128,7 @@ def updateRole():
     content = request.get_json()
     updated_roles = content['updated_roles']
     print(type(updated_roles))
+    print(updated_roles)
     mysql.update_role(updated_roles)
     return 'success'
 

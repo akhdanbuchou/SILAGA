@@ -186,7 +186,9 @@ def getCategories3():
     resp = Response(json.dumps(list_cat_3), status=200, mimetype='application/json')
     return resp
 
-@app.route("/validate",methods = ['POST','OPTION'])
+# VALIDASI RELATED
+
+@app.route("/validate")
 def validate():
     '''
     param : username dan password
@@ -198,8 +200,20 @@ def validate():
         'username':content['username'],
         'password':content['password']
         }
-    result = mysql.validate(data)
-    return result
+    user = {
+        'valid':'False',
+        'data':{}
+    }
+    valid = mysql.validate(data)
+    
+    if valid=="True":
+        user = {
+            'valid':'True',
+            'data':mysql.get_user_by_username(content['username'])
+        }
+
+    resp = Response(json.dumps(user), status=200, mimetype='application/json')
+    return resp
 
 # BERITA RELATED
 

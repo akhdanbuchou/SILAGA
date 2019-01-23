@@ -79,8 +79,7 @@ def updateUser():
        'id':content['id'],
        'nama':content['nama'],
        'role':content['role'],
-       'username':content['username'],
-       'password':content['password']
+       'username':content['username']
        }
     mysql.update_user(updated_user)
     return 'success'

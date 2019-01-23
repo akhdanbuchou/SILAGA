@@ -213,8 +213,7 @@ def update_user(data):
     nama = data['nama']
     role = data['role']
     username = data['username']
-    password = data['password']
-    query = ("UPDATE user SET nama=\'{}\', role=\'{}\', username=\'{}\', password=\'{}\' WHERE id=\'{}\'".format(nama, role, username, password, id_user))
+    query = ("UPDATE user SET nama=\'{}\', role=\'{}\', username=\'{}\' WHERE id=\'{}\'".format(nama, role, username, id_user))
     execute_query(query)
 
 def delete_user(id_user):

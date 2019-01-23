@@ -112,6 +112,34 @@ def deleteUser():
     mysql.delete_user(id_user)
     return 'success'
 
+# WEWENANG RELATED 
+
+@app.route("/roles")
+def getRoles():
+    '''
+    mengembalikan data semua role 
+    '''
+    list_role = mysql.get_all_roles()
+    resp = Response(json.dumps(list_role), status=200, mimetype='application/json')
+    return resp
+
+@app.route('/updateRole',methods = ['POST'])
+def updateRole():
+    '''
+    mengubah data wewenang di DB 
+    '''
+    content = request.get_json()
+    updated_role = {
+       'id':content['id'],
+       'user_config':content['user_config'],
+       'berita_config':content['berita_config'],
+       'access_report':content['access_report'],
+       }
+    mysql.update_role(updated_role)
+    return 'success'
+
+# KEYWORD RELATED
+
 @app.route('/createKeyword',methods = ['POST'])
 def createKeyword():
     '''

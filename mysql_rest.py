@@ -197,18 +197,9 @@ def create_user(data):
     '''
     nama = data['nama']
     role = data['role']
-    user_config_flag = 0
-    berita_config_flag = 0
-    see_report_flag = 1
-    # CRUD Matrix 
-    if role.lower()=="admin":
-        user_config_flag = 1
-        berita_config_flag = 1
-    elif role.lower()=="staff":
-        berita_config_flag = 1
     username = data['username']
     password = security.encrypt(data['password'])
-    query = ("INSERT INTO user (nama, role, username, password, user_config_flag, berita_config_flag, see_report_flag) values(\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\',\'{}\')".format(nama, role, username, password, user_config_flag, berita_config_flag, see_report_flag))
+    query = ("INSERT INTO user (nama, role, username, password) values(\'{}\',\'{}\',\'{}\',\'{}\')".format(nama, role, username, password))
     execute_query(query)
     
 def update_user(data):
@@ -220,16 +211,7 @@ def update_user(data):
     role = data['role']
     username = data['username']
     password = data['password']
-    user_config_flag = 0
-    berita_config_flag = 0
-    see_report_flag = 1
-    # CRUD Matrix 
-    if role.lower()=="admin":
-        user_config_flag = 1
-        berita_config_flag = 1
-    elif role.lower()=="staff":
-        berita_config_flag = 1
-    query = ("UPDATE user SET nama=\'{}\', role=\'{}\', username=\'{}\', password=\'{}\', user_config_flag=\'{}\', berita_config_flag=\'{}\', see_report_flag=\'{}\' WHERE id=\'{}\'".format(nama, role, username, password, user_config_flag, berita_config_flag, see_report_flag, id_user))
+    query = ("UPDATE user SET nama=\'{}\', role=\'{}\', username=\'{}\', password=\'{}\' WHERE id=\'{}\'".format(nama, role, username, password, id_user))
     execute_query(query)
 
 def delete_user(id_user):
@@ -239,6 +221,38 @@ def delete_user(id_user):
     query = ("DELETE FROM user WHERE id={}".format(id_user))
     execute_query(query)
 
+# WEWENANG RELATED 
+def get_all_roles():
+    roles = []
+    q = "SELECT * FROM wewenang"
+    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    cur = conn.cursor()
+    cur.execute(q)
+    result = cur.fetchall()
+    for response in result:
+        type_fixed_row = tuple([el.decode('utf-8') if type(el) is bytearray else el for el in response])
+        role = {
+            'id':type_fixed_row[0],
+            'wewenang':type_fixed_row[1],
+            'user_config':type_fixed_row[2],
+            'berita_config':type_fixed_row[3],
+            'access_report':type_fixed_row[4]
+        }
+        roles.append(role)
+    cur.close()
+    conn.close()
+    return roles
+
+def update_role(data):
+    '''
+    mengubah data wewenang 
+    '''
+    id_role = data['id']
+    user_config = data['user_config']
+    berita_config = data['berita_config']
+    access_report = data['access_report']
+    query = ("UPDATE wewenang SET user_config=\'{}\', berita_config=\'{}\', access_report=\'{}\' WHERE id=\'{}\'".format(user_config, berita_config, access_report, id_role))
+    execute_query(query)
 # KEYWORDS-RELATED
 
 def create_kw(data):

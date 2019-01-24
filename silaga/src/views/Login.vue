@@ -15,8 +15,8 @@
                                         >
                                     </v-avatar>
                                 </v-flex>
-                                <v-flex xs12 class="mt-3 mx-3">
-                                    <v-text class="font-weight-medium">Login Sistem Laporan Gangguan (SILAGA)</v-text>
+                                <v-flex xs12 class="mt-3">
+                                    <h6 class="font-weight-medium text-md-center">Login Sistem Laporan Gangguan (SILAGA)</h6>
                                 </v-flex>
                             </v-layout>
                             <v-spacer></v-spacer>
@@ -68,7 +68,6 @@ export default{
     },
     methods:{
         login(){
-            this.$session.start()
             axios({
             method: 'post',
             url: defaultApi + 'validate',
@@ -77,10 +76,16 @@ export default{
                 password: this.user.password,
             }
             }).then(response => {
-                console.log(response.data)
+                this.$session.start()
                 if(response){
-                    this.$session.set('currentUser', response.data)
-                    //this.$router.push({path: '/'})
+                    this.$session.set('username', response.data.user.username)
+                    console.log(this.$session.get('username'))
+                    axios.get(defaultApi + 'role?id=' + response.data.user.role)
+                    .then(res => {
+                        this.$session.set('currentUser', res.data)
+                        this.$router.push({path: '/'})
+                        
+                    })
                 }else{
                     console.log('gk masuk')
                 }

@@ -15,5 +15,11 @@ export default {
   },
   setCurrentRole(state,data){
       state.currentRole = data
+  },
+  setTelegramReport(state,data){
+      state.telegram = data
+  },
+  setKeywordTable(state,data){
+      state.keywordTable = data
   }
 }

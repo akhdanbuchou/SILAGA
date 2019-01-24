@@ -53,7 +53,7 @@
           v-text="link.text"
         />
       </v-list-tile>-->
-      <v-list-tile v-if="userdata.access_report == '1'"
+      <v-list-tile
       to="/" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
           <v-icon>mdi-home</v-icon>
@@ -61,7 +61,7 @@
         <v-list-tile-title>Beranda</v-list-tile-title>
       </v-list-tile>
 
-      <v-list-tile v-if="userdata.berita_config == '1'"
+      <v-list-tile v-if="this.$session.get('currentUser').berita_config == '1'"
       to="/detail-berita" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
           <v-icon>mdi-newspaper</v-icon>
@@ -69,7 +69,7 @@
         <v-list-tile-title>Daftar Berita</v-list-tile-title>
       </v-list-tile>
 
-      <v-list-tile v-if="userdata.berita_config  == '1'"
+      <v-list-tile v-if="this.$session.get('currentUser').access_report == '1'"
       to="/laporan-lapangan" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
           <v-icon>mdi-telegram</v-icon>
@@ -77,7 +77,7 @@
         <v-list-tile-title>Berita Lapangan</v-list-tile-title>
       </v-list-tile>
 
-      <v-list-tile v-if="userdata.user_config == '1'"
+      <v-list-tile v-if="this.$session.get('currentUser').user_config == '1'"
       to="/konfigurasi" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
           <v-icon>mdi-settings</v-icon>
@@ -98,7 +98,6 @@ import {
 export default {
   data: () => ({
     logo: './img/silaga-logo.png',
-    userData: this.$session.get('currentUser'),
     links: [
       {
         to: '/',

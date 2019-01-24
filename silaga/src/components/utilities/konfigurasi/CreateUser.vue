@@ -16,6 +16,7 @@
                     <v-flex xs6 sm6 md6>
                         <v-select
                         :items="roles"
+                        v-model="newUser.role"
                         label="Pilih Role"
                         ></v-select>
                     </v-flex>
@@ -51,12 +52,23 @@ export default {
                 username:"",
                 password:""
             },
-            roles:["Bintang","Melati Menengah","Melati Pertama","Personal","Pemda DKI"]
+            roles:
+            [
+                {text:"Bintang",value:90},
+                {text:"Melati Menengah",value:91},
+                {text:"Melati Pertama",value:92},
+                {text:"Personal",value:93},
+                {text:"Pemda DKI",value:94}
+            ]     
             
         }
     },
     methods:{
         createUser (newUser) {
+            console.log(newUser.nama)
+            console.log(newUser.role)
+            console.log(newUser.password)
+            console.log(newUser.username)
             this.$store.dispatch('createUser', newUser)
             this.close()
         },

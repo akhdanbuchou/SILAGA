@@ -24,6 +24,8 @@ const store = new Vuex.Store({
   state:{
     news: [],
     users: [],
+    keywordTable:[],
+    telegram: [],
     keyword: [],
     categories: [],
     currentRole:{},

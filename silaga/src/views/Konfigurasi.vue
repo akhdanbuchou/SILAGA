@@ -16,8 +16,8 @@
             Daftar Pengguna
             <v-spacer></v-spacer>
             <v-text-field
-              v-model="search"
-              label="Search"
+              v-model="searchUser"
+              label="Cari Pengguna"
               single-line
               hide-details
             ></v-text-field>
@@ -37,9 +37,9 @@
             indeterminate
           ></v-progress-circular>
           <v-data-table v-else
-            :headers="headers"
+            :headers="userHeaders"
             :items="users"
-            :search="search"
+            :search="searchUser"
           >
             <template slot="items" slot-scope="props">
               <td>{{ props.item.id }}</td>
@@ -50,7 +50,7 @@
                 <v-icon
                   small
                   class="mr-2"
-                  @click="popUpdate(props.item)"
+                  @click="popUpdateUser(props.item)"
                 >
                   mdi-pencil
                 </v-icon>
@@ -64,21 +64,67 @@
               </td>
             </template>
             <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
-              Your search for "{{ search }}" found no results.
+              Your search for "{{ searchUser }}" found no results.
+            </v-alert>
+          </v-data-table>
+        </v-card>
+
+        <v-card class="mt-4">
+          <v-card-title class="font-weight-medium">
+            Daftar Kategori dan Kata Kunci
+            <v-spacer></v-spacer>
+            <v-text-field
+              v-model="searchKeyword"
+              label="Cari Kategori"
+              single-line
+              hide-details
+            ></v-text-field>
+            <v-icon>mdi-magnify</v-icon>
+            
+          </v-card-title>
+          <v-progress-circular v-if="keywordTable.length == 0" class="mb-3 ml-3"
+            row wrap align-center justify-center
+            :width="3"
+            color="green"
+            indeterminate
+          ></v-progress-circular>
+          <v-data-table v-else
+            :headers="keywordHeaders"
+            :items="keywordTable"
+            :search="searchKeyword"
+          >
+            <template slot="items" slot-scope="props">
+              <td>{{ props.item.id }}</td>
+              <td class="text-xs-left">{{ props.item.gol }}</td>
+              <td class="text-xs-left">{{ props.item.sgol }}</td>
+              <td class="text-xs-left">{{ props.item.ssgol }}</td>
+              <td class="text-xs-left">{{ countKey(props.item.keyword) }}</td>
+              <td class="justify-left pl-3 layout px-0">
+                <v-icon
+                  small
+                  class="mr-2"
+                  @click="popUpdateCategory(props.item)"
+                >
+                  mdi-pencil
+                </v-icon>
+              </td>
+            </template>
+            <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
+              Your search for "{{ searchKeyword }}" found no results.
             </v-alert>
           </v-data-table>
         </v-card>
       </v-flex>
     </v-layout>
+
   </v-container>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
-import axios from 'axios';
-import CreateUser from "@/components/utilities/user/CreateUser.vue";
-import UpdateUser from "@/components/utilities/user/UpdateUser.vue";
-import ManageRole from "@/components/utilities/user/ManageRole.vue";
+import CreateUser from "@/components/utilities/konfigurasi/CreateUser.vue";
+import UpdateUser from "@/components/utilities/konfigurasi/UpdateUser.vue";
+import ManageRole from "@/components/utilities/konfigurasi/ManageRole.vue";
 
 export default {
   components:{
@@ -87,29 +133,34 @@ export default {
       ManageRole
   },
   data: () => ({
-    search: '',
+    searchUser: '',
+    searchKeyword:'',
     selectedPengguna:{},
+    selectedCategories:{},
     modalEdit: false,
-    headers: [
-      { text: 'No', value: 'id'},
+    modalCategory: false,
+    userHeaders: [
+      { text: 'Id', value: 'id'},
       { text: 'Nama', value: 'nama' },
       { text: 'Role', value: 'role' },
       { text: 'Username', value: 'username' },
       { text: 'Action', value: 'action' }
     ],
+    keywordHeaders: [
+      { text: 'Id', value: 'id'},
+      { text: 'Golongan Utama', value: 'nama1' },
+      { text: 'Sub-Golongan', value: 'nama2' },
+      { text: 'Sub-Sub-Golongan', value: 'nama3' },
+      { text: 'Jumlah Keyword', value: 'keyCount' },
+      { text: 'Action', value: 'action' }
+    ],
     urutan:1,
-    editedIndex: -1,
-    defaultItem: {
-        nama: '',
-        role: '',
-        username: '',
-        password: ''
-      }
     }),
     computed: {
       ...mapGetters({
           users:'getUsers',
-          roles:'getRoles'
+          roles:'getRoles',
+          tempKeywordTable:'getKeywordTable'
       }),
       formTitle () {
         return 'Buat Pengguna Baru'
@@ -127,6 +178,25 @@ export default {
             pengguna.push(tempPengguna)
           }
         return pengguna
+      },
+      keywordTable(){
+        var result= []
+        for(var i = 0; i < this.tempKeywordTable.length; i++){
+          var spliter = this.tempKeywordTable[i].namaKategori3.split(" - ")
+          var gol = spliter[0]
+          var sgol = spliter[1]
+          var ssgol = spliter[2]
+
+          var temp = {
+            id: this.tempKeywordTable[i].idKategori3,
+            gol: gol,
+            sgol: sgol,
+            ssgol: ssgol,
+            keyword: this.tempKeywordTable[i].keyword
+          }
+          result.push(temp)
+        }
+        return result
       }
     },
     watch: {
@@ -135,7 +205,7 @@ export default {
       }
     },
     methods: {
-      popUpdate(pengguna){
+      popUpdateUser(pengguna){
         this.selectedPengguna = {
           id: pengguna.id,
           nama: pengguna.nama,
@@ -147,13 +217,24 @@ export default {
         }
         this.modalEdit = true
       },
+      popUpdateCategory(category){
+        this.selectedCategory = {
+          nama: category.namaKategori3,
+          objKeyword: category.keyword,
+        }
+        this.modalCategory = true
+      },
       closeUpdate(event){
         this.modalEdit = event
+      },
+      countKey(keywords){
+        return keywords.length
       }
     },
     beforeMount(){
       this.$store.dispatch('getAllUsers')
       this.$store.dispatch('getAllRoles')
+      this.$store.dispatch('getKeywordTable')
     }
 }
 </script>

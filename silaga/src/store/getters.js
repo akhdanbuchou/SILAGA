@@ -18,5 +18,11 @@ export default {
   },
   getCurrentRole(state){
     return state.currentRole
+  },
+  getTelegramReport(state){
+    return state.telegram
+  },
+  getKeywordTable(state){
+    return state.keywordTable
   }
 }

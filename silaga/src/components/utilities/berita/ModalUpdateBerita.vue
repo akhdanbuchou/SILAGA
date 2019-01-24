@@ -122,7 +122,7 @@ export default{
         updateBerita(beritaToUpdate){
             var clock = beritaToUpdate.jam + ":00"
             beritaToUpdate.timestamp = beritaToUpdate.date + " " + clock
-            this.$store.dispatch('createUpdateBerita', beritaToUpdate)
+            this.$store.dispatch('updateBerita', beritaToUpdate)
             this.close()
         }
     },

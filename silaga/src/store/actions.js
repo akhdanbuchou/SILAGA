@@ -68,14 +68,14 @@ export default {
         commit('setCategories', response.data)
     })
   },
-  createUpdateBerita({commit}, newBerita){
+  createBerita({commit}, newBerita){
     axios({
       method: 'post',
-      url: defaultApi + 'createUpdateBerita',
+      url: defaultApi + 'createBerita',
       data:{
         title: newBerita.title,
         language: newBerita.language,
-        kategori3: newBerita.kategori3,
+        kategori: newBerita.kategori3,
         lokasi: newBerita.lokasi,
         timestamp: newBerita.timestamp,
         content: newBerita.isi,
@@ -87,8 +87,33 @@ export default {
       axios({
         method: 'get',
         url: defaultApi + 'allnews'
-        }).then(response => {
-            commit('setAllNews', response.data)
+        }).then(res => {
+            commit('setAllNews', res.data)
+        })
+    })
+  },
+  updateBerita({commit}, newBerita){
+    axios({
+      method: 'post',
+      url: defaultApi + 'updateBerita',
+      data:{
+        id: newBerita.id,
+        title: newBerita.title,
+        language: newBerita.language,
+        kategori: newBerita.kategori3,
+        lokasi: newBerita.lokasi,
+        timestamp: newBerita.timestamp,
+        content: newBerita.isi,
+        url: newBerita.url,
+        sitename: newBerita.sitename,
+        author: newBerita.author
+      }
+    }).then(response => {
+      axios({
+        method: 'get',
+        url: defaultApi + 'allnews'
+        }).then(res => {
+            commit('setAllNews', res.data)
         })
     })
   },
@@ -115,12 +140,28 @@ export default {
         updated_roles: updated_roles
       }
     }).then(response => {
-      axios({
+      axsios({
         method: 'get',
         url: defaultApi + 'roles',
       }).then(response=>{
         commit('setRoles', response.data)
       })
+    })
+  },
+  getTelegramReport({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'allreports'
+    }).then(response => {
+      commit('setTelegramReport', response.data)
+    })
+  },
+  getKeywordTable({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'keywords'
+    }).then(response => {
+      commit('setKeywordTable', response.data)
     })
   }
   

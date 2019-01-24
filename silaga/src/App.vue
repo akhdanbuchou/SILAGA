@@ -23,7 +23,6 @@ export default{
     }
   },
   beforeCreate() {
-    console.log()
     if (!this.$session.exists()) {
       this.$router.push('/login')
     }

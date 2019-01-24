@@ -159,7 +159,7 @@ export default {
         createBerita(newBerita){
             var clock = this.jam + ":00"
             newBerita.timestamp = this.date + " " + clock
-            this.$store.dispatch('createUpdateBerita', newBerita)
+            this.$store.dispatch('createBerita', newBerita)
             this.close()
       }
     }

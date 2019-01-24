@@ -176,6 +176,7 @@ export default {
             var clock = tempClock.substring(0,5)
 
             tempBerita = {
+              id: this.news[i].id,
               title: this.news[i].title,
               location: toLoopLokasi,
               idKategori: '',
@@ -208,7 +209,22 @@ export default {
         this.modalEdit = event
       },
       popEdit (berita) {
-        this.selectedNews = berita
+        this.selectedNews = {
+          id: berita.id,
+          title: berita.title,
+          location: berita.location,
+          idKategori: '',
+          language:'id',
+          kategori3: berita.kategori3,
+          lokasi: berita.lokasi,
+          waktu: berita.waktu,
+          jam: berita.jam,
+          date: berita.date,
+          isi: berita.isi,
+          url: berita.url,
+          sitename: berita.sitename,
+          author: berita.author 
+        }
         this.modalEdit = true
       },
       /*popDelete () {

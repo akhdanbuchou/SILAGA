@@ -17,9 +17,9 @@
         align-center
         layout
       >
-        <v-text class="tertiary--text font-weight-regular">
-          Selamat Datang, {{user}}
-        </v-text>
+        <h5 class="tertiary--text font-weight-regular">
+          Selamat Datang, {{this.$session.get('username')}}
+        </h5>
         <v-btn color="grey darken-3" class="ml-4" @click="logout()">
           Logout
         </v-btn>

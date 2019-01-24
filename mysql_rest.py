@@ -229,7 +229,7 @@ def get_nama_wewenang(id_role):
     list_role = get_all_roles()
     for role in list_role:
         if role['id']==id_role:
-            return role['wewenang']
+            return role['wewenang'].capitalize()
 
 def get_all_roles():
     roles = []

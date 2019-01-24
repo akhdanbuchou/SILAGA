@@ -39,7 +39,7 @@ def get_category_name(cat):
     param:int id category 
     '''
     if cat==0:
-        return ['netral','netral','netral']
+        return ['Netral','Netral','Netral']
     else:
         cats = mysql.get_all_categories()
         cat1=''
@@ -49,8 +49,8 @@ def get_category_name(cat):
             for c2 in c1['subkategori2']:
                 for c3 in c2['subkategori3']:
                     if c3['id']==cat:
-                        cat1=c1['kategori1']
-                        cat2=c2['kategori2']
-                        cat3=c3['kategori3']
+                        cat1=c1['kategori1'].capitalize()
+                        cat2=c2['kategori2'].capitalize()
+                        cat3=c3['kategori3'].capitalize()
         return [cat1,cat2,cat3]
     

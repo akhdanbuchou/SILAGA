@@ -197,13 +197,21 @@ def validate():
     cek menggunakan BCrypt, sehingga programmer tidak tahu password asli dari user 
     '''
     content = request.get_json()
+    user = {}
     data = {
         'username':content['username'],
         'password':content['password']
         }
     valid = mysql.validate(data)
-    resp = Response(json.dumps(valid), status=200, mimetype='application/json')
-    return valid
+    if valid!=None: # user exists and password is correct 
+        user = mysql.get_user_by_username(content['username'])
+
+    result = {
+        "valid":valid,
+        "user":user
+    }
+    resp_json = jsonify(result)
+    return resp_json
 
 # BERITA RELATED
 

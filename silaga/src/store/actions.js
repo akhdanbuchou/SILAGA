@@ -163,6 +163,29 @@ export default {
     }).then(response => {
       commit('setKeywordTable', response.data)
     })
+  },
+  createKeyword({commit}, objKeyword){
+    axios({
+      method: 'post',
+      url: defaultApi + 'createKeyword',
+      data:{
+        keyword: objKeyword.keyword,
+        kategori3: objKeyword.kategori3
+      }
+    }).then(response => {
+      
+    })
+  },
+  deleteKeyword({commit}, idKey){
+    axios({
+      method: 'post',
+      url: defaultApi + 'deleteKeyword',
+      data:{
+        idKeyword: idKey
+      }
+    }).then(response => {
+      
+    })
   }
   
 }

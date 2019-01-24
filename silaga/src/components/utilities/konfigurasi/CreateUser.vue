@@ -57,7 +57,7 @@ export default {
                 {text:"Bintang",value:90},
                 {text:"Melati Menengah",value:91},
                 {text:"Melati Pertama",value:92},
-                {text:"Personal",value:93},
+                {text:"Personil",value:93},
                 {text:"Pemda DKI",value:94}
             ]     
             
@@ -65,10 +65,6 @@ export default {
     },
     methods:{
         createUser (newUser) {
-            console.log(newUser.nama)
-            console.log(newUser.role)
-            console.log(newUser.password)
-            console.log(newUser.username)
             this.$store.dispatch('createUser', newUser)
             this.close()
         },

@@ -28,6 +28,9 @@
             <UpdateUser :selectedPengguna="selectedPengguna" v-on:closeUpdate="closeUpdate($event)"></UpdateUser>
           </v-dialog>
           <ManageRole :roles="roles"></ManageRole>
+          <v-dialog v-model="modalCategory" max-width="500px">
+            <CategoryDetail :selectedCategory="selectedCategory" v-on:closeCategory="closeCategory($event)"></CategoryDetail>
+          </v-dialog>
             
           </v-card-title>
           <v-progress-circular v-if="users.length == 0" class="mb-3 ml-3"
@@ -42,26 +45,29 @@
             :search="searchUser"
           >
             <template slot="items" slot-scope="props">
-              <td>{{ props.item.id }}</td>
-              <td class="text-xs-left">{{ props.item.nama }}</td>
-              <td class="text-xs-left">{{ props.item.wewenang }}</td>
-              <td class="text-xs-left">{{ props.item.username }}</td>
-              <td class="justify-left pl-3 layout px-0">
-                <v-icon
-                  small
-                  class="mr-2"
-                  @click="popUpdateUser(props.item)"
-                >
-                  mdi-pencil
-                </v-icon>
-                <v-icon
-                  small
-                  class="mr-2"
-                  @click="popDelete(props.item)"
-                >
-                  mdi-delete
-                </v-icon>
-              </td>
+                <td>{{props.index + 1}}</td>
+                <td class="text-xs-left">{{ props.item.nama }}</td>
+                <td class="text-xs-left">{{ props.item.wewenang }}</td>
+                <td class="text-xs-left">{{ props.item.username }}</td>
+                <td class="justify-left pl-3 layout px-0">
+                  <v-icon
+                    small
+                    class="mr-2"
+                    @click="popUpdateUser(props.item)"
+                    color="green"
+                  >
+                    mdi-pencil
+                  </v-icon>
+                  <v-icon
+                    small
+                    class="mr-2"
+                    @click="popDelete(props.item)"
+                    color="red"
+                  >
+                    mdi-delete
+                  </v-icon>
+            </td>
+              
             </template>
             <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
               Your search for "{{ searchUser }}" found no results.
@@ -94,7 +100,7 @@
             :search="searchKeyword"
           >
             <template slot="items" slot-scope="props">
-              <td>{{ props.item.id }}</td>
+              <td>{{ props.item.idKategori }}</td>
               <td class="text-xs-left">{{ props.item.gol }}</td>
               <td class="text-xs-left">{{ props.item.sgol }}</td>
               <td class="text-xs-left">{{ props.item.ssgol }}</td>
@@ -104,6 +110,7 @@
                   small
                   class="mr-2"
                   @click="popUpdateCategory(props.item)"
+                  color="green"
                 >
                   mdi-pencil
                 </v-icon>
@@ -122,32 +129,34 @@
 
 <script>
 import { mapGetters } from 'vuex';
-import CreateUser from "@/components/utilities/konfigurasi/CreateUser.vue";
-import UpdateUser from "@/components/utilities/konfigurasi/UpdateUser.vue";
-import ManageRole from "@/components/utilities/konfigurasi/ManageRole.vue";
+import CreateUser from "@/components/utilities/konfigurasi/CreateUser.vue"
+import UpdateUser from "@/components/utilities/konfigurasi/UpdateUser.vue"
+import ManageRole from "@/components/utilities/konfigurasi/ManageRole.vue"
+import CategoryDetail from "@/components/utilities/konfigurasi/CategoryDetail.vue"
 
 export default {
   components:{
       CreateUser,
       UpdateUser,
-      ManageRole
+      ManageRole,
+      CategoryDetail
   },
   data: () => ({
     searchUser: '',
     searchKeyword:'',
     selectedPengguna:{},
-    selectedCategories:{},
+    selectedCategory:{},
     modalEdit: false,
     modalCategory: false,
     userHeaders: [
-      { text: 'Id', value: 'id'},
+      { text: 'No', value: 'no'},
       { text: 'Nama', value: 'nama' },
       { text: 'Role', value: 'role' },
       { text: 'Username', value: 'username' },
       { text: 'Action', value: 'action' }
     ],
     keywordHeaders: [
-      { text: 'Id', value: 'id'},
+      { text: 'No', value: 'no'},
       { text: 'Golongan Utama', value: 'nama1' },
       { text: 'Sub-Golongan', value: 'nama2' },
       { text: 'Sub-Sub-Golongan', value: 'nama3' },
@@ -186,9 +195,8 @@ export default {
           var gol = spliter[0]
           var sgol = spliter[1]
           var ssgol = spliter[2]
-
           var temp = {
-            id: this.tempKeywordTable[i].idKategori3,
+            idKategori: this.tempKeywordTable[i].idKategori3,
             gol: gol,
             sgol: sgol,
             ssgol: ssgol,
@@ -219,13 +227,17 @@ export default {
       },
       popUpdateCategory(category){
         this.selectedCategory = {
-          nama: category.namaKategori3,
+          idKategori: category.idKategori,
+          nama: category.gol + " - " + category.sgol + " - " + category.ssgol,
           objKeyword: category.keyword,
         }
         this.modalCategory = true
       },
       closeUpdate(event){
         this.modalEdit = event
+      },
+      closeCategory(event){
+        this.modalCategory = event
       },
       countKey(keywords){
         return keywords.length

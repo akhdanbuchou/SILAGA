@@ -54,6 +54,7 @@
             :search="search"
           >
             <template slot="items" slot-scope="props">
+              <td class="text-xs-left">{{ props.index + 1 }}</td>
               <td class="text-xs-left">{{ props.item.title }}</td>
               <td class="text-xs-left">{{ props.item.kategori3 }}</td>
               <td class="text-xs-left">{{ props.item.lokasi }}</td>
@@ -64,6 +65,7 @@
                   small
                   class="mr-2"
                   @click="popDetail(props.item)"
+                  color="blue"
                 >
                   mdi-feature-search-outline
                 </v-icon>
@@ -71,6 +73,7 @@
                   small
                   class="mr-2"
                   @click="popEdit(props.item)"
+                  color="green"
                 >
                   mdi-pencil
                 </v-icon>
@@ -114,6 +117,7 @@ export default {
     selectedNews:{},
     search: '',
     headers: [
+      { text: 'No', value: 'no' },
       { text: 'Judul Berita', value: 'judul' },
       { text: 'Kategori', value: 'kategori' },
       { text: 'Lokasi', value: 'lokasi' },

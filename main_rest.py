@@ -189,10 +189,10 @@ def getCategories3():
 
 # VALIDASI RELATED
 
-@app.route("/validate")
+@app.route("/validate", methods = ['POST'])
 def validate():
     '''
-    param : username dan password
+    param : json {username dan password}
     mengembalikan boolean apakah password tersebut cocok dengan username di DB 
     cek menggunakan BCrypt, sehingga programmer tidak tahu password asli dari user 
     '''
@@ -201,20 +201,9 @@ def validate():
         'username':content['username'],
         'password':content['password']
         }
-    user = {
-        'valid':'False',
-        'data':{}
-    }
     valid = mysql.validate(data)
-    
-    if valid=="True":
-        user = {
-            'valid':'True',
-            'data':mysql.get_user_by_username(content['username'])
-        }
-
-    resp = Response(json.dumps(user), status=200, mimetype='application/json')
-    return resp
+    resp = Response(json.dumps(valid), status=200, mimetype='application/json')
+    return valid
 
 # BERITA RELATED
 

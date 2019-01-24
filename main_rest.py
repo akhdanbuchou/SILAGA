@@ -20,7 +20,7 @@ import solr_rest as solr
 
 # instantiate flask app
 app = Flask(__name__)
-cors = CORS(app)
+CORS(app)
 UPDATE_INTERVAL = 24 # currently run update every 24 hours
 
 # USER RELATED
@@ -190,6 +190,7 @@ def getCategories3():
 # VALIDASI RELATED
 
 @app.route("/validate", methods = ['POST','OPTIONS'])
+@cross_origin()
 def validate():
     '''
     param : json {username dan password}
@@ -212,7 +213,7 @@ def validate():
         "user":user
     }
     resp_json = jsonify(result)
-    return valid
+    return resp_json
 
 # BERITA RELATED
 

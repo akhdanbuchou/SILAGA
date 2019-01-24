@@ -325,6 +325,27 @@ def get_all_keywords():
     result = []
     
     for k1 in kat1list:
+        for k2 in kat2list:
+            if k2['kategori_layer_1']==k1['id']:
+                for k3 in kat3list:
+                    if k3['kategori_layer_2']==k2['id']:
+                        listKeyword = []
+                        for key in keylist:
+                            if key['kategori_layer_3']==k3['id']:
+                                k = {
+                                    'idKeyword':key['id'],
+                                    'namaKeyword':key['keyword']
+                                }
+                                listKeyword.append(k)
+                        new_dict ={
+                            'idKategori3':k3['id'],
+                            'namaKategori3':'{} - {} - {}'.format(k1['kategori1'].capitalize(), k2['kategori2'].capitalize(), k3['kategori3'].capitalize()),
+                            'keyword':listKeyword
+                        }
+                        result.append(new_dict)
+        
+    '''
+    for k1 in kat1list:
         subkategori2 = []
         for k2 in kat2list:
             if k2['kategori_layer_1']==k1['id']:
@@ -341,5 +362,6 @@ def get_all_keywords():
                 subkategori2.append(k2)
         k1['subkategori2'] = subkategori2
         result.append(k1)
+    '''
     return result
 

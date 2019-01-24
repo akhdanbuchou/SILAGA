@@ -77,9 +77,10 @@ export default{
                 password: this.user.password,
             }
             }).then(response => {
-                if(response.data){
-                    this.$session.set('currentUser', this.user)
-                    this.$router.push({path: '/'})
+                console.log(response.data)
+                if(response){
+                    this.$session.set('currentUser', response.data)
+                    //this.$router.push({path: '/'})
                 }else{
                     console.log('gk masuk')
                 }

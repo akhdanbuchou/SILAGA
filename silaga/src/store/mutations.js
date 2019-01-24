@@ -9,5 +9,11 @@ export default {
   },
   setCategories(state, data){
       state.categories = data
+  },
+  setRoles(state,data){
+      state.roles = data
+  },
+  setCurrentRole(state,data){
+      state.currentRole = data
   }
 }

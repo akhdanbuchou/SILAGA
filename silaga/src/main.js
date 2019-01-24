@@ -12,6 +12,8 @@ import './plugins'
 import { sync } from 'vuex-router-sync'
 import VueApexCharts from 'vue-apexcharts'
 import VueSession from 'vue-session'
+import VueResource from 'vue-resource'
+Vue.use(VueResource);
 Vue.use(VueSession)
 Vue.use(VueApexCharts)
 

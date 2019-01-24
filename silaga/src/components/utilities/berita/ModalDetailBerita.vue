@@ -8,10 +8,10 @@
                 <v-container grid-list-md>
                 <v-layout wrap>
                     <v-flex xs12 sm12 md12>
-                        <v-text-field v-model="selectedNews.judul" label="Judul" readonly></v-text-field>
+                        <v-text-field v-model="selectedNews.title" label="Judul" readonly></v-text-field>
                     </v-flex>
                     <v-flex xs6 sm6 md6>
-                        <v-text-field v-model="selectedNews.kategori" label="Kategori" readonly></v-text-field>
+                        <v-text-field v-model="selectedNews.kategori3" label="Kategori" readonly></v-text-field>
                     </v-flex>
                     <v-flex xs6 sm6 md6>
                         <v-text-field v-model="selectedNews.lokasi" label="Lokasi" readonly></v-text-field>

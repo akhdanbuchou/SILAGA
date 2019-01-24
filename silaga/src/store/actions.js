@@ -41,6 +41,25 @@ export default {
           })
       })
   },
+  updateUser({commit}, newUser){
+    axios({
+      method: 'post',
+      url: defaultApi + 'updateUser',
+      data:{
+        id: newUser.id,
+        username: newUser.username,
+        nama: newUser.nama,
+        role: newUser.peran
+      }
+      }).then(response => {
+        axios({
+          method: 'get',
+          url: defaultApi + 'users'
+          }).then(res => {
+              commit('setAllUsers', res.data)
+          })
+      })
+  },
   getAllCategories({commit}){
     axios({
       method: 'get',
@@ -71,6 +90,37 @@ export default {
         }).then(response => {
             commit('setAllNews', response.data)
         })
+    })
+  },
+  getAllRoles({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'roles',
+    }).then(response=>{
+      commit('setRoles', response.data)
+    })
+  },
+  getCurrentRole({commit}, roleId){
+    axios.get(defaultApi + 'role?id=' + roleId)
+      .then(response => {
+        console.log(response.data)
+        commit('setCurrentRole', response.data)
+      })
+  },
+  updateRoles({commit}, updated_roles){
+    axios({
+      method: 'post',
+      url: defaultApi + 'updateRole',
+      data:{
+        updated_roles: updated_roles
+      }
+    }).then(response => {
+      axios({
+        method: 'get',
+        url: defaultApi + 'roles',
+      }).then(response=>{
+        commit('setRoles', response.data)
+      })
     })
   }
   

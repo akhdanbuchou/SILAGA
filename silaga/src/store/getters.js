@@ -12,5 +12,11 @@ export default {
   },
   getCategories(state){
     return state.categories
+  },
+  getRoles(state){
+    return state.roles
+  },
+  getCurrentRole(state){
+    return state.currentRole
   }
 }

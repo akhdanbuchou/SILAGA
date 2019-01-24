@@ -25,7 +25,9 @@ const store = new Vuex.Store({
     news: [],
     users: [],
     keyword: [],
-    categories: []
+    categories: [],
+    currentRole:{},
+    roles:[]
   },
   actions,
   getters,

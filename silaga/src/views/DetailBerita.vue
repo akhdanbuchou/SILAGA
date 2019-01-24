@@ -149,7 +149,6 @@ export default {
         var berita = []
         var tempBerita
           for(var i = 0; i < this.news.length; i++){
-            console.log(this.news[i].tanggal)
             var tempKategori = ""
             var tempLokasi = ""
             var toLoopKategori = this.news[i].kategori

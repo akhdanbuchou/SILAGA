@@ -23,56 +23,41 @@
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
 
-            <v-dialog v-model="modalCreate" max-width="500px">
-              <v-btn slot="activator" color="green darken-1 " dark class="mb-2 ml-3">Tambah Pengguna</v-btn>
-              <v-card>
-                <v-card-title>
-                  <span class="headline">{{ formTitle }}</span>
-                </v-card-title>
-
-                <v-card-text>
-                  <v-container grid-list-md>
-                    <v-layout wrap>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.nama" label="Nama"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.role" label="Role"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field v-model="editedItem.username" label="Username"></v-text-field>
-                      </v-flex>
-                      <v-flex xs12 sm6 md4>
-                        <v-text-field type="password" v-model="editedItem.password" label="Password"></v-text-field>
-                      </v-flex>
-                    </v-layout>
-                  </v-container>
-                </v-card-text>
-
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="blue darken-1" flat @click="close">Cancel</v-btn>
-                  <v-btn color="blue darken-1" flat @click="createUser(editedItem)">Save</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
+          <CreateUser></CreateUser>
+          <v-dialog v-model="modalEdit" max-width="500px">
+            <UpdateUser :selectedPengguna="selectedPengguna" v-on:closeUpdate="closeUpdate($event)"></UpdateUser>
+          </v-dialog>
+          <ManageRole :roles="roles"></ManageRole>
             
           </v-card-title>
-          <v-data-table
+          <v-progress-circular v-if="users.length == 0" class="mb-3 ml-3"
+            row wrap align-center justify-center
+            :width="3"
+            color="green"
+            indeterminate
+          ></v-progress-circular>
+          <v-data-table v-else
             :headers="headers"
-            :items="pengguna"
+            :items="users"
             :search="search"
           >
             <template slot="items" slot-scope="props">
               <td>{{ props.item.id }}</td>
               <td class="text-xs-left">{{ props.item.nama }}</td>
-              <td class="text-xs-left">{{ props.item.role }}</td>
+              <td class="text-xs-left">{{ props.item.wewenang }}</td>
               <td class="text-xs-left">{{ props.item.username }}</td>
               <td class="justify-left pl-3 layout px-0">
                 <v-icon
                   small
                   class="mr-2"
-                  @click="deleteUser(props.item)"
+                  @click="popUpdate(props.item)"
+                >
+                  mdi-pencil
+                </v-icon>
+                <v-icon
+                  small
+                  class="mr-2"
+                  @click="popDelete(props.item)"
                 >
                   mdi-delete
                 </v-icon>
@@ -90,11 +75,21 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import axios from 'axios';
+import CreateUser from "@/components/utilities/user/CreateUser.vue";
+import UpdateUser from "@/components/utilities/user/UpdateUser.vue";
+import ManageRole from "@/components/utilities/user/ManageRole.vue";
 
 export default {
+  components:{
+      CreateUser,
+      UpdateUser,
+      ManageRole
+  },
   data: () => ({
-    modalCreate: false,
     search: '',
+    selectedPengguna:{},
+    modalEdit: false,
     headers: [
       { text: 'No', value: 'id'},
       { text: 'Nama', value: 'nama' },
@@ -104,12 +99,6 @@ export default {
     ],
     urutan:1,
     editedIndex: -1,
-    editedItem: {
-        nama: '',
-        role: '',
-        username: '',
-        password: ''
-    },
     defaultItem: {
         nama: '',
         role: '',
@@ -119,7 +108,8 @@ export default {
     }),
     computed: {
       ...mapGetters({
-          users:'getUsers'
+          users:'getUsers',
+          roles:'getRoles'
       }),
       formTitle () {
         return 'Buat Pengguna Baru'
@@ -145,16 +135,25 @@ export default {
       }
     },
     methods: {
-      deleteUser (item) {
-        console.log(item)
+      popUpdate(pengguna){
+        this.selectedPengguna = {
+          id: pengguna.id,
+          nama: pengguna.nama,
+          username: pengguna.username,
+          peran:{
+            value: pengguna.role,
+            text: pengguna.wewenang
+          }
+        }
+        this.modalEdit = true
       },
-      createUser (newUser) {
-        this.$store.dispatch('createUser', newUser)
-        this.close()
+      closeUpdate(event){
+        this.modalEdit = event
       }
     },
     beforeMount(){
       this.$store.dispatch('getAllUsers')
+      this.$store.dispatch('getAllRoles')
     }
 }
 </script>

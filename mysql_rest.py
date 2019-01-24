@@ -9,7 +9,7 @@ def execute_query(query):
     '''
     menjalankan query bersangkutan (utk user)
     '''
-    conn = mysql.connector.connect(host='192.168.64.2', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
     cur = conn.cursor()
     cur.execute(query)
     conn.commit()
@@ -21,7 +21,7 @@ def special_query(query):
     '''
     menjalankan query bersangkutan (utk kategori)
     '''
-    conn = mysql.connector.connect(host='192.168.64.2', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
     cur = conn.cursor()
     cur.execute(query)
     result = cur.fetchall()
@@ -154,7 +154,7 @@ def get_all_users():
     '''
     users = []
     q = QUERY_USER
-    conn = mysql.connector.connect(host='192.168.64.2', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
     cur = conn.cursor()
     cur.execute(q)
     result = cur.fetchall()

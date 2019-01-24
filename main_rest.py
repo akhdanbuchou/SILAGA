@@ -211,7 +211,7 @@ def validate():
         "user":user
     }
     resp_json = jsonify(result)
-    return resp_json
+    return valid
 
 # BERITA RELATED
 

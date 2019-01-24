@@ -223,7 +223,7 @@ def viewallNews():
     resp = Response(json.dumps(news), status=200, mimetype='application/json')
     return resp
 
-@app.route('/createUpdateBerita',methods = ['POST']) # perlu diuji lagi 
+@app.route('/createBerita',methods = ['POST']) # perlu diuji lagi 
 def createBerita():
     '''
     param : json berita seperti di bawah 
@@ -238,12 +238,39 @@ def createBerita():
        "url":content['url'],
        "timestamp":content['timestamp'],
        "sitename":content['sitename'], 
-       "kategori":content["kategori3"],
+       "kategori":content["kategori"],
        "lokasi":content["lokasi"]
        }
     # menentukan id dari berita untuk di solr : omed_classified dan hbase : online_media
     id_news = hashlib.md5(new_berita['url'].encode()).hexdigest() # id berita didapat dari md5 dari url berita 
     new_berita['id'] = id_news
+    
+    # post to hbase collection : online_media
+    # hbase.put_online_media(new_berita) 
+    
+    # also post to solr collection : omed_classified dengan id yang sama 
+    solr.add_or_update_to_omed_classified(new_berita)
+    return 'success'
+
+@app.route('/updateBerita',methods = ['POST']) 
+def updateBerita():
+    '''
+    param : json berita seperti di bawah 
+    menyimpan berita tersebut di solr : omed_classified dan hbase : online_media
+    '''
+    content = request.get_json()
+    new_berita = {
+        "id":content['id'],
+        "author":content['author'], # belum ada di form
+        "title":content['title'],
+        "language":content['language'], 
+        "content":content["content"],
+        "url":content['url'],
+        "timestamp":content['timestamp'],
+        "sitename":content['sitename'], 
+        "kategori":content["kategori"],
+        "lokasi":content["lokasi"]
+       }
     
     # post to hbase collection : online_media
     # hbase.put_online_media(new_berita) 

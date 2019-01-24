@@ -200,10 +200,16 @@ def delete_all_omed_classified():
 
 # TELEGRAM RELATED
 
-def add_or_update_to_telegram(bulk): # ON PROGRESS 
+def add_or_update_to_telegram(data): # ON PROGRESS 
     '''
     fungsi insert atau update ke solr collection : telegram
     param type : json
     '''
+    headers = {
+        'Content-Type': 'application/json',
+    }
+    print(data)
+    data = json.dumps(data)
+    response = requests.post(HOST + 'solr/telegram/update/json/docs', headers=headers, data=data)
+    print(response)
     
-    print()

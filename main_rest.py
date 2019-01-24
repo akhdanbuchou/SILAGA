@@ -56,7 +56,6 @@ def createUser(): # validasi username sudah ada
     list_users = mysql.get_all_users()
     exists = False 
     content = request.get_json()
-
     for user in list_users: # validation : user already exists 
         if user['username']==content['username']:
             exists = True

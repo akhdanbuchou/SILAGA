@@ -5,6 +5,8 @@ import base64
 import collections
 import uuid
 import classifier_rest
+import solr_rest
+from datetime import datetime
 
 #utama
 #TOKEN = "624146106:AAFCHBOekjG9473XXJJIa2-6ZSjAHezA3L0"
@@ -12,7 +14,6 @@ import classifier_rest
 TOKEN  = "687694896:AAHhLbTWalNh-mpuNWWuTqlt0gBUelFB5Fs"
 URL = "https://api.telegram.org/bot{}/".format(TOKEN)
 Sessions = {}
-UUID = ""
 
 def get_url(url):
     response = requests.get(url)
@@ -85,20 +86,15 @@ def send_message(text, chat_id):
 def stringToBase64(s):
     return base64.b64encode(s.encode('utf-8'))
 
-def setUUID(newuuid):
-    UUID = newuuid
 
-def getUUID():
-    return UUID
 
-def savemessage_to_hbase(line):
+def savemessage_to_hbase(id, line):
     rows = []
     jsonOutput = {"Row": rows}
 
     baseurl = "http://localhost:8081"
 
-    setUUID(uuid.uuid4())
-    rowKey = str(getUUID())
+    rowKey = id
     messagecolumn = "lapor:laporan"
 
     rowKeyEncoded = stringToBase64(rowKey)
@@ -123,15 +119,20 @@ def main():
     last_textchat = (None, None, None)
     while True:
         inputan  = get_updates()
+
         format, intext, chatid = get_last_chat_id_and_text(inputan)
         if (format, intext, chatid) != last_textchat:
             if(chatid in Sessions):
                 if (format == "text"):
                     #input text
                     report = inputan["result"][intext]["message"]["text"]
+                    pelapor = inputan["result"][intext]["message"]["from"]["first_name"] + " " + inputan["result"][intext]["message"]["from"]["last_name"]
+                    timeanddate = inputan["result"][intext]["message"]["date"]
                     if(report.lower() == "selesai"):
                         #savekedatabasekemudianhapus
                         #Hbase.save
+                        id = uuid.uuid4()
+                        strid = str(id).replace('-','')
                         send_message(Sessions[chatid], chatid)
                         res = ""
                         reportlength = len(Sessions[chatid])
@@ -147,18 +148,22 @@ def main():
 
                         #ini yang disave ke Hbase
                         #Hbase.save(res)
-                        savemessage_to_hbase(res)
+                        savemessage_to_hbase(strid, res)
                         #get kategori kemudian savekesolr
                         category = classifier_rest.classify(words)
-                        rescategory = classifier_rest.get_category_name(category)
-                        send_message(rescategory, chatid)
+                        send_message(category, chatid)
                         #solr.save()
                         cat = {
-                            'id': getUUID(),
-                            'kategori': rescategory,
+                            'id': strid,
+                            'kategori': str(category),
+                            'pelapor' : pelapor,
+                            'laporan' : res,
+                            'date' : datetime.utcfromtimestamp(timeanddate).strftime('%Y-%m-%d %H:%M:%S'),
+
                         }
-                        save_category_to_solr(getUUID(), cat)
+                        solr_rest.add_or_update_to_telegram(cat)
                         #cekmessage
+                        send_message(cat, chatid)
                         send_message(res, chatid)
 
                         Sessions.pop(chatid)

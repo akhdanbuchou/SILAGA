@@ -200,6 +200,15 @@ def delete_all_omed_classified():
 
 # TELEGRAM RELATED
 
+def getNumFound_telegram():
+    '''
+    mengembalikan jumlah dokumen di telegram
+    '''
+    connection = urllib2.urlopen(HOST + 'solr/telegram/select?indent=on&q=*:*&rows=1&wt=python')
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+    return numfound
+
 def add_or_update_to_telegram(data): # ON PROGRESS 
     '''
     fungsi insert atau update ke solr collection : telegram
@@ -213,3 +222,35 @@ def add_or_update_to_telegram(data): # ON PROGRESS
     response = requests.post(HOST + 'solr/telegram/update/json/docs', headers=headers, data=data)
     print(response)
     
+def get_all_telegram_reports():
+    '''
+    mengembalikan semua berita dari solr : telegram
+    '''
+    num = getNumFound_telegram()
+    connection = urllib2.urlopen(HOST + 'solr/telegram/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    for doc in docs:
+        kat = doc['kategori'][0]
+        kat_name = classifier.get_category_name(kat)
+        doc['timestamp'] = str(doc['date'])[0:10] + " "+str(doc['date'])[11:19]
+        doc['kategori'] = kat_name # override 
+        doc['pelapor'] = doc['pelapor'][0]
+        doc['content'] = doc['laporan'][0]
+        doc['id'] = doc['id']
+    return docs
+
+def delete_from_telegram(id_report):
+    '''
+    fungsi delete row dengan id=id_report dari solr collection : telegram
+    '''
+    headers = {
+        'Content-Type': 'text/xml',
+    }
+    params = (
+        ('commit', 'true'),
+    ) 
+    data = '<delete><id>'+id_report+'</id></delete>'
+    response = requests.post(HOST + 'solr/telegram/update', headers=headers, params=params, data=data)
+    print(response)
+

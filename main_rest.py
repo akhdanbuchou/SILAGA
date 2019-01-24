@@ -267,6 +267,14 @@ def delete_news():
     solr.delete_from_omed_classified(id_news)
     return 'success'
 
+# LAPORAN RELATED 
+
+@app.route("/allreports")
+def viewallReports():
+    report = solr.get_all_telegram_reports()
+    resp = Response(json.dumps(report), status=200, mimetype='application/json')
+    return resp
+
 # CLASSIFIER RELATED
 
 @app.route("/classifySolr")

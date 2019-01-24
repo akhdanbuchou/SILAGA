@@ -138,7 +138,6 @@ def get_all_omed_classified():
         doc['title'] = doc['title'][0]
     return docs
 
-
 def add_or_update_to_omed_classified(bulk): # checked 
     '''
     fungsi insert atau update ke solr collection : omed_classified

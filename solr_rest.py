@@ -230,15 +230,18 @@ def get_all_telegram_reports():
     connection = urllib2.urlopen(HOST + 'solr/telegram/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
     response = eval(connection.read())
     docs = response['response']['docs']
+    result = []
     for doc in docs:
+        res = {}
         kat = doc['kategori'][0]
         kat_name = classifier.get_category_name(kat)
-        doc['timestamp'] = str(doc['date'])[0:10] + " "+str(doc['date'])[11:19]
-        doc['kategori'] = kat_name # override 
-        doc['pelapor'] = doc['pelapor'][0]
-        doc['content'] = doc['laporan'][0]
-        doc['id'] = doc['id']
-    return docs
+        res['timestamp'] = str(doc['date'][0])[0:10] + " "+str(doc['date'][0])[11:19]
+        res['kategori'] = kat_name # override 
+        res['pelapor'] = doc['pelapor'][0]
+        res['content'] = doc['laporan'][0]
+        res['id'] = doc['id']
+        result.append(res)
+    return result
 
 def delete_from_telegram(id_report):
     '''

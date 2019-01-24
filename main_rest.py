@@ -267,7 +267,7 @@ def delete_news():
     solr.delete_from_omed_classified(id_news)
     return 'success'
 
-# LAPORAN RELATED 
+# TELEGRAM RELATED 
 
 @app.route("/allreports")
 def viewallReports():

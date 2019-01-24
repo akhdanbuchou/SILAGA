@@ -197,6 +197,7 @@ def validate():
     cek menggunakan BCrypt, sehingga programmer tidak tahu password asli dari user 
     '''
     content = request.get_json()
+    print(content)
     user = {}
     data = {
         'username':content['username'],

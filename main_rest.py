@@ -48,23 +48,29 @@ def getUserByUsername():
     resp = Response(json.dumps(found_user), status=200, mimetype='application/json')
     return resp
 
-@app.route('/createUser',methods = ['POST'])
+@app.route('/createUser',methods = ['POST']) 
 def createUser(): # validasi username sudah ada 
     '''
     menerima data user, menyimpan data tsb di DB MySQL
     '''
+    list_users = mysql.get_all_users()
+    exists = False 
     content = request.get_json()
-    # to-do
-    # encrypt password
-    # input validation
-    new_user = {
-       'nama':content['nama'],
-       'role':content['role'],
-       'username':content['username'],
-       'password':content['password']
-       }
-    mysql.create_user(new_user)
-    return 'success'
+
+    for user in list_users: # validation : user already exists 
+        if user['username']==content['username']:
+            exists = True
+    if exists:
+        return 'False'
+    else:
+        new_user = {
+        'nama':content['nama'],
+        'role':content['role'],
+        'username':content['username'],
+        'password':content['password']
+        }
+        mysql.create_user(new_user)
+        return 'True'
 
 @app.route('/updateUser',methods = ['POST'])
 def updateUser(): # validasi username sudah ada 
@@ -94,7 +100,7 @@ def deleteUser():
     mysql.delete_user(id_user)
     return 'success'
 
-# WEWENANG RELATED 
+# ROLE RELATED 
 
 @app.route("/roles")
 def getRoles():

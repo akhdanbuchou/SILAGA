@@ -224,10 +224,17 @@ def validate():
 
 @app.route("/allnews")
 def viewallNews():
-    # list_id = solr.get_all_online_media_id()
-    news = solr.get_all_omed_classified()
-    # all_news = hbase.get_all_online_media(list_id)
-    resp = Response(json.dumps(news), status=200, mimetype='application/json')
+    s1 = time.time()
+    news = solr.get_all_omed_classified() # mengambil semua berita di solr
+    e1 = time.time()
+    print('waktu ambil data solr : {}'.format(e1-s1))
+    '''
+    s2 = time.time()
+    all_news = hbase.get_all_online_media(list_id) # jika menggunakan Hbase 
+    e2 = time.time()
+    print('waktu ambil data hbase : {}'.format(e2-s2))
+    '''
+    resp = Response(json.dumps(news), status=200, mimetype='application/json') 
     return resp
 
 @app.route('/createBerita',methods = ['POST']) # perlu diuji lagi 
@@ -300,6 +307,43 @@ def delete_news():
     # delete from solr omed_classified
     solr.delete_from_omed_classified(id_news)
     return 'success'
+
+@app.route("/rekap/<interval>")
+def rekapBerita(interval):
+    HARIAN = [0,10]
+    BULANAN = [0,7]
+    TAHUNAN = [0,4]
+
+    splitter = []
+    if interval.lower()=="tahunan":
+        splitter=TAHUNAN
+    elif interval.lower()=="bulanan":
+        splitter=BULANAN
+    elif interval.lower()=="harian":
+        splitter=HARIAN
+
+    rekap = {}
+    list_news = solr.get_all_omed_classified() # mengambil semua berita di solr
+    for news in list_news:
+        if news['kategori'][0] == 'Netral':
+            continue
+        else:
+            kategori = '{} - {} - {}'.format(news['kategori'][0], news['kategori'][1], news['kategori'][2])
+            date = news['timestamp'][splitter[0]:splitter[1]]
+            if kategori in rekap: # sudah ada yg kategorinya itu 
+                if date in rekap[kategori]: # sudah ada yang bulannya itu 
+                    rekap[kategori][date] += 1
+                else: # kategorinya ada, tapi bulan tahunnya belum ada
+                    rekap[kategori][date] = 1
+            else: # belum ada yang kategorinya itu 
+                rekap[kategori] = {}
+                rekap[kategori][date] = 1
+
+            print(kategori)
+            print(date)
+
+    resp = Response(json.dumps(rekap), status=200, mimetype='application/json') 
+    return resp
 
 # TELEGRAM RELATED 
 

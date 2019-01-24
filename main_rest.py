@@ -189,7 +189,7 @@ def getCategories3():
 
 # VALIDASI RELATED
 
-@app.route("/validate", methods = ['POST','OPTIONs'])
+@app.route("/validate", methods = ['POST','OPTIONS'])
 def validate():
     '''
     param : json {username dan password}

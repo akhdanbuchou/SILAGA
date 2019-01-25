@@ -227,14 +227,15 @@ def viewallNews():
     s1 = time.time()
     news = solr.get_all_omed_classified() # mengambil semua berita di solr
     e1 = time.time()
-    print('waktu ambil data solr : {}'.format(e1-s1))
+    print('waktu ambil data solr : {} s'.format(e1-s1))
     '''
     s2 = time.time()
-    all_news = hbase.get_all_online_media(list_id) # jika menggunakan Hbase 
+    all_news = hbase.get_all_online_media(news) # jika menggunakan Hbase 
     e2 = time.time()
-    print('waktu ambil data hbase : {}'.format(e2-s2))
+    print('waktu ambil data hbase : {} s'.format(e2-s2))
     '''
-    resp = Response(json.dumps(news), status=200, mimetype='application/json') 
+    # resp = Response(json.dumps(all_news), status=200, mimetype='application/json') # hbase
+    resp = Response(json.dumps(news), status=200, mimetype='application/json') # solr
     return resp
 
 @app.route('/createBerita',methods = ['POST']) # perlu diuji lagi 

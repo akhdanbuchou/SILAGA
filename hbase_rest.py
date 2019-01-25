@@ -70,38 +70,28 @@ def get_all_online_media(list_id):
         'Accept': 'application/json',
     }
     
-    for lst in list_id:
+    for lst in list_id: # untuk tiap id berita di omed_classified
+        lst['content'] = ''
         id_berita=lst['id']
-        lokasi=lst['lokasi']
-        response = requests.get('http://localhost:4444/online_media/' + id_berita, headers=headers)
-        text64 = response.text
-        data = json.loads(text64)
-        #list of values
-        val = {}
-        val['id'] = bdecode(b64decode(data["Row"][0]["key"]))
-        '''
-        print(type(data["Row"][0]["key"]))
-        print(data["Row"][0]["key"])
-        '''
-        cells = data['Row'][0]['Cell']
-        val['lokasi'] = lokasi
-        val['url'] = lst['url']
-        val['sitename'] = lst['sitename']
-        val['kategori'] = lst['kategori']
-        for v in cells:
-            col = b64decode(v['column'])
-            cold = bdecode(col)
-            con = b64decode(v['$'])
-            cond = bdecode(con)
-            if "timestamp" in cold:
-                val['timestamp'] = cond
-            if "author" in cold:
-                val['author'] = cond                
-            if "title" in cold:
-                val['judul'] = cond
-            if "content" in cold:
-                val['isi'] = cond
-        list_berita_hbase.append(val)
+        try: 
+            response = requests.get('http://localhost:4444/online_media/' + id_berita, headers=headers) # anbil data hbase
+            text64 = response.text
+            data = json.loads(text64)
+            cells = data['Row'][0]['Cell']
+            for v in cells:
+                col = b64decode(v['column'])
+                cold = bdecode(col)
+                con = b64decode(v['$'])
+                cond = bdecode(con)
+                if "content" in cold: # jika column namenya $
+                    lst['content'] = cond # mengambil content
+                    print('ambil berita hbase')
+        except Exception:
+            pass
+        
+        print(lst)
+        print()
+        list_berita_hbase.append(lst)
     return list_berita_hbase
 
 def put_online_media(bulk):

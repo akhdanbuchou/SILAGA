@@ -6,7 +6,8 @@ import collections
 import uuid
 import classifier_rest
 import solr_rest
-from datetime import datetime
+from datetime import datetime, timezone
+from pytz import timezone
 
 #utama
 #TOKEN = "624146106:AAFCHBOekjG9473XXJJIa2-6ZSjAHezA3L0"
@@ -152,14 +153,16 @@ def main():
                         #get kategori kemudian savekesolr
                         category = classifier_rest.classify(words)
                         send_message(category, chatid)
+                        utc_dt = datetime.now(timezone('Asia/Jakarta')) # UTC time
+                        waktu = utc_dt.strftime('%Y-%m-%d %H:%M:%S') # local time
                         #solr.save()
                         cat = {
                             'id': strid,
                             'kategori': str(category),
                             'pelapor' : pelapor,
                             'laporan' : res,
-                            'date' : datetime.utcfromtimestamp(timeanddate).strftime('%Y-%m-%d %H:%M:%S'),
-
+                            'date':waktu
+                            #'date' : datetime.utcfromtimestamp(timeanddate).strftime('%Y-%m-%d %H:%M:%S'),
                         }
                         solr_rest.add_or_update_to_telegram(cat)
                         #cekmessage

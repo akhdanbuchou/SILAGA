@@ -71,6 +71,7 @@ def get_all_online_media(list_id):
     }
     
     for lst in list_id: # untuk tiap id berita di omed_classified
+        s = time.time()
         lst['content'] = ''
         id_berita=lst['id']
         try: 
@@ -88,8 +89,8 @@ def get_all_online_media(list_id):
                     print('ambil berita hbase')
         except Exception:
             pass
-        
-        print(lst)
+        e = time.time()
+        print("time : {} s".format(e-s))
         print()
         list_berita_hbase.append(lst)
     return list_berita_hbase

@@ -204,7 +204,6 @@ def validate():
     cek menggunakan BCrypt, sehingga programmer tidak tahu password asli dari user 
     '''
     content = request.get_json()
-    print(content)
     user = {}
     data = {
         'username':content['username'],
@@ -225,17 +224,7 @@ def validate():
 
 @app.route("/allnews")
 def viewallNews():
-    s1 = time.time()
-    news = solr.get_all_omed_classified() # mengambil semua berita di solr
-    e1 = time.time()
-    print('waktu ambil data solr : {} s'.format(e1-s1))
-    '''
-    s2 = time.time()
-    all_news = hbase.get_all_online_media(news) # jika menggunakan Hbase 
-    e2 = time.time()
-    print('waktu ambil data hbase : {} s'.format(e2-s2))
-    '''
-    # resp = Response(json.dumps(all_news), status=200, mimetype='application/json') # hbase
+    news = solr.get_all_omed_classified() # mengambil semua berita di solr : omed_classified
     resp = Response(json.dumps(news), status=200, mimetype='application/json') # solr
     return resp
 

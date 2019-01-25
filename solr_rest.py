@@ -198,6 +198,74 @@ def delete_all_omed_classified():
     for i in lst: #hapus
         delete_from_omed_classified(i)
 
+def get_rekap(level, interval, start, end):
+    HARIAN = [0,10]
+    BULANAN = [0,7]
+    TAHUNAN = [0,4]
+    FORMAT_HARIAN = '%Y-%m-%d'
+    FORMAT_BULANAN = '%Y-%m'
+    FORMAT_TAHUNAN = '%Y'
+
+    print('mengambil rekap data level {} interval {} dari {} sampai {}'.format(level, interval, start, end))
+
+    splitter = []
+    format = ''
+    if interval=="tahunan":
+        splitter=TAHUNAN
+        format=FORMAT_TAHUNAN
+    elif interval=="bulanan":
+        splitter=BULANAN
+        format=FORMAT_BULANAN
+    elif interval=="harian":
+        splitter=HARIAN
+        format=FORMAT_HARIAN
+
+    start_s = start[splitter[0]:splitter[1]]
+    print(start_s)
+    end_s = end[splitter[0]:splitter[1]]
+    print(end_s)
+
+    rekap = {}
+    list_news = get_all_omed_classified() # mengambil semua berita di solr
+    for news in list_news:
+        if news['kategori'][0] == 'Netral':
+            continue
+        else:
+            if level==1:
+                kategori = '{}'.format(news['kategori'][0])
+                
+            elif level==2:
+                kategori = '{} - {}'.format(news['kategori'][0], news['kategori'][1])
+            elif level==3:
+                kategori = '{} - {} - {}'.format(news['kategori'][0], news['kategori'][1], news['kategori'][2])
+
+            date = news['timestamp'][splitter[0]:splitter[1]]
+
+            if kategori in rekap: # sudah ada yg kategorinya itu 
+                if date in rekap[kategori]: # sudah ada yang bulannya itu 
+                    rekap[kategori][date] += 1
+                else: # kategorinya ada, tapi bulan tahunnya belum ada
+                    rekap[kategori][date] = 1
+            else: # belum ada yang kategorinya itu 
+                rekap[kategori] = {}
+                rekap[kategori][date] = 1
+    
+    result = []
+
+    for k,v in rekap.items():
+        # print('{} {}'.format(k,v))
+        new_dict = {
+            'name':k,
+            'data':v
+        }
+        result.append(new_dict)
+
+    # print("halo halo " + str(datetime.strptime(end_s,format) > datetime.strptime(start_s,format)))
+    # print((datetime.strptime(end_s,format) - datetime.strptime(start_s,format))
+    
+
+    return result
+
 # TELEGRAM RELATED
 
 def getNumFound_telegram():

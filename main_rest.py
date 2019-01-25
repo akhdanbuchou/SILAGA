@@ -72,7 +72,8 @@ def createUser(): # validasi username sudah ada
         return 'True'
 
 @app.route('/updateUser',methods = ['POST'])
-def updateUser(): # validasi username sudah ada 
+@cross_origin()
+def updateUser(): # validasi username sudah ada , bug kalau role gak diubah
     '''
     mengubah data user di DB 
     '''
@@ -309,41 +310,16 @@ def delete_news():
     solr.delete_from_omed_classified(id_news)
     return 'success'
 
-@app.route("/rekap/<interval>")
-def rekapBerita(interval):
-    HARIAN = [0,10]
-    BULANAN = [0,7]
-    TAHUNAN = [0,4]
+@app.route("/rekap")
+def rekapBerita():
+    level = eval(request.args.get('level'))
+    interval = eval(request.args.get('interval'))
+    start = eval(request.args.get('start'))
+    end = eval(request.args.get('end'))
 
-    splitter = []
-    if interval.lower()=="tahunan":
-        splitter=TAHUNAN
-    elif interval.lower()=="bulanan":
-        splitter=BULANAN
-    elif interval.lower()=="harian":
-        splitter=HARIAN
+    result = solr.get_rekap(level, interval, start, end)
 
-    rekap = {}
-    list_news = solr.get_all_omed_classified() # mengambil semua berita di solr
-    for news in list_news:
-        if news['kategori'][0] == 'Netral':
-            continue
-        else:
-            kategori = '{} - {} - {}'.format(news['kategori'][0], news['kategori'][1], news['kategori'][2])
-            date = news['timestamp'][splitter[0]:splitter[1]]
-            if kategori in rekap: # sudah ada yg kategorinya itu 
-                if date in rekap[kategori]: # sudah ada yang bulannya itu 
-                    rekap[kategori][date] += 1
-                else: # kategorinya ada, tapi bulan tahunnya belum ada
-                    rekap[kategori][date] = 1
-            else: # belum ada yang kategorinya itu 
-                rekap[kategori] = {}
-                rekap[kategori][date] = 1
-
-            print(kategori)
-            print(date)
-
-    resp = Response(json.dumps(rekap), status=200, mimetype='application/json') 
+    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 
 # TELEGRAM RELATED 

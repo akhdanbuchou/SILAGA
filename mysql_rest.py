@@ -214,6 +214,7 @@ def update_user(data):
     role = data['role']
     username = data['username']
     query = ("UPDATE user SET nama=\'{}\', role=\'{}\', username=\'{}\' WHERE id=\'{}\'".format(nama, role, username, id_user))
+    print(query)
     execute_query(query)
 
 def delete_user(id_user):
@@ -343,25 +344,5 @@ def get_all_keywords():
                             'keyword':listKeyword
                         }
                         result.append(new_dict)
-        
-    '''
-    for k1 in kat1list:
-        subkategori2 = []
-        for k2 in kat2list:
-            if k2['kategori_layer_1']==k1['id']:
-                subkategori3 = []
-                for k3 in kat3list:
-                    if k3['kategori_layer_2']==k2['id']:
-                        listKeyword = []
-                        for key in keylist:
-                            if key['kategori_layer_3']==k3['id']:
-                                listKeyword.append(key)
-                        k3['keyword'] = listKeyword       
-                        subkategori3.append(k3)
-                k2['subkategori3'] = subkategori3
-                subkategori2.append(k2)
-        k1['subkategori2'] = subkategori2
-        result.append(k1)
-    '''
     return result
 

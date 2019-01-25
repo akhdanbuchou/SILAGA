@@ -6,7 +6,6 @@ from datetime import datetime
 from xml.etree.ElementTree import fromstring
 
 import requests
-from xmljson import badgerfish as bf
 
 import classifier_rest as classifier
 import hbase_rest as hbase
@@ -210,6 +209,7 @@ def get_rekap(level, interval, start, end):
 
     splitter = []
     format = ''
+    print(format)
     if interval=="tahunan":
         splitter=TAHUNAN
         format=FORMAT_TAHUNAN

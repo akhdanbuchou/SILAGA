@@ -8,15 +8,14 @@ from datetime import datetime
 from xml.etree.ElementTree import fromstring
 
 import requests
-from apscheduler.schedulers.background import BackgroundScheduler
 from flask import Flask, Response, jsonify, request
-from flask_cors import CORS, cross_origin
-from xmljson import badgerfish as bf
 
 import classifier_rest as classifier
 import hbase_rest as hbase
 import mysql_rest as mysql
 import solr_rest as solr
+
+from flask_cors import CORS, cross_origin
 
 # instantiate flask app
 app = Flask(__name__)
@@ -335,12 +334,6 @@ def periodic_update():
     solr.classify_online_media_and_store_to_omed_classified()
 
 ###
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(func=periodic_update, trigger="interval", seconds=UPDATE_INTERVAL*60*60)
-scheduler.start()
-
-atexit.register(lambda: scheduler.shutdown())
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -11,8 +11,7 @@ import hbase_rest as hbase
 import mysql_rest as mysql
 
 ROW_NUM = 10000
-HOST = 'http://localhost:3333/'
-
+HOST = 'http://localhost:8983/'
 
 # solr : online_media RELATED
 
@@ -99,7 +98,7 @@ def get_all_omed_classified():
         # print('{} {}'.format(doc['id'], doc['kategori']))
         kat = doc['kategori'][0]
 
-        con = urllib2.urlopen('http://localhost:1111/category-name/{}'.format(kat))
+        con = urllib2.urlopen('http://localhost:18881/category-name/{}'.format(kat))
         res = eval(con.read())
         kat_name = res['result']
 
@@ -275,7 +274,7 @@ def get_all_telegram_reports():
         res = {}
         kat = doc['kategori'][0]
 
-        con = urllib2.urlopen('http://localhost:1111/category-name/{}'.format(kat))
+        con = urllib2.urlopen('http://localhost:18881/category-name/{}'.format(kat))
         res = eval(con.read())
         kat_name = res['result']
 

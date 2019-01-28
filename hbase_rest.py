@@ -35,7 +35,7 @@ def delete_a_news(id_news):
     '''
     menghapus berita dari hbase online_media 
     '''
-    response = requests.delete('http://localhost:4444/online_media/'+id_news)
+    response = requests.delete('http://localhost:16001/online_media/'+id_news)
     print(response)
 
 def get_isi_news(id_news):
@@ -45,7 +45,7 @@ def get_isi_news(id_news):
     headers = {
         'Accept': 'application/json',
     }
-    response = requests.get('http://localhost:4444/online_media/' + id_news, headers=headers)
+    response = requests.get('http://localhost:16001/online_media/' + id_news, headers=headers)
     text64 = response.text
     data = json.loads(text64)
     #list of values
@@ -75,7 +75,7 @@ def get_all_online_media(list_id):
         lst['content'] = ''
         id_berita=lst['id']
         try: 
-            response = requests.get('http://localhost:4444/online_media/' + id_berita, headers=headers) # anbil data hbase
+            response = requests.get('http://localhost:16001/online_media/' + id_berita, headers=headers) # anbil data hbase
             text64 = response.text
             data = json.loads(text64)
             cells = data['Row'][0]['Cell']
@@ -130,6 +130,6 @@ def put_online_media(bulk):
     }
     data = json.dumps(result)
     # post using culr to hbase 
-    response = requests.put('http://localhost:4444/online_media/'+id_news, headers=headers, data=data)
+    response = requests.put('http://localhost:16001/online_media/'+id_news, headers=headers, data=data)
     print(response)
     print("success adding to hbase : online_media")

@@ -20,7 +20,7 @@ from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 CORS(app)
 
-PORT = 5000
+PORT = 18880
 
 # USER RELATED
 

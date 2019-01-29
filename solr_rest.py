@@ -2,6 +2,7 @@ import base64
 import json
 import time
 import urllib.request as urllib2
+import urllib
 from datetime import datetime
 from xml.etree.ElementTree import fromstring
 
@@ -17,6 +18,8 @@ HOST_CLASSIFIER = 'http://10.32.6.225:18881'
 #dev
 HOST = 'http://localhost:8983/'
 HOST_CLASSIFIER = 'http://localhost:18881'
+
+ITER_NUM = 5
 
 # solr : online_media RELATED
 
@@ -93,12 +96,12 @@ def get_all_omed_classified(num):
     '''
     mengembalikan semua berita dari solr : omed_classified
     '''
-    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
+    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&sort=timestamp%20asc&rows=' + str(num) + '&wt=python')
     response = eval(connection.read())
     docs = response['response']['docs']
     for doc in docs:
+        # print(doc['timestamp'])
         # olah bagian kategori
-        # print('{} {}'.format(doc['id'], doc['kategori']))
         kat = doc['kategori'][0]
 
         con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat))
@@ -110,6 +113,60 @@ def get_all_omed_classified(num):
         doc['content'] = doc['content'][0]
         doc['title'] = doc['title'][0]
     return docs
+
+def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti 
+    startdate = '[{}%20TO%20{}]'.format(start, end)
+    # keyword 
+    
+    # kategori like a madman 
+    q = ''
+    idx = 1
+    if jenis == '0':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+        idx = 0
+    if jenis == '1':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+    if jenis == '2':
+        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+    if jenis == '3':
+        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+    if jenis == '4':
+        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+
+    # jumlah data dengan filter tersebut 
+    test = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, q, startdate)
+    connection = urllib2.urlopen(test)
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+    # print(numfound)
+
+    # mengambil data 
+    result = {}
+    url = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, q, startdate, numfound)
+    # print(url)
+    connection = urllib2.urlopen(url)
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    for doc in docs:
+        kat_id = doc['kategori'][0]
+        con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat_id))
+        res = eval(con.read())
+        kat_name = res['result'][idx]
+
+        if kat_name not in result:
+            result[kat_name] = 1
+        else:
+            result[kat_name] += 1
+    print(result)
+
+    # merapikan data buat dilempar ke Vue
+    arr =[]
+    for k,v in result.items():
+        new_dict = {}
+        new_dict['namaGangguan'] = k
+        new_dict['jumlahGangguan'] = v
+        arr.append(new_dict)
+    return arr
 
 def add_or_update_to_omed_classified(bulk): # checked 
     '''

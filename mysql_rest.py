@@ -5,11 +5,22 @@ QUERY_USER = ("SELECT * FROM user")
 
 # QUERY-RELATED
 
+IP = '10.32.6.227'
+USER = 'magang'
+PASSWORD = 'poc**219'
+DATABASE = 'lapor'
+
+# dev
+IP = 'localhost'
+USER = 'root'
+PASSWORD = None
+DATABASE = 'poc219'
+
 def execute_query(query):
     '''
     menjalankan query bersangkutan (utk user)
     '''
-    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)
     cur = conn.cursor()
     cur.execute(query)
     conn.commit()
@@ -21,7 +32,7 @@ def special_query(query):
     '''
     menjalankan query bersangkutan (utk kategori)
     '''
-    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)
     cur = conn.cursor()
     cur.execute(query)
     result = cur.fetchall()
@@ -154,7 +165,7 @@ def get_all_users():
     '''
     users = []
     q = QUERY_USER
-    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)
     cur = conn.cursor()
     cur.execute(q)
     result = cur.fetchall()
@@ -235,7 +246,7 @@ def get_nama_wewenang(id_role):
 def get_all_roles():
     roles = []
     q = "SELECT * FROM wewenang"
-    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)
     cur = conn.cursor()
     cur.execute(q)
     result = cur.fetchall()

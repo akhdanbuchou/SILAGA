@@ -11,7 +11,12 @@ import hbase_rest as hbase
 import mysql_rest as mysql
 
 ROW_NUM = 10000
+HOST = 'http://10.32.6.225:8983/'
+HOST_CLASSIFIER = 'http://10.32.6.225:18881'
+
+#dev
 HOST = 'http://localhost:8983/'
+HOST_CLASSIFIER = 'http://localhost:18881'
 
 # solr : online_media RELATED
 
@@ -73,7 +78,6 @@ def get_omed_with_interval_ALPHA(start):
     else:
         print('stop')
 
-
 # omed_classified RELATED
 
 def getNumFound_omed_classified():
@@ -85,11 +89,10 @@ def getNumFound_omed_classified():
     numfound = response['response']['numFound']
     return numfound
 
-def get_all_omed_classified():
+def get_all_omed_classified(num):
     '''
     mengembalikan semua berita dari solr : omed_classified
     '''
-    num = getNumFound_omed_classified()
     connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
     response = eval(connection.read())
     docs = response['response']['docs']
@@ -98,7 +101,7 @@ def get_all_omed_classified():
         # print('{} {}'.format(doc['id'], doc['kategori']))
         kat = doc['kategori'][0]
 
-        con = urllib2.urlopen('http://localhost:18881/category-name/{}'.format(kat))
+        con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat))
         res = eval(con.read())
         kat_name = res['result']
 
@@ -274,7 +277,7 @@ def get_all_telegram_reports():
         res = {}
         kat = doc['kategori'][0]
 
-        con = urllib2.urlopen('http://localhost:18881/category-name/{}'.format(kat))
+        con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat))
         res = eval(con.read())
         kat_name = res['result']
 

@@ -20,7 +20,11 @@ from flask_cors import CORS, cross_origin
 app = Flask(__name__)
 CORS(app)
 
+IP = '10.32.6.225'
 PORT = 18880
+# dev 
+IP = '127.0.0.1'
+PORT = 5000
 
 # USER RELATED
 
@@ -229,10 +233,10 @@ def validate():
 
 # BERITA RELATED
 
-@app.route("/allnews")
+@app.route("/allnews/<jumlah>")
 @cross_origin()
-def viewallNews():
-    news = solr.get_all_omed_classified() # mengambil semua berita di solr : omed_classified
+def viewallNews(jumlah):
+    news = solr.get_all_omed_classified(jumlah) # mengambil berita di solr : omed_classified sejumlah <jumlah>
     resp = Response(json.dumps(news), status=200, mimetype='application/json') # solr
     return resp
 
@@ -332,4 +336,4 @@ def viewallReports():
 ###
 
 if __name__ == '__main__':
-    app.run(debug=True, port=PORT)
+    app.run(debug=True, port=PORT, host=IP)

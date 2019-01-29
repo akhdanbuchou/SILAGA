@@ -296,6 +296,28 @@ def delete_kw(id_kw):
     query = ("DELETE FROM keyword WHERE id={}".format(id_kw))
     execute_query(query)
 
+def get_keywords_by_category(id_cat):
+    '''
+    mendapatkan semua keyword berdasarkan id kategori 3  
+    '''
+    QUERY_KEY = ("SELECT * FROM keyword")
+
+    keytup = special_query(QUERY_KEY)
+    keylist = []
+    for key in keytup:
+        k = {'id':key[0],
+              'keyword':key[1],
+              'kategori_layer_3':key[2]}
+        keylist.append(k)
+
+    arr = []
+    for k in keylist:
+        if str(k['kategori_layer_3']) == str(id_cat):
+            arr.append(k['keyword'])
+        print('{} {}'.format(k['keyword'], k['kategori_layer_3']))
+
+    return arr
+
 def get_all_keywords():
     '''
     mendapatkan semua keyword dengan struktur utuh 

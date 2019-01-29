@@ -145,6 +145,16 @@ def updateRole():
 
 # KEYWORD RELATED
 
+@app.route("/keywords-by-category/<kategori>")
+@cross_origin()
+def getKeywordsByKategori(kategori):
+    '''
+    mengembalikan semua keyword yang kategorinya <kategori>
+    '''
+    list_keywords = mysql.get_keywords_by_category(kategori)
+    resp = Response(json.dumps(list_keywords), status=200, mimetype='application/json')
+    return resp
+
 @app.route('/createKeyword',methods = ['POST'])
 @cross_origin()
 def createKeyword():

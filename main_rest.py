@@ -327,14 +327,15 @@ def rekapBerita():
 @app.route("/pie-chart/<jenis>/<start>/<end>/<keyword>")
 @cross_origin()
 def pieChart(jenis, start, end, keyword):
-    '''
-    jenis = eval(request.args.get('jenis'))
-    start = eval(request.args.get('start'))
-    end = eval(request.args.get('end'))
-    keyword = eval(request.args.get('keyword'))
-    '''
     result = solr.get_pie(jenis, start, end, keyword)
 
+    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
+    return resp
+
+@app.route("/map/<jenis>/<start>/<end>/<keyword>")
+@cross_origin()
+def map(jenis, start, end, keyword):
+    result = solr.get_map(jenis, start, end, keyword)
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 

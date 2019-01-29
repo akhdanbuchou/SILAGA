@@ -114,6 +114,50 @@ def get_all_omed_classified(num):
         doc['title'] = doc['title'][0]
     return docs
 
+def get_map(jenis, start, end, keyword):
+    startdate = '[{}%20TO%20{}]'.format(start, end)
+    # keyword 
+    
+    # kategori like a madman 
+    q = ''
+    if jenis == '0':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+        idx = 0
+    if jenis == '1':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+    if jenis == '2':
+        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+    if jenis == '3':
+        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+    if jenis == '4':
+        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+
+    # jumlah data dengan filter tersebut 
+    test = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, q, startdate)
+    connection = urllib2.urlopen(test)
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+    print(numfound)
+
+    # mengambil data 
+    location = []
+    url = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, q, startdate, numfound)
+    print(url)
+    connection = urllib2.urlopen(url)
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    for doc in docs:
+        print(doc['id'])
+        print(doc['lokasi'])
+        lokasi = doc['lokasi']
+        for tempat in lokasi:
+            if tempat.capitalize() not in location:
+                location.append(tempat.capitalize())
+        print()
+
+    print(location)
+    return location
+
 def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti 
     startdate = '[{}%20TO%20{}]'.format(start, end)
     # keyword 

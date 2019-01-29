@@ -2,11 +2,22 @@ import mysql.connector
 
 # QUERY-RELATED
 
+IP = '10.32.6.227'
+USER = 'magang'
+PASSWORD = 'poc**219'
+DATABASE = 'lapor'
+
+# dev 
+IP = 'localhost'
+USER = 'root'
+PASSWORD = None
+DATABASE = 'poc**219'
+
 def special_query(query):
     '''
     menjalankan query bersangkutan (utk kategori)
     '''
-    conn = mysql.connector.connect(host='localhost', user='root', passwd=None, database='poc219')
+    conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)
     cur = conn.cursor()
     cur.execute(query)
     result = cur.fetchall()

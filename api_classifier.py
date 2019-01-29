@@ -3,8 +3,11 @@ import time
 from flask import Flask, Response, jsonify, request
 from flask_cors import CORS, cross_origin
 
-IP = 'localhost'
-PORT = 1111
+IP = '10.32.6.225'
+PORT = 18881
+
+#dev
+IP = '127.0.0.1'
 
 app = Flask(__name__)
 CORS(app)

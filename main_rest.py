@@ -167,8 +167,8 @@ def createKeyword():
        'keyword':content['keyword'],
        'kategori_layer_3':content['kategori3']
        }
-    mysql.create_kw(new_kw)
-    return 'success'
+    kw = mysql.create_kw(new_kw)
+    return str(kw)
 
 @app.route('/deleteKeyword',methods = ['POST'])
 @cross_origin()
@@ -321,18 +321,16 @@ def delete_news():
     solr.delete_from_omed_classified(id_news)
     return 'success'
 
-@app.route("/rekap")
+@app.route("/rekap/<jenis>/<start>/<end>/<keyword>/<freq>")
 @cross_origin()
-def rekapBerita():
-    level = eval(request.args.get('level'))
-    interval = eval(request.args.get('interval'))
-    start = eval(request.args.get('start'))
-    end = eval(request.args.get('end'))
+def rekapBerita(jenis, start, end, keyword, freq):
 
-    result = solr.get_rekap(level, interval, start, end)
+    result = solr.get_rekap(jenis, start, end, keyword, freq)
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
+
+# CHART RELATED
 
 @app.route("/pie-chart/<jenis>/<start>/<end>/<keyword>")
 @cross_origin()
@@ -357,8 +355,6 @@ def viewallReports():
     report = solr.get_all_telegram_reports()
     resp = Response(json.dumps(report), status=200, mimetype='application/json')
     return resp
-
-###
 
 if __name__ == '__main__':
     app.run(debug=True, port=PORT, host=IP)

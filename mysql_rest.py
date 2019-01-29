@@ -284,10 +284,30 @@ def create_kw(data):
     '''
     buat keyword baru 
     '''
+    # buat kw baru 
     keyword = data['keyword']
     kategori_layer_3 = data['kategori_layer_3']
     query = ("INSERT INTO keyword (keyword, kategori_layer_3) values(\'{}\',\'{}\')".format(keyword, kategori_layer_3))
     execute_query(query)
+    
+    # ambil id dari kw yang baru dibuat 
+    id_kw = 0
+    q = "SELECT * FROM keyword"
+    conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)
+    cur = conn.cursor()
+    cur.execute(q)
+    result = cur.fetchall()
+    for response in result:
+        type_fixed_row = tuple([el.decode('utf-8') if type(el) is bytearray else el for el in response])
+        if type_fixed_row[1]==keyword:
+            id_kw = type_fixed_row[0]
+    cur.close()
+    conn.close()
+
+    return id_kw
+
+def get_id_this_kw(keyword):
+    print()
 
 def delete_kw(id_kw):
     '''

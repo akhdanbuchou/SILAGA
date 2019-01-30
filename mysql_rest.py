@@ -47,7 +47,50 @@ def special_query(query):
 
 # CATEGORY-RELATED 
 
+def get_kat_name():
+    '''
+    mengembalikan semua kategori 3 dalam bentuk {'id':<id>, 'kategori': '<kategori1> - <kategori2> - <kategori3>'}
+    '''
+    QUERY_CAT_1 = ("SELECT * FROM kategori_layer_1")
+    QUERY_CAT_2 = ("SELECT * FROM kategori_layer_2")
+    QUERY_CAT_3 = ("SELECT * FROM kategori_layer_3")
 
+    kat1tup = special_query(QUERY_CAT_1)
+    kat1list = []
+    for tup in kat1tup:
+        k1 = {'id':tup[0],
+              'kategori1':tup[1]}
+        kat1list.append(k1)
+
+    kat2tup = special_query(QUERY_CAT_2)
+    kat2list = []
+    for tup in kat2tup:
+        k2 = {'id':tup[0],
+              'kategori2':tup[1],
+              'kategori_layer_1':tup[2]}
+        kat2list.append(k2)
+    
+    kat3tup = special_query(QUERY_CAT_3)
+    kat3list = []
+    for tup in kat3tup:
+        k3 = {'id':tup[0],
+              'kategori3':tup[1],
+              'kategori_layer_2':tup[2]}
+        kat3list.append(k3)
+
+    new_dict = {}
+    for k3 in kat3list:
+        aaa = k3['kategori3']
+        for k2 in kat2list:
+            if k2['id']==k3['kategori_layer_2']:
+                aa = k2['kategori2']
+                for k1 in kat1list:
+                    if k1['id']==k2['kategori_layer_1']:
+                        a = k1['kategori1']
+                        id_kat3 = k3['id']
+                        kategori = '{} - {} - {}'.format(a.capitalize(), aa.capitalize(), aaa.capitalize())
+                        new_dict[id_kat3] = kategori
+    return new_dict
 
 def get_all_category_3():
     '''

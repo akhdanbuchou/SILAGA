@@ -97,18 +97,20 @@ def get_all_omed_classified(num):
     '''
     mengembalikan semua berita dari solr : omed_classified
     '''
-    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&sort=timestamp%20asc&rows=' + str(num) + '&wt=python')
+    all_kat_3 = mysql.get_kat_name()
+
+    connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
     response = eval(connection.read())
     docs = response['response']['docs']
     for doc in docs:
         # print(doc['timestamp'])
         # olah bagian kategori
         kat = doc['kategori'][0]
-
-        con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat))
-        res = eval(con.read())
-        kat_name = res['result']
-
+        katname = ''
+        if kat == 0:
+            kat_name = 'Netral - Netral - Netral'
+        else:
+            kat_name = all_kat_3[kat]
         doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
         doc['kategori'] = kat_name # override 
         doc['content'] = doc['content'][0]

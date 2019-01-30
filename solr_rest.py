@@ -370,8 +370,17 @@ def get_rekap(jenis, start, end, keyword, freq):
     elif freq == 'tahunan':
         reldelta = relativedelta(years=1)
 
-    dt_start = datetime.strptime(start, '%Y-%m-%d')
-    dt_end = datetime.strptime(end, '%Y-%m-%d')
+    dt_start = None
+    dt_end = None 
+    if start=='-' and end=='-':
+        #todo
+        dt_end = datetime.now()
+        dt_start = dt_end - relativedelta(months=6)
+        print(dt_end)
+        print(dt_start)
+    else:
+        dt_start = datetime.strptime(start, '%Y-%m-%d')
+        dt_end = datetime.strptime(end, '%Y-%m-%d')
     
     n_dict = {}
     # dari start, berjalan ke end sesuai interval 

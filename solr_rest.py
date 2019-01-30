@@ -465,6 +465,10 @@ def get_rekap(jenis, start, end, keyword, freq):
     
     # beberes
     print(list_kategori)
+    axisx = []
+    for k in n_dict.keys():
+        axisx.append(k)
+
     result = []
     for k in list_kategori:
         rekap = []
@@ -485,4 +489,9 @@ def get_rekap(jenis, start, end, keyword, freq):
         #masukin dict ini ke result 
         result.append(ddddddd)
 
-    return result
+    data = {
+        'axisx':axisx,
+        'result':result
+    }
+
+    return data

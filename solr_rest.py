@@ -373,7 +373,7 @@ def get_rekap(jenis, start, end, keyword, freq):
     # dari start, berjalan ke end sesuai interval 
     list_kategori = []
     while dt_start < dt_end:
-        print('sedang di {} '.format(dt_start))
+        # print('sedang di {} '.format(dt_start))
         # sembari di sini, mengambil data di interval ini
         now = dt_start
         nxt = dt_start + reldelta
@@ -400,59 +400,47 @@ def get_rekap(jenis, start, end, keyword, freq):
         # ambil semua berita di interval tanggal ini , simpan di list id_arr
         d = {}
         for doc in docs:
+            # ambil namanya dari kategorinya 
+            con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(doc['kategori'][0]))
+            res = eval(con.read())
+            nama = res['result'][idx]
+            
             # memasukkan ke daftar kategori yang ada di interval ini 
-            if doc['kategori'][0] not in list_kategori:
-                list_kategori.append(doc['kategori'][0])
+            if nama not in list_kategori:
+                list_kategori.append(nama)
 
             # mengupdate jumlah berita dengan kategori tsb 
-            if doc['kategori'][0] not in d:
-                d[doc['kategori'][0]] = 1
+            if nama not in d:
+                d[nama] = 1
             else:
-                d[doc['kategori'][0]] += 1
+                d[nama] += 1
         
         # masukin id_arr ke arr
         n_dict[now_str[0:10]] = d
 
         # increment 
         dt_start += reldelta
-
-    # rapi rapi buat Vue 
-    for k in list_kategori:
-        # to-do 
-        # buat dict baru 
-        new_dict = {'kategori':}
-
-    '''
-    con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat_id))
-            res = eval(con.read())
-            kat_name = res['result'][idx]
-    '''
-
-    print(list_kategori)
-    return n_dict
-    # dari start, berjalan sesuai interval ke end
-        # sembari jalan, ambil berita di interval tersebut dengan jenis tersebut 
-        # kalau jenis==0, ambil 1-185
-
-    '''
-    # kategori like a madman 
-    q = ''
-    idx = 1
-    if jenis == '0':
-        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
-        idx = 0
-    if jenis == '1':
-        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
-    if jenis == '2':
-        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
-    if jenis == '3':
-        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
-    if jenis == '4':
-        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
     
-    # for k,v in result.items():
-    #     new_dict = {}
-    #     new_dict['namaGangguan'] = k
-    #     new_dict['jumlahGangguan'] = v
-    #     arr.append(new_dict)
-    '''
+    # beberes
+    print(list_kategori)
+    result = []
+    for k in list_kategori:
+        rekap = []
+
+        #jika di interval itu ada yang namanya ini, tambahin, kalo gaada, 0 
+        for key, value in n_dict.items():
+            if k in value.keys():
+                rekap.append(value[k])
+            else:
+                rekap.append(0)
+
+        #masukin rekap untuk kategori ini ke dict 
+        ddddddd = {
+            'namaGangguan':k,
+            'jumlahPerInterval':rekap
+            } 
+
+        #masukin dict ini ke result 
+        result.append(ddddddd)
+
+    return result

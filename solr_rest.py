@@ -22,6 +22,8 @@ HOST_CLASSIFIER = 'http://localhost:18881'
 
 ITER_NUM = 5
 
+
+ALL_KAT_3 = mysql.get_kat_name()
 # solr : online_media RELATED
 
 def getNumFound_online_media():
@@ -97,7 +99,7 @@ def get_all_omed_classified(num):
     '''
     mengembalikan semua berita dari solr : omed_classified
     '''
-    all_kat_3 = mysql.get_kat_name()
+    
 
     connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
     response = eval(connection.read())
@@ -110,7 +112,7 @@ def get_all_omed_classified(num):
         if kat == 0:
             kat_name = ['Netral', 'Netral', 'Netral']
         else:
-            kat_name = all_kat_3[kat]
+            kat_name = ALL_KAT_3[kat]
         doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
         doc['kategori'] = kat_name # override 
         doc['content'] = doc['content'][0]

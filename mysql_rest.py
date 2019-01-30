@@ -88,7 +88,8 @@ def get_kat_name():
                     if k1['id']==k2['kategori_layer_1']:
                         a = k1['kategori1']
                         id_kat3 = k3['id']
-                        kategori = '{} - {} - {}'.format(a.capitalize(), aa.capitalize(), aaa.capitalize())
+                        #kategori = '{} - {} - {}'.format(a.capitalize(), aa.capitalize(), aaa.capitalize())
+                        kategori = [a, aa, aaa]
                         new_dict[id_kat3] = kategori
     return new_dict
 

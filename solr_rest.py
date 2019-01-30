@@ -108,7 +108,7 @@ def get_all_omed_classified(num):
         kat = doc['kategori'][0]
         katname = ''
         if kat == 0:
-            kat_name = 'Netral - Netral - Netral'
+            kat_name = ['Netral', 'Netral', 'Netral']
         else:
             kat_name = all_kat_3[kat]
         doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]

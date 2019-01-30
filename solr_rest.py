@@ -245,6 +245,21 @@ def delete_from_telegram(id_report):
 # CHART RELATED
 
 def get_map(jenis, start, end, keyword):
+    dt_start = None
+    dt_end = None 
+    if start=='-' and end=='-':
+        #todo
+        dt_end = datetime.now()
+        dt_start = dt_end - relativedelta(months=6)
+        print(dt_end)
+        print(dt_start)
+    else:
+        dt_start = datetime.strptime(start, '%Y-%m-%d')
+        dt_end = datetime.strptime(end, '%Y-%m-%d')
+
+    start = dt_start.strftime('%Y-%m-%d')
+    end = dt_end.strftime('%Y-%m-%d')
+
     startdate = '[{}%20TO%20{}]'.format(start, end)
     # keyword 
     
@@ -289,6 +304,20 @@ def get_map(jenis, start, end, keyword):
     return location
 
 def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti 
+    dt_start = None
+    dt_end = None 
+    if start=='-' and end=='-':
+        #todo
+        dt_end = datetime.now()
+        dt_start = dt_end - relativedelta(months=6)
+        print(dt_end)
+        print(dt_start)
+    else:
+        dt_start = datetime.strptime(start, '%Y-%m-%d')
+        dt_end = datetime.strptime(end, '%Y-%m-%d')
+    start = dt_start.strftime('%Y-%m-%d')
+    end = dt_end.strftime('%Y-%m-%d')
+
     startdate = '[{}%20TO%20{}]'.format(start, end)
     # keyword 
     

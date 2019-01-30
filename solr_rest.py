@@ -106,7 +106,7 @@ def get_all_omed_classified(num):
         # print(doc['timestamp'])
         # olah bagian kategori
         kat = doc['kategori'][0]
-        katname = ''
+        katname = None
         if kat == 0:
             kat_name = ['Netral', 'Netral', 'Netral']
         else:

@@ -22,6 +22,10 @@ Vue.use(Vuex)
 // Create a new store
 const store = new Vuex.Store({
   state:{
+    lineData: [],
+    lineChart: [],
+    pieData: [],
+    pieChart: [],
     news: [],
     users: [],
     keywordTable:[],

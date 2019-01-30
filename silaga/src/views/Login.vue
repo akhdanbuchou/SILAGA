@@ -79,7 +79,6 @@ export default{
                 this.$session.start()
                 if(response){
                     this.$session.set('username', response.data.user.username)
-                    console.log(this.$session.get('username'))
                     axios.get(defaultApi + 'role?id=' + response.data.user.role)
                     .then(res => {
                         this.$session.set('currentUser', res.data)

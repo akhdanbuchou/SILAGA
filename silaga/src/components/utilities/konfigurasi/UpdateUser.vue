@@ -14,8 +14,9 @@
                     <v-flex xs6 sm6 md6>
                         <v-select
                         :items="roles"
-                        menu-props="auto"
                         v-model="selectedPengguna.peran"
+                        item-text="text"
+                        item-value="value"
                         label="Pilih Role"
                         ></v-select>
                     </v-flex>
@@ -29,7 +30,7 @@
             <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" flat @click="close()">Cancel</v-btn>
-                <v-btn color="blue darken-1" flat @click="updateUser(selectedPengguna)">Save</v-btn>
+                <v-btn color="blue darken-1" flat @click="updateUser()">Save</v-btn>
             </v-card-actions>
         </v-card>
     </div>
@@ -46,13 +47,21 @@ export default {
                 {text:"Bintang",value:90},
                 {text:"Melati Menengah",value:91},
                 {text:"Melati Pertama",value:92},
-                {text:"Personal",value:93},
+                {text:"Personil",value:93},
                 {text:"Pemda DKI",value:94}
-            ]     
+            ]
+               
         }
     },
     methods:{
-        updateUser (newUser) {
+        updateUser () {
+            var newUser = {
+                id: this.selectedPengguna.id,
+                nama: this.selectedPengguna.nama,
+                username: this.selectedPengguna.username,
+                role: this.selectedPengguna.peran
+            }
+            console.log(newUser.role)
             this.$store.dispatch('updateUser', newUser)
             this.close()
         },

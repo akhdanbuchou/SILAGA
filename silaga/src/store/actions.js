@@ -5,12 +5,9 @@ import axios from 'axios';
 var defaultApi = 'http://127.0.0.1:5000/'
 
 export default {
-  getAllNews({commit}){
-    axios({
-      method: 'get',
-      url: defaultApi + 'allnews'
-      }).then(response => {
-          //console.log(response.data[0])
+  getAllNews({commit}, jumlah){
+    axios.get(defaultApi + 'allnews/' + jumlah)
+    .then(response => {
           commit('setAllNews', response.data)
       })
   },
@@ -49,7 +46,23 @@ export default {
         id: newUser.id,
         username: newUser.username,
         nama: newUser.nama,
-        role: newUser.peran
+        role: newUser.role
+      }
+      }).then(response => {
+        axios({
+          method: 'get',
+          url: defaultApi + 'users'
+          }).then(res => {
+              commit('setAllUsers', res.data)
+          })
+      })
+  },
+  deleteUser({commit}, oldUser){
+    axios({
+      method: 'post',
+      url: defaultApi + 'deleteUser',
+      data:{
+        idUser: oldUser.id,
       }
       }).then(response => {
         axios({
@@ -186,6 +199,24 @@ export default {
     }).then(response => {
       
     })
+  },
+  getDefaultLineChart({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'rekap/0/-/-/-/bulanan'
+    }).then(response => {
+      commit('setLineChart',response.data)
+    })
+
+  },
+  getDefaultPieChart({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'pie-chart/0/-/-/-'
+    }).then(response => {
+      commit('setPieChart',response.data)
+    })
+
   }
   
 }

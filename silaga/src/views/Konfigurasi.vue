@@ -18,18 +18,35 @@
             <v-text-field
               v-model="searchUser"
               label="Cari Pengguna"
-              single-line
-              hide-details
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
 
           <CreateUser></CreateUser>
+
           <v-dialog v-model="modalEdit" max-width="500px">
             <UpdateUser :selectedPengguna="selectedPengguna" v-on:closeUpdate="closeUpdate($event)"></UpdateUser>
           </v-dialog>
+
           <ManageRole :roles="roles"></ManageRole>
+
           <v-dialog v-model="modalCategory" max-width="500px">
             <CategoryDetail :selectedCategory="selectedCategory" v-on:closeCategory="closeCategory($event)"></CategoryDetail>
+          </v-dialog>
+
+          <v-dialog v-model="modalDelete" max-width="500px">
+              <v-card>
+                  <v-card-title>
+                      <span class="title">Apa anda yakin ingin menghapus pengguna dengan username: 
+                          <span class="title font-weight-black"> {{toDeletePengguna.username}} ? </span>
+                      </span>
+                  </v-card-title>
+
+                  <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn class="font-weight-bold" color="blue darken-1" flat @click="closeDelete()">Batal</v-btn>
+                      <v-btn class="font-weight-bold" color="red darken-1" flat @click="deletePengguna()">Hapus</v-btn>
+                  </v-card-actions>
+              </v-card>
           </v-dialog>
             
           </v-card-title>
@@ -41,8 +58,7 @@
           ></v-progress-circular>
           <v-data-table v-else
             :headers="userHeaders"
-            :items="users"
-            :search="searchUser"
+            :items="userTable(pengguna, searchUser)"
           >
             <template slot="items" slot-scope="props">
                 <td>{{props.index + 1}}</td>
@@ -77,18 +93,16 @@
 
         <v-card class="mt-4">
           <v-card-title class="font-weight-medium">
-            Daftar Kategori dan Kata Kunci
+            Daftar Golongan Gangguan dan Kata Kunci
             <v-spacer></v-spacer>
             <v-text-field
               v-model="searchKeyword"
               label="Cari Kategori"
-              single-line
-              hide-details
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
             
           </v-card-title>
-          <v-progress-circular v-if="keywordTable.length == 0" class="mb-3 ml-3"
+          <v-progress-circular v-if="keywords.length == 0" class="mb-3 ml-3"
             row wrap align-center justify-center
             :width="3"
             color="green"
@@ -96,8 +110,7 @@
           ></v-progress-circular>
           <v-data-table v-else
             :headers="keywordHeaders"
-            :items="keywordTable"
-            :search="searchKeyword"
+            :items="keywordTable(keywords, searchKeyword)"
           >
             <template slot="items" slot-scope="props">
               <td>{{ props.item.idKategori }}</td>
@@ -146,6 +159,8 @@ export default {
     searchKeyword:'',
     selectedPengguna:{},
     selectedCategory:{},
+    toDeletePengguna:{},
+    modalDelete: false,
     modalEdit: false,
     modalCategory: false,
     userHeaders: [
@@ -160,7 +175,7 @@ export default {
       { text: 'Golongan Utama', value: 'nama1' },
       { text: 'Sub-Golongan', value: 'nama2' },
       { text: 'Sub-Sub-Golongan', value: 'nama3' },
-      { text: 'Jumlah Keyword', value: 'keyCount' },
+      { text: 'Jumlah Kata Kunci', value: 'keyCount' },
       { text: 'Action', value: 'action' }
     ],
     urutan:1,
@@ -182,13 +197,14 @@ export default {
               id: this.users[i].id,
               nama: this.users[i].nama,
               role: this.users[i].role,
+              wewenang: this.users[i].wewenang,
               username: this.users[i].username
             }
             pengguna.push(tempPengguna)
           }
         return pengguna
       },
-      keywordTable(){
+      keywords(){
         var result= []
         for(var i = 0; i < this.tempKeywordTable.length; i++){
           var spliter = this.tempKeywordTable[i].namaKategori3.split(" - ")
@@ -213,15 +229,37 @@ export default {
       }
     },
     methods: {
+      userTable(list, keyword){
+        var keyUpper = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+        if(keyword != null){
+          return list.filter(element => {
+            return element.nama.indexOf(keyword) > -1 || 
+                  element.nama.indexOf(keyUpper) > -1 ||
+                  element.wewenang.indexOf(keyUpper) > -1 ||
+                  element.username.indexOf(keyword) > -1 
+          });
+        }else {
+          return list
+        }
+      },
+      keywordTable(list, keyword){
+        var keyUpper = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+        if(keyword != null){
+          return list.filter(element => {
+            return element.gol.indexOf(keyUpper) > -1 ||
+                  element.sgol.indexOf(keyUpper) > -1 ||
+                  element.ssgol.indexOf(keyUpper) > -1
+          });
+        }else {
+          return list
+        }
+      },
       popUpdateUser(pengguna){
         this.selectedPengguna = {
           id: pengguna.id,
           nama: pengguna.nama,
           username: pengguna.username,
-          peran:{
-            value: pengguna.role,
-            text: pengguna.wewenang
-          }
+          peran: pengguna.role
         }
         this.modalEdit = true
       },
@@ -232,6 +270,17 @@ export default {
           objKeyword: category.keyword,
         }
         this.modalCategory = true
+      },
+      popDelete(pengguna){
+        this.modalDelete = true
+        this.toDeletePengguna = pengguna
+      },
+      deletePengguna(){
+        this.$store.dispatch('deleteUser', this.toDeletePengguna)
+        this.closeDelete()
+      },
+      closeDelete(){
+        this.modalDelete = false
       },
       closeUpdate(event){
         this.modalEdit = event

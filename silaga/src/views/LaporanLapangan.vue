@@ -17,9 +17,7 @@
             <v-spacer></v-spacer>
             <v-text-field
               v-model="search"
-              label="Search"
-              single-line
-              hide-details
+              label="Cari Laporan"
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
           </v-card-title>

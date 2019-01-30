@@ -16,10 +16,14 @@
             Daftar Analisis Berita Online
             <v-spacer></v-spacer>
             <v-text-field
+              v-model="jumlahBerita"
+              label="Jumlah Muatan Berita"
+            ></v-text-field>
+            <v-btn color="green lighten-1 " dark class="ml-3 ml-3" @click="loadBerita(jumlahBerita)">Muat Berita</v-btn>
+            <v-spacer></v-spacer>
+            <v-text-field
               v-model="search"
-              label="Search"
-              single-line
-              hide-details
+              label="Cari Berita"
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
 
@@ -42,7 +46,7 @@
             
           
           </v-card-title>
-          <v-progress-circular v-if="news.length == 0" class="mb-3 ml-3"
+          <v-progress-circular v-if="news.length == 0 || loadFlag" class="mb-3 ml-3"
               row wrap align-center justify-center
               :width="3"
               color="green"
@@ -101,6 +105,7 @@ import { mapGetters } from 'vuex';
 import ModalCreateBerita from "@/components/utilities/berita/ModalCreateBerita.vue";
 import ModalDetailBerita from "@/components/utilities/berita/ModalDetailBerita.vue";
 import ModalUpdateBerita from "@/components/utilities/berita/ModalUpdateBerita.vue";
+const defaultApi = 'http://127.0.0.1:5000/'
 
 import axios from 'axios'
 export default {
@@ -110,10 +115,13 @@ export default {
     ModalUpdateBerita
   },
   data: () => ({
+    loadFlag: false,
     alertCreate: false,
     alertUpdate: false,
     modalDetail: false,
     modalEdit: false,
+    jumlahBerita:'',
+    oldBerita:[],
     selectedNews:{},
     search: '',
     headers: [
@@ -206,6 +214,16 @@ export default {
       }
     },
     methods: {
+      loadBerita(jumlah){
+        this.loadFlag = true
+        axios.get(defaultApi + 'allnews/' + jumlah)
+        .then(response => {
+            if(response){
+               this.$store.commit('setAllNews', response.data)
+               this.loadFlag = false
+            }
+        })       
+      },
       closeDetail(event){
         this.modalDetail = event
       },
@@ -252,7 +270,7 @@ export default {
       }
     },
     beforeMount() {
-        this.$store.dispatch('getAllNews')
+        this.$store.dispatch('getAllNews', 5)
         this.$store.dispatch('getAllCategories')
     }
 }

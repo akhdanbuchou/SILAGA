@@ -81,6 +81,9 @@
 </template>
 
 <script>
+import axios from 'axios';
+var defaultApi = 'http://127.0.0.1:5000/'
+
 export default {
     name:"CategoryDetail",
     props:['modalCategory','selectedCategory'],
@@ -96,6 +99,7 @@ export default {
             modalCreate:false,
             newKey:'',
             idToDelete:'',
+            kunciToDelete:'',
             keyToDelete:''
         }
     },
@@ -108,31 +112,62 @@ export default {
         closeDetail(){
             this.$emit("closeCategory", false)
         },
-        closeCreate(){
-            this.modalCreate = false
-        },
         closeDelete(){
             this.modalDelete = false
         },
+        closeCreate(){
+            this.modalCreate = false
+        },
         popDelete(newKey){
             this.idToDelete = newKey.idKeyword
+            this.kuncitoDelete = newKey.namaKeyword
             this.keyToDelete = " " + newKey.namaKeyword
             this.modalDelete = true
         },
         createKeyword(){
             var keyBaru = this.newKey
             var newKeyword = {
-                keyword: keyBaru,
+                namakeyword: keyBaru,
                 kategori3: this.selectedCategory.idKategori
             }
-            this.$store.dispatch("createKeyword", newKeyword)
-            this.$emit("updateKeyword")
-            this.closeCreate()
+            
+            axios({
+                method: 'post',
+                url: defaultApi + 'createKeyword',
+                data:{
+                    keyword: newKeyword.namakeyword,
+                    kategori3: newKeyword.kategori3
+                }
+            }).then(response => {
+                if(response){
+                    var kunciBaru = {
+                        namaKeyword: this.newKey,
+                        idKeyword: response.data
+                    }
+                    this.keywords.push(kunciBaru)
+                }
+            })
+            
+            //this.$store.dispatch("createKeyword", newKeyword)
+            
+            this.modalCreate = false
         },
         deleteKeyword(){
-            this.$store.dispatch("deleteKeyword", this.idToDelete)
-            this.$emit("updateKeyword")
-            this.closeDelete()
+            
+            axios({
+                method: 'post',
+                url: defaultApi + 'deleteKeyword',
+                data:{
+                    idKeyword: this.idToDelete
+                }
+            }).then(response => {
+                if(response){
+                    var index = this.keywords.indexOf(this.kunciToDelete)
+                    this.keywords.splice(index,1)
+                }
+            })
+            //this.$store.dispatch("deleteKeyword", this.idToDelete)
+            this.modalDelete = false
         }
     }
 }

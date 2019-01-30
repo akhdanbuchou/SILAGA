@@ -24,5 +24,17 @@ export default {
   },
   getKeywordTable(state){
     return state.keywordTable
+  },
+  getLineData(state){
+    return state.lineData
+  },
+  getLineChart(state){
+    return state.lineChart
+  },
+  getPieData(state){
+    return state.pieData
+  },
+  getPieChart(state){
+    return state.pieChart
   }
 }

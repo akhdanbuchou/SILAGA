@@ -21,5 +21,11 @@ export default {
   },
   setKeywordTable(state,data){
       state.keywordTable = data
+  },
+  setLineChart(state, data){
+    console.log(data)
+  },
+  setPieChart(state, data){
+    console.log(data)
   }
 }

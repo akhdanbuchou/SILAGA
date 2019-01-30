@@ -305,6 +305,7 @@ def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti
 
     # jumlah data dengan filter tersebut 
     test = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, q, startdate)
+    print(test)
     connection = urllib2.urlopen(test)
     response = eval(connection.read())
     numfound = response['response']['numFound']
@@ -313,7 +314,7 @@ def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti
     # mengambil data 
     result = {}
     url = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, q, startdate, numfound)
-    # print(url)
+    print(url)
     connection = urllib2.urlopen(url)
     response = eval(connection.read())
     docs = response['response']['docs']
@@ -339,7 +340,22 @@ def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti
     return arr
 
 def get_rekap(jenis, start, end, keyword, freq):
-    startdate = '[{}%20TO%20{}]'.format(start, end)
+    
+    # kategori like a madman
+    q = ''
+    idx = 1
+    if jenis == '0':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+        idx = 0
+    if jenis == '1':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+    if jenis == '2':
+        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+    if jenis == '3':
+        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+    if jenis == '4':
+        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+
     reldelta = None
     if freq=='harian':
         reldelta = relativedelta(days=1)
@@ -351,15 +367,73 @@ def get_rekap(jenis, start, end, keyword, freq):
         reldelta = relativedelta(years=1)
 
     dt_start = datetime.strptime(start, '%Y-%m-%d')
-    dt_next = dt_start 
-    result = []
+    dt_end = datetime.strptime(end, '%Y-%m-%d')
     
+    n_dict = {}
+    # dari start, berjalan ke end sesuai interval 
+    list_kategori = []
+    while dt_start < dt_end:
+        print('sedang di {} '.format(dt_start))
+        # sembari di sini, mengambil data di interval ini
+        now = dt_start
+        nxt = dt_start + reldelta
+        now_str = now.strftime('%Y-%m-%dT00:00:00Z')
+        nxt_str = nxt.strftime('%Y-%m-%dT00:00:00Z')
+        startdate = '[{}%20TO%20{}]'.format(now_str, nxt_str)
+
+        # ambil jumlah row 
+        test = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, startdate, q )
+        print(test)
+        connection = urllib2.urlopen(test)
+        response = eval(connection.read())
+        numfound = response['response']['numFound']
+
+        # ambill data 
+        result = {}
+        url = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, startdate, q, numfound)
+        print(url)
+        connection = urllib2.urlopen(url)
+        response = eval(connection.read())
+        docs = response['response']['docs']
+        
+        id_arr = []
+        # ambil semua berita di interval tanggal ini , simpan di list id_arr
+        d = {}
+        for doc in docs:
+            # memasukkan ke daftar kategori yang ada di interval ini 
+            if doc['kategori'][0] not in list_kategori:
+                list_kategori.append(doc['kategori'][0])
+
+            # mengupdate jumlah berita dengan kategori tsb 
+            if doc['kategori'][0] not in d:
+                d[doc['kategori'][0]] = 1
+            else:
+                d[doc['kategori'][0]] += 1
+        
+        # masukin id_arr ke arr
+        n_dict[now_str[0:10]] = d
+
+        # increment 
+        dt_start += reldelta
+
+    # rapi rapi buat Vue 
+    for k in list_kategori:
+        # to-do 
+        # buat dict baru 
+        new_dict = {'kategori':}
+
+    '''
+    con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat_id))
+            res = eval(con.read())
+            kat_name = res['result'][idx]
+    '''
+
+    print(list_kategori)
+    return n_dict
     # dari start, berjalan sesuai interval ke end
         # sembari jalan, ambil berita di interval tersebut dengan jenis tersebut 
         # kalau jenis==0, ambil 1-185
 
-
-    
     '''
     # kategori like a madman 
     q = ''
@@ -375,38 +449,10 @@ def get_rekap(jenis, start, end, keyword, freq):
         q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
     if jenis == '4':
         q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
-
-    # jumlah data dengan filter tersebut 
-    test = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, q, startdate)
-    connection = urllib2.urlopen(test)
-    response = eval(connection.read())
-    numfound = response['response']['numFound']
-    # print(numfound)
-
-    # mengambil data 
-    result = {}
-    url = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, q, startdate, numfound)
-    # print(url)
-    connection = urllib2.urlopen(url)
-    response = eval(connection.read())
-    docs = response['response']['docs']
-    for doc in docs:
-        kat_id = doc['kategori'][0]
-        con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat_id))
-        res = eval(con.read())
-        kat_name = res['result'][idx]
-
-        if kat_name not in result:
-            result[kat_name] = 1
-        else:
-            result[kat_name] += 1
-    print(result)
-    '''
-    # merapikan data buat dilempar ke Vue
-    arr =[]
+    
     # for k,v in result.items():
     #     new_dict = {}
     #     new_dict['namaGangguan'] = k
     #     new_dict['jumlahGangguan'] = v
     #     arr.append(new_dict)
-    return arr
+    '''

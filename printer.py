@@ -51,14 +51,3 @@ def createLaporan(pie_data, line_data):
 
     # menyimpan docx 
     doc.save('lapor.docx')
-
-pie_data = [
-    {
-        'nama':'kejahatan',
-        'jumlah':30
-    },{
-        'nama':'pelangga'
-    }
-]
-
-createLaporan()

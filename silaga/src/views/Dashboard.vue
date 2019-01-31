@@ -60,7 +60,7 @@
             </v-layout>
           </v-card-text>
         </v-card>
-        <material-card color="green darken-4" title="Analisis Linechart"> 
+        <material-card color="green darken-4" :title="titleLineChart"> 
           <v-progress-circular v-if="seriesLine.length == 0 || loadLineFlag" class="mb-3 ml-3"
               row wrap align-center justify-center
               :width="3"
@@ -75,18 +75,18 @@
     </v-layout>
     <v-layout>
       <v-flex xs6>
-        <material-card color="green darken-4" title="Analisis Persebaran Gangguan">
-          <v-select v-if="secondLayerFlag">
-          </v-select>
-          <v-btn color="green darken-2" dark class="ml-3 ml-3" @click="loadMap()">
+        <material-card color="green darken-4" :title="titleMap">
+          <v-btn color="green darken-2" dark class="ml-3 ml-3" @click="loadMap(filterGangguan, 
+          filterKunci, filterStartDate, filterEndDate)">
               Tampilkan Map
           </v-btn>
           <v-spacer></v-spacer>
-          <div style="width: 480px; height: 480px;" id="mapContainer"></div>
+          <div v-if="showMap" style="width: 480px; height: 480px;" id="mapContainer"></div>
+          <div v-else style="width: 480px; height: 480px;" id="mapContainer"></div>
         </material-card>
       </v-flex>
       <v-flex xs6>
-        <material-card color="green darken-4" title="Analisis Piechart">
+        <material-card color="green darken-4" :title="titlePieChart">
           <v-spacer></v-spacer>
           <v-progress-circular v-if="seriesPie.length == 0 || loadPieFlag" class="mb-3 ml-3"
               row wrap align-center justify-center
@@ -121,11 +121,15 @@ export default {
   },
     data () {
       return {
+        titleLineChart:'Analisis Linechart Gangguan ',
+        titlePieChart:'Analisis Piechart Gangguan ',
+        titleMap:'Analisis Pesebaran Gangguan ',
         loadPieFlag: false,
         loadLineFlag: false,
         secondLayerFlag: false,
         menuDate1: false,
         menuDate2: false,
+        showMap: false,
         map: [],
         selectedGangguan: '',
         filterGangguan: '0',
@@ -133,6 +137,7 @@ export default {
         filterStartDate: '',
         filterEndDate: '',
         filterFrekuensi: 'bulanan',
+        filterMap:'1',
         dropdownFrekuensi:[
           {
             text:'Harian',
@@ -155,7 +160,6 @@ export default {
     },
     methods: {
       cetakAnalisis(){
-        
         axios({
           method: 'post',
           url: defaultApi + 'cetak',
@@ -175,6 +179,8 @@ export default {
 
       },
       applyFilter(filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi){
+        this.showMap = false
+
         this.loadLineFlag = true
         this.loadPieFlag = true
 
@@ -212,8 +218,29 @@ export default {
             this.loadPieFlag = false
           }
         })
+
+        var gangguan = ''
+        if(filterGangguan == '0'){gangguan = ''}
+        else if(filterGangguan == '1'){gangguan = "Kejahatan"}
+        else if(filterGangguan == '2'){gangguan = "Pelanggaran"}
+        else if(filterGangguan == '3'){gangguan = "Kejahatan"}
+        else if(filterGangguan == '4'){gangguan = "Bencana"}
+
+        this.titleLineChart += gangguan
+        this.titlePieChart += gangguan
+        this.titleMap += gangguan
       },
-      loadMap(){
+      loadMap(filterGangguan, filterKunci, filterStartDate, filterEndDate){
+        this.showMap = true
+        if(filterStartDate == ''){
+          filterStartDate = '-'
+        }
+        if(filterEndDate == ''){
+          filterEndDate = '-'
+        }
+        if(filterKunci == ''){
+          filterKunci = '-'
+        }
         var platform = new H.service.Platform({
           'app_id': 'MoO52514bDjIGMcKnyvl',
           'app_code': 'Wog4qWYDldsEqg45tk223Q'
@@ -244,9 +271,8 @@ export default {
         var ui = H.ui.UI.createDefault(map, defaultLayers, 'en-US');
         
         // lokasi lokasi didapat dari query python ke solr 
-        axios.get(defaultApi + 'map/0/2018-10-10/2019-02-02/-')
+        axios.get(defaultApi + 'map/'+filterGangguan+'/'+filterStartDate+'/'+filterEndDate+'/'+filterKunci)
         .then(response => {
-            console.log(response.data)
             this.map = response.data
             var places = this.map
 
@@ -314,9 +340,6 @@ export default {
           result.push(temp)
         }
         return result
-      },
-      dropdownMap(){
-        
       }
     },
     mounted(){

@@ -22,7 +22,6 @@ HOST_CLASSIFIER = 'http://localhost:18881'
 
 ITER_NUM = 5
 
-
 ALL_KAT_3 = mysql.get_kat_name()
 # solr : online_media RELATED
 
@@ -99,7 +98,6 @@ def get_all_omed_classified(num):
     '''
     mengembalikan semua berita dari solr : omed_classified
     '''
-    
 
     connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
     response = eval(connection.read())
@@ -257,8 +255,8 @@ def get_map(jenis, start, end, keyword):
         dt_start = datetime.strptime(start, '%Y-%m-%d')
         dt_end = datetime.strptime(end, '%Y-%m-%d')
 
-    start = dt_start.strftime('%Y-%m-%d')
-    end = dt_end.strftime('%Y-%m-%d')
+    start = dt_start.strftime('%Y-%m-%dT00:00:00Z')
+    end = dt_end.strftime('%Y-%m-%dT00:00:00Z')
 
     startdate = '[{}%20TO%20{}]'.format(start, end)
     # keyword 
@@ -277,8 +275,9 @@ def get_map(jenis, start, end, keyword):
     if jenis == '4':
         q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
 
-    # jumlah data dengan filter tersebut 
-    test = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, q, startdate)
+    # jumlah data dengan filter tersebut
+    test = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q)
+    print(test)
     connection = urllib2.urlopen(test)
     response = eval(connection.read())
     numfound = response['response']['numFound']
@@ -286,7 +285,7 @@ def get_map(jenis, start, end, keyword):
 
     # mengambil data 
     location = []
-    url = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, q, startdate, numfound)
+    url = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
     print(url)
     connection = urllib2.urlopen(url)
     response = eval(connection.read())
@@ -315,8 +314,8 @@ def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti
     else:
         dt_start = datetime.strptime(start, '%Y-%m-%d')
         dt_end = datetime.strptime(end, '%Y-%m-%d')
-    start = dt_start.strftime('%Y-%m-%d')
-    end = dt_end.strftime('%Y-%m-%d')
+    start = dt_start.strftime('%Y-%m-%dT00:00:00Z')
+    end = dt_end.strftime('%Y-%m-%dT00:00:00Z')
 
     startdate = '[{}%20TO%20{}]'.format(start, end)
     # keyword 
@@ -337,7 +336,7 @@ def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti
         q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
 
     # jumlah data dengan filter tersebut 
-    test = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, q, startdate)
+    test = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q)
     print(test)
     connection = urllib2.urlopen(test)
     response = eval(connection.read())
@@ -346,16 +345,14 @@ def get_pie(jenis, start, end, keyword): # kalau 0 all, selain itu mengikuti
 
     # mengambil data 
     result = {}
-    url = '{}solr/omed_classified/select?indent=on&q={}&fq=start_date={}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, q, startdate, numfound)
+    url = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
     print(url)
     connection = urllib2.urlopen(url)
     response = eval(connection.read())
     docs = response['response']['docs']
     for doc in docs:
         kat_id = doc['kategori'][0]
-        con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat_id))
-        res = eval(con.read())
-        kat_name = res['result'][idx]
+        kat_name = ALL_KAT_3[kat_id][idx].capitalize()
 
         if kat_name not in result:
             result[kat_name] = 1
@@ -424,7 +421,7 @@ def get_rekap(jenis, start, end, keyword, freq):
         startdate = '[{}%20TO%20{}]'.format(now_str, nxt_str)
 
         # ambil jumlah row 
-        test = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&sort=timestamp%20asc&rows=1&wt=python'.format(HOST, startdate, q )
+        test = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q )
         print(test)
         connection = urllib2.urlopen(test)
         response = eval(connection.read())
@@ -432,7 +429,7 @@ def get_rekap(jenis, start, end, keyword, freq):
 
         # ambill data 
         result = {}
-        url = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&sort=timestamp%20asc&rows={}&wt=python'.format(HOST, startdate, q, numfound)
+        url = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
         print(url)
         connection = urllib2.urlopen(url)
         response = eval(connection.read())
@@ -443,9 +440,7 @@ def get_rekap(jenis, start, end, keyword, freq):
         d = {}
         for doc in docs:
             # ambil namanya dari kategorinya 
-            con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(doc['kategori'][0]))
-            res = eval(con.read())
-            nama = res['result'][idx]
+            nama = ALL_KAT_3[doc['kategori'][0]][idx].capitalize()
             
             # memasukkan ke daftar kategori yang ada di interval ini 
             if nama not in list_kategori:

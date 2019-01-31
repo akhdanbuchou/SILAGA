@@ -34,7 +34,7 @@ def download():
     content = request.get_json()
     piedata = content['piedata']
     linedata = content['linedata']
-    printer.createLaporan(pie_data, line_data)
+    printer.createLaporan(piedata, linedata)
     return send_file('lapor.docx')
 
 # USER RELATED

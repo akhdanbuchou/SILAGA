@@ -26,7 +26,7 @@ def create_line(data):
     for d in data['result']:
         jumlah = d['jumlahPerInterval']
         plt.plot(date, jumlah, label=d['namaGangguan'])
-    plt.legend(loc='upper-left', frameon=False)
+    plt.legend(loc='upper left', frameon=False)
     plt.savefig('line.png')
     # plt.show()
     plt.close()

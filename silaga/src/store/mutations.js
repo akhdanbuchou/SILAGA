@@ -26,6 +26,7 @@ export default {
       state.gangguanGol1 = data
   },
   setLineChart(state, data){
+    state.lineToPrint = data
     var temp = []
     var min = []
     var max = []
@@ -52,10 +53,11 @@ export default {
           shadow: {enabled: true, color: '#000', top: 18, left: 7, blur: 10, opacity: 1},
           toolbar: {show: false}
         },
-        colors: ['#77B6EA', '#545454'],
+        colors: ['rgb(0, 143, 251)', 'rgb(0, 227, 150)','rgb(254, 176, 25)','rgb(255, 69, 96)'
+        ,'rgb(173, 31, 159)','rgb(56, 46, 55)'],
         dataLabels: {enabled: true},
         stroke: {curve: 'smooth'},
-        title: {text: 'Rekapitulasi Berita',align: 'left'},
+        title: {text: 'Rekapitulasi Berita Gangguan',align: 'left'},
         grid: {
           borderColor: '#e7e7e7',
           row: {colors: ['#f3f3f3', 'transparent'], opacity: 0.5}},
@@ -69,25 +71,56 @@ export default {
 
   },
   setPieChart(state, data){
-    for(var i = 0; i < data.length; i++){
-        state.pieData.push(data[i].jumlahGangguan)
-        console.log(data[i].coba)
-        console.log(data[i].tes)
+    state.PieToPrint = data
+    if(data.selectedGangguan == '0'){
+        var temp = []
+        for(var i = 0; i < data.length; i++){
+            temp.push(data[i].jumlahGangguan)
+        }
+        state.pieData = temp
+
+        state.pieChart = {
+            labels: ['Kejahatan', 'Pelanggaran', 'Gangguan', 'Bencana'],
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                chart: {
+                    width: 500
+                },
+                legend: {
+                    position: 'bottom'
+                }
+                }
+            }]
+        }
+    }else{
+        var label = []
+        var index = data.selectedGangguan - 1
+        for(var i = 0; i < data.selectedCategory[index].subkategori2.length; i++){
+            label.push(data.selectedCategory[index].subkategori2[i].kategori2)
+        }
+        
+        var temp = []
+        for(var i = 0; i < data.length; i++){
+            temp.push(data[i].jumlahGangguan)
+        }
+        state.pieData = temp
+        state.pieChart = {
+            labels: label,
+            responsive: [{
+                breakpoint: 480,
+                options: {
+                chart: {
+                    width: 500
+                },
+                legend: {
+                    position: 'bottom'
+                }
+                }
+            }]
+        }
     }
-    state.pieChart = {
-        labels: ['Kejahatan', 'Pelanggaran', 'Gangguan', 'Benana'],
-        responsive: [{
-            breakpoint: 480,
-            options: {
-            chart: {
-                width: 200
-            },
-            legend: {
-                position: 'bottom'
-            }
-            }
-        }]
-    }
+    
   }
 
 }

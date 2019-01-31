@@ -41,7 +41,12 @@ export default {
     return state.pieChart
   },
   getMap(state){
-    console.log(state.map)
     return state.map
+  },
+  getLineToPrint(state){
+    return state.lineToPrint
+  },
+  getPieToPrint(state){
+    return state.PieToPrint
   }
 }

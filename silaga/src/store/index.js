@@ -24,8 +24,10 @@ const store = new Vuex.Store({
   state:{
     lineData: [],
     lineChart: {},
+    lineToPrint:{},
     pieData: [],
     pieChart: {},
+    pieToPrint:[],
     news: [],
     users: [],
     keywordTable:[],

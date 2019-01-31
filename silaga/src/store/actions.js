@@ -222,6 +222,7 @@ export default {
       method: 'get',
       url: defaultApi + 'pie-chart/0/-/-/-'
     }).then(response => {
+      response.data.selectedGangguan = '0'
       commit('setPieChart',response.data)
     })
   }

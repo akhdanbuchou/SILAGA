@@ -14,7 +14,9 @@
                 filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi)">
               Terapkan Filter
             </v-btn>
-            <v-btn color="green darken-2" dark class="ml-3 ml-3">Cetak Analisis</v-btn>
+            <v-btn color="green darken-2" dark class="ml-3 ml-3" @click="cetakAnalisis()">
+              Cetak Analisis
+            </v-btn>
           </v-card-title>
           <v-card-text>
             <v-layout>
@@ -59,12 +61,12 @@
           </v-card-text>
         </v-card>
         <material-card color="green darken-4" title="Analisis Linechart"> 
-          <v-progress-circular v-if="seriesLine.length == 0" class="mb-3 ml-3"
+          <v-progress-circular v-if="seriesLine.length == 0 || loadLineFlag" class="mb-3 ml-3"
               row wrap align-center justify-center
               :width="3"
               color="green"
               indeterminate
-            ></v-progress-circular>
+          ></v-progress-circular>
           <div v-else id="chart">
             <apexchart type=line height=350 :options="chartOptionsLine" :series="seriesLine"/>
           </div>
@@ -75,8 +77,10 @@
       <v-flex xs6>
         <material-card color="green darken-4" title="Analisis Persebaran Gangguan">
           <v-select v-if="secondLayerFlag">
-
           </v-select>
+          <v-btn color="green darken-2" dark class="ml-3 ml-3" @click="loadMap()">
+              Tampilkan Map
+          </v-btn>
           <v-spacer></v-spacer>
           <div style="width: 480px; height: 480px;" id="mapContainer"></div>
         </material-card>
@@ -84,7 +88,7 @@
       <v-flex xs6>
         <material-card color="green darken-4" title="Analisis Piechart">
           <v-spacer></v-spacer>
-          <v-progress-circular v-if="seriesPie.length == 0" class="mb-3 ml-3"
+          <v-progress-circular v-if="seriesPie.length == 0 || loadPieFlag" class="mb-3 ml-3"
               row wrap align-center justify-center
               :width="3"
               color="green"
@@ -150,23 +154,40 @@ export default {
       }
     },
     methods: {
+      cetakAnalisis(){
+        
+        axios({
+          method: 'post',
+          url: defaultApi + 'cetak',
+          data:{
+            linedata: this.lineToPrint,
+            piedata: this.pieToPrint 
+          },
+          responseType:'arraybuffer'
+        }).then(response => {
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', 'lapor.docx')
+          document.body.appendChild(link)
+          link.click()
+        })
+
+      },
       applyFilter(filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi){
         this.loadLineFlag = true
         this.loadPieFlag = true
 
-        if(filterStartDate == null){
+        if(filterStartDate == ''){
           filterStartDate = '-'
         }
-        if(filterEndDate == null){
+        if(filterEndDate == ''){
           filterEndDate = '-'
         }
-        if(filterKunci == null){
+        if(filterKunci == ''){
           filterKunci = '-'
         }
-        if(filterGangguan != '0'){
-          this.firstLayerFlag = true
-          this.selectedGangguan = filterGangguan
-        }
+        this.selectedGangguan = filterGangguan
 
         axios({
           method: 'get',
@@ -174,7 +195,7 @@ export default {
           '/'+ filterEndDate +'/'+ filterKunci +'/'+ filterFrekuensi
         }).then(response => {
           if(response){
-            commit('setLineChart',response.data)
+            this.$store.commit('setLineChart',response.data)
             this.loadLineFlag = false
           }
         })
@@ -185,12 +206,87 @@ export default {
           '/'+ filterEndDate +'/'+ filterKunci
         }).then(response => {
           if(response){
-            
-
-            commit('setPieChart',response.data)
-            this.loadLineFlag = false
+            response.data.selectedCategory = this.gangguanGol1
+            response.data.selectedGangguan = this.selectedGangguan
+            this.$store.commit('setPieChart',response.data)
+            this.loadPieFlag = false
           }
         })
+      },
+      loadMap(){
+        var platform = new H.service.Platform({
+          'app_id': 'MoO52514bDjIGMcKnyvl',
+          'app_code': 'Wog4qWYDldsEqg45tk223Q'
+        });
+
+        // Retrieve the target element for the map:
+        var targetElement = document.getElementById('mapContainer');
+
+        // Obtain the default map types from the platform object
+        var defaultLayers = platform.createDefaultLayers();
+
+        // Instantiate (and display) a map object:
+        var map = new H.Map(
+        document.getElementById('mapContainer'),
+        defaultLayers.normal.map,
+        {
+            zoom: 4.5,
+            center: { lng: 113.9213, lat: 0.7893 } // Indonesia coord as center
+        });
+
+        // Enable the event system on the map instance:
+        var mapEvents = new H.mapevents.MapEvents(map);
+
+        // Instantiate the default behavior, providing the mapEvents object: 
+        var behavior = new H.mapevents.Behavior(mapEvents);
+
+        // Create the default UI:
+        var ui = H.ui.UI.createDefault(map, defaultLayers, 'en-US');
+        
+        // lokasi lokasi didapat dari query python ke solr 
+        axios.get(defaultApi + 'map/0/2018-10-10/2019-02-02/-')
+        .then(response => {
+            console.log(response.data)
+            this.map = response.data
+            var places = this.map
+
+            for (var i = 0; i <= places.length; i++) {
+                // Looping through places defined by Indriya 
+            
+                // Create the parameters for the geocoding request:
+                var geocodingParams = {
+                    searchText: places[i]
+                };
+
+                // Define a callback function to process the geocoding response:
+                var onResult = function(result) {
+                    var locations = result.Response.View[0].Result,
+                        position,
+                        marker;
+
+                    // Add a marker for each location found
+                    for (i = 0;  i < locations.length; i++) {
+                        position = {
+                            lat: locations[i].Location.DisplayPosition.Latitude,
+                            lng: locations[i].Location.DisplayPosition.Longitude
+                        };
+                        marker = new H.map.Marker(position);
+                        map.addObject(marker);
+                    }
+
+                };
+                
+                // Get an instance of the geocoding service:
+                var geocoder = platform.getGeocodingService();
+                
+                // Call the geocode method with the geocoding parameters,
+                // the callback and an error callback function (called if a
+                // communication error occurs):
+                geocoder.geocode(geocodingParams, onResult, function(e) {
+                    alert(e);
+                });
+            }
+        }) 
       }
     },
     computed: {
@@ -199,7 +295,9 @@ export default {
           chartOptionsLine:'getLineChart',
           seriesPie:'getPieData',
           chartOptionsPie:'getPieChart',
-          gangguanGol1:'getGangguanGol1'
+          gangguanGol1:'getGangguanGol1',
+          lineToPrint:'getLineToPrint',
+          pieToPrint:'getPieToPrint'
       }),
       dropdownGangguan(){
         var result = []
@@ -213,7 +311,6 @@ export default {
             text: this.gangguanGol1[i].kategori1,
             value: this.gangguanGol1[i].id
           }
-          
           result.push(temp)
         }
         return result
@@ -225,80 +322,7 @@ export default {
     mounted(){
       this.$store.dispatch('getDefaultLineChart')
       this.$store.dispatch('getDefaultPieChart')
-      this.$store.dispatch('getFirstCategories')
-
-      var platform = new H.service.Platform({
-          'app_id': 'MoO52514bDjIGMcKnyvl',
-          'app_code': 'Wog4qWYDldsEqg45tk223Q'
-      });
-
-      // Retrieve the target element for the map:
-      var targetElement = document.getElementById('mapContainer');
-
-      // Obtain the default map types from the platform object
-      var defaultLayers = platform.createDefaultLayers();
-
-      // Instantiate (and display) a map object:
-      var map = new H.Map(
-      document.getElementById('mapContainer'),
-      defaultLayers.normal.map,
-      {
-          zoom: 4.5,
-          center: { lng: 113.9213, lat: 0.7893 } // Indonesia coord as center
-      });
-
-      // Enable the event system on the map instance:
-      var mapEvents = new H.mapevents.MapEvents(map);
-
-      // Instantiate the default behavior, providing the mapEvents object: 
-      var behavior = new H.mapevents.Behavior(mapEvents);
-
-      // Create the default UI:
-      var ui = H.ui.UI.createDefault(map, defaultLayers, 'en-US');
-      
-      // lokasi lokasi didapat dari query python ke solr 
-      axios.get(defaultApi + 'map/0/2018-10-10/2019-02-02/-')
-      .then(response => {
-          this.map = response.data
-          var places = this.map
-
-          for (var i = 0; i <= places.length; i++) {
-              // Looping through places defined by Indriya 
-          
-              // Create the parameters for the geocoding request:
-              var geocodingParams = {
-                  searchText: places[i]
-              };
-
-              // Define a callback function to process the geocoding response:
-              var onResult = function(result) {
-                  var locations = result.Response.View[0].Result,
-                      position,
-                      marker;
-
-                  // Add a marker for each location found
-                  for (i = 0;  i < locations.length; i++) {
-                      position = {
-                          lat: locations[i].Location.DisplayPosition.Latitude,
-                          lng: locations[i].Location.DisplayPosition.Longitude
-                      };
-                      marker = new H.map.Marker(position);
-                      map.addObject(marker);
-                  }
-
-              };
-              
-              // Get an instance of the geocoding service:
-              var geocoder = platform.getGeocodingService();
-              
-              // Call the geocode method with the geocoding parameters,
-              // the callback and an error callback function (called if a
-              // communication error occurs):
-              geocoder.geocode(geocodingParams, onResult, function(e) {
-                  alert(e);
-              });
-          }
-      })      
+      this.$store.dispatch('getFirstCategories')     
     
     }
 }

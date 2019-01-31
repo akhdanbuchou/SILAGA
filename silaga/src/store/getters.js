@@ -28,6 +28,9 @@ export default {
   getLineData(state){
     return state.lineData
   },
+  getGangguanGol1(state){
+    return state.gangguanGol1
+  },
   getLineChart(state){
     return state.lineChart
   },
@@ -36,5 +39,9 @@ export default {
   },
   getPieChart(state){
     return state.pieChart
+  },
+  getMap(state){
+    console.log(state.map)
+    return state.map
   }
 }

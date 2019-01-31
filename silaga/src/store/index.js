@@ -23,15 +23,16 @@ Vue.use(Vuex)
 const store = new Vuex.Store({
   state:{
     lineData: [],
-    lineChart: [],
+    lineChart: {},
     pieData: [],
-    pieChart: [],
+    pieChart: {},
     news: [],
     users: [],
     keywordTable:[],
     telegram: [],
     keyword: [],
     categories: [],
+    gangguanGol1:[],
     currentRole:{},
     roles:[]
   },

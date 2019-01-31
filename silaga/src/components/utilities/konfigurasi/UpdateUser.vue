@@ -61,7 +61,6 @@ export default {
                 username: this.selectedPengguna.username,
                 role: this.selectedPengguna.peran
             }
-            console.log(newUser.role)
             this.$store.dispatch('updateUser', newUser)
             this.close()
         },

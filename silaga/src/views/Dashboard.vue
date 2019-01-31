@@ -5,8 +5,67 @@
   >
     <v-layout>
       <v-flex>
+        <v-card>
+          <v-card-title xs12 sm12 md12 class="font-weight-medium">
+            Filter Pencarian Analisis
+            <v-spacer></v-spacer>
+            <v-btn color="green lighten-1 " dark class="ml-3 ml-3" 
+              @click="applyFilter( 
+                filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi)">
+              Terapkan Filter
+            </v-btn>
+            <v-btn color="green darken-2" dark class="ml-3 ml-3">Cetak Analisis</v-btn>
+          </v-card-title>
+          <v-card-text>
+            <v-layout>
+              <v-flex xs6 sm6 md6>
+                <v-select class="ml-2" :items="dropdownGangguan" v-model="filterGangguan"
+                  item-text="text" item-value="value" label="Pilih Jenis Gangguan">
+                </v-select>
+              </v-flex>
+              <v-flex xs6 sm6 md6>
+                <v-text-field class="ml-4" v-model="filterKunci" label="Cari dengan Kata Kunci">
+                </v-text-field>
+              </v-flex>
+            </v-layout>
+            <v-layout>
+              <v-flex xs4 sm4 md4>
+                <v-menu class="ml-2" :close-on-content-click="false" v-model="menuDate1" :nudge-right="40"
+                  lazy transition="scale-transition" offset-y full-width min-width="290px">
+                  <v-text-field slot="activator" v-model="filterStartDate" label="Tanggal Mulai" readonly>
+                  </v-text-field>
+                  <v-date-picker v-model="filterStartDate" @input="menuDate1 = false"></v-date-picker>
+                </v-menu>
+              </v-flex>
+              <v-flex xs4 sm4 md4>
+                <v-menu class="ml-4" :close-on-content-click="false" v-model="menuDate2" :nudge-right="40"
+                  lazy transition="scale-transition" offset-y full-width min-width="290px">
+                  <v-text-field slot="activator" v-model="filterEndDate" label="Tanggal Berakhir" readonly>
+                  </v-text-field>
+                  <v-date-picker v-model="filterEndDate" @input="menuDate2 = false"></v-date-picker>
+                </v-menu>
+              </v-flex>
+              <v-flex xs4 sm4 md4>
+                <v-select
+                  class="ml-4"
+                  :items="dropdownFrekuensi"
+                  v-model="filterFrekuensi"
+                  item-text="text"
+                  item-value="value"
+                  label="Pilih Frekuensi Analisis"
+                ></v-select>
+              </v-flex>
+            </v-layout>
+          </v-card-text>
+        </v-card>
         <material-card color="green darken-4" title="Analisis Linechart"> 
-          <div id="chart">
+          <v-progress-circular v-if="seriesLine.length == 0" class="mb-3 ml-3"
+              row wrap align-center justify-center
+              :width="3"
+              color="green"
+              indeterminate
+            ></v-progress-circular>
+          <div v-else id="chart">
             <apexchart type=line height=350 :options="chartOptionsLine" :series="seriesLine"/>
           </div>
         </material-card>
@@ -15,6 +74,9 @@
     <v-layout>
       <v-flex xs6>
         <material-card color="green darken-4" title="Analisis Persebaran Gangguan">
+          <v-select v-if="secondLayerFlag">
+
+          </v-select>
           <v-spacer></v-spacer>
           <div style="width: 480px; height: 480px;" id="mapContainer"></div>
         </material-card>
@@ -22,7 +84,13 @@
       <v-flex xs6>
         <material-card color="green darken-4" title="Analisis Piechart">
           <v-spacer></v-spacer>
-          <div id="chart" class="mx-5">
+          <v-progress-circular v-if="seriesPie.length == 0" class="mb-3 ml-3"
+              row wrap align-center justify-center
+              :width="3"
+              color="green"
+              indeterminate
+            ></v-progress-circular>
+          <div v-else id="chart" class="mx-5">
             <apexchart type=pie :options="chartOptionsPie" :series="seriesPie" />
           </div>
           <v-card-text>
@@ -39,6 +107,9 @@
 <script>
 
 import VueApexCharts from 'vue-apexcharts'
+import { mapGetters } from 'vuex';
+import axios from 'axios'
+const defaultApi = 'http://127.0.0.1:5000/'
 
 export default {
   components: {
@@ -46,104 +117,116 @@ export default {
   },
     data () {
       return {
-        seriesLine: [
-            {
-              name: "Kejahatan",
-              data: [28, 29, 33, 36, 32, 32, 33]
-            },
-            {
-              name: "Ketertiban",
-              data: [12, 11, 14, 18, 17, 13, 13]
-            }
-          ],
-          chartOptionsLine: {
-            chart: {
-              shadow: {
-                enabled: true,
-                color: '#000',
-                top: 18,
-                left: 7,
-                blur: 10,
-                opacity: 1
-              },
-              toolbar: {
-                show: false
-              }
-            },
-            colors: ['#77B6EA', '#545454'],
-            dataLabels: {
-              enabled: true,
-            },
-            stroke: {
-              curve: 'smooth'
-            },
-            title: {
-              text: 'Average High & Low Temperature',
-              align: 'left'
-            },
-            grid: {
-              borderColor: '#e7e7e7',
-              row: {
-                colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
-                opacity: 0.5
-              },
-            },
-            markers: {
-              
-              size: 6
-            },
-            xaxis: {
-              categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-              title: {
-                text: 'Month'
-              }
-            },
-            yaxis: {
-              title: {
-                text: 'Temperature'
-              },
-              min: 5,
-              max: 40
-            },
-            legend: {
-              position: 'top',
-              horizontalAlign: 'right',
-              floating: true,
-              offsetY: -25,
-              offsetX: -5
-            }
+        loadPieFlag: false,
+        loadLineFlag: false,
+        secondLayerFlag: false,
+        menuDate1: false,
+        menuDate2: false,
+        map: [],
+        selectedGangguan: '',
+        filterGangguan: '0',
+        filterKunci: '',
+        filterStartDate: '',
+        filterEndDate: '',
+        filterFrekuensi: 'bulanan',
+        dropdownFrekuensi:[
+          {
+            text:'Harian',
+            value:'harian'
           },
-
-          seriesPie: [44, 55, 13, 43, 22],
-          chartOptionsPie: {
-            labels: ['Team A', 'Team B', 'Team C', 'Team D', 'Team E'],
-            responsive: [{
-              breakpoint: 480,
-              options: {
-                chart: {
-                  width: 200
-                },
-                legend: {
-                  position: 'bottom'
-                }
-              }
-            }]
+          {
+            text:'Mingguan',
+            value:'mingguan'
+          },
+          {
+            text:'Bulanan',
+            value:'bulanan'
+          },
+          {
+            text:'Tahunan',
+            value:'tahunan'
           }
+        ]
       }
     },
     methods: {
-      
+      applyFilter(filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi){
+        this.loadLineFlag = true
+        this.loadPieFlag = true
+
+        if(filterStartDate == null){
+          filterStartDate = '-'
+        }
+        if(filterEndDate == null){
+          filterEndDate = '-'
+        }
+        if(filterKunci == null){
+          filterKunci = '-'
+        }
+        if(filterGangguan != '0'){
+          this.firstLayerFlag = true
+          this.selectedGangguan = filterGangguan
+        }
+
+        axios({
+          method: 'get',
+          url: defaultApi + 'rekap/'+ filterGangguan +'/'+ filterStartDate +
+          '/'+ filterEndDate +'/'+ filterKunci +'/'+ filterFrekuensi
+        }).then(response => {
+          if(response){
+            commit('setLineChart',response.data)
+            this.loadLineFlag = false
+          }
+        })
+
+        axios({
+          method: 'get',
+          url: defaultApi + 'pie-chart/'+ filterGangguan +'/'+ filterStartDate +
+          '/'+ filterEndDate +'/'+ filterKunci
+        }).then(response => {
+          if(response){
+            
+
+            commit('setPieChart',response.data)
+            this.loadLineFlag = false
+          }
+        })
+      }
     },
     computed: {
       ...mapGetters({
-          lineData:'getLineData',
-          lineChart:'getLineChart',
-          pieData:'getPieData',
-          pieChart:'getPieChart',
-          categories:'getCategories',
+          seriesLine:'getLineData',
+          chartOptionsLine:'getLineChart',
+          seriesPie:'getPieData',
+          chartOptionsPie:'getPieChart',
+          gangguanGol1:'getGangguanGol1'
       }),
+      dropdownGangguan(){
+        var result = []
+        var standar = {
+          text: 'semua',
+          value: '0'
+        }
+        result.push(standar)
+        for(var i = 0; i < this.gangguanGol1.length; i++){
+          var temp = {
+            text: this.gangguanGol1[i].kategori1,
+            value: this.gangguanGol1[i].id
+          }
+          
+          result.push(temp)
+        }
+        return result
+      },
+      dropdownMap(){
+        
+      }
     },
     mounted(){
+      this.$store.dispatch('getDefaultLineChart')
+      this.$store.dispatch('getDefaultPieChart')
+      this.$store.dispatch('getFirstCategories')
+
       var platform = new H.service.Platform({
           'app_id': 'MoO52514bDjIGMcKnyvl',
           'app_code': 'Wog4qWYDldsEqg45tk223Q'
@@ -174,48 +257,49 @@ export default {
       var ui = H.ui.UI.createDefault(map, defaultLayers, 'en-US');
       
       // lokasi lokasi didapat dari query python ke solr 
-      var places = ['Depok','Bontang','Medan', 'Ambon','Surabaya','Bandung','Makassar']
+      axios.get(defaultApi + 'map/0/2018-10-10/2019-02-02/-')
+      .then(response => {
+          this.map = response.data
+          var places = this.map
 
-      for (var i = 0; i <= places.length; i++) {
-          // Looping through places defined by Indriya 
-      
-          // Create the parameters for the geocoding request:
-          var geocodingParams = {
-              searchText: places[i]
-          };
-
-          // Define a callback function to process the geocoding response:
-          var onResult = function(result) {
-              var locations = result.Response.View[0].Result,
-                  position,
-                  marker;
-
-              // Add a marker for each location found
-              for (i = 0;  i < locations.length; i++) {
-                  position = {
-                      lat: locations[i].Location.DisplayPosition.Latitude,
-                      lng: locations[i].Location.DisplayPosition.Longitude
-                  };
-                  marker = new H.map.Marker(position);
-                  map.addObject(marker);
-              }
-
-          };
+          for (var i = 0; i <= places.length; i++) {
+              // Looping through places defined by Indriya 
           
-          // Get an instance of the geocoding service:
-          var geocoder = platform.getGeocodingService();
-          
-          // Call the geocode method with the geocoding parameters,
-          // the callback and an error callback function (called if a
-          // communication error occurs):
-          geocoder.geocode(geocodingParams, onResult, function(e) {
-              alert(e);
-          });
-      }
+              // Create the parameters for the geocoding request:
+              var geocodingParams = {
+                  searchText: places[i]
+              };
 
-      this.$store.dispatch('getDefaultLineChart')
-      this.$store.dispatch('getDefaultPieChart')
+              // Define a callback function to process the geocoding response:
+              var onResult = function(result) {
+                  var locations = result.Response.View[0].Result,
+                      position,
+                      marker;
 
+                  // Add a marker for each location found
+                  for (i = 0;  i < locations.length; i++) {
+                      position = {
+                          lat: locations[i].Location.DisplayPosition.Latitude,
+                          lng: locations[i].Location.DisplayPosition.Longitude
+                      };
+                      marker = new H.map.Marker(position);
+                      map.addObject(marker);
+                  }
+
+              };
+              
+              // Get an instance of the geocoding service:
+              var geocoder = platform.getGeocodingService();
+              
+              // Call the geocode method with the geocoding parameters,
+              // the callback and an error callback function (called if a
+              // communication error occurs):
+              geocoder.geocode(geocodingParams, onResult, function(e) {
+                  alert(e);
+              });
+          }
+      })      
+    
     }
 }
 </script>

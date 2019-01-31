@@ -22,10 +22,72 @@ export default {
   setKeywordTable(state,data){
       state.keywordTable = data
   },
+  setGangguanGol1(state,data){
+      state.gangguanGol1 = data
+  },
   setLineChart(state, data){
-    console.log(data)
+    var temp = []
+    var min = []
+    var max = []
+    for(var i = 0; i < data.result.length; i++){
+        max.push(Math.max.apply(null, data.result[i].jumlahPerInterval))
+        min.push(Math.min.apply(null, data.result[i].jumlahPerInterval))
+        var obj = {
+            name: data.result[i].namaGangguan,
+            data: data.result[i].jumlahPerInterval
+        }
+        temp.push(obj)
+    }
+    max = Math.max.apply(null, max)
+    min = Math.min.apply(null, min)
+    var maxBar = max + 2
+    var minBar = 0
+    if(min > 1){
+        minBar = min - 2
+    }
+    state.lineData = temp
+
+    state.lineChart = {
+        chart: {
+          shadow: {enabled: true, color: '#000', top: 18, left: 7, blur: 10, opacity: 1},
+          toolbar: {show: false}
+        },
+        colors: ['#77B6EA', '#545454'],
+        dataLabels: {enabled: true},
+        stroke: {curve: 'smooth'},
+        title: {text: 'Rekapitulasi Berita',align: 'left'},
+        grid: {
+          borderColor: '#e7e7e7',
+          row: {colors: ['#f3f3f3', 'transparent'], opacity: 0.5}},
+        markers: {size: 6},
+        xaxis: {categories: data.axisx,title: {text: 'Tanggal'}},
+        yaxis: {title: {text: 'Jumlah Berita'},min: minBar,max: maxBar},
+        legend: {position: 'top',horizontalAlign: 'right',floating: true,offsetY: -25,offsetX: -5
+        }
+    }
+
+
   },
   setPieChart(state, data){
-    console.log(data)
+    for(var i = 0; i < data.length; i++){
+        state.pieData.push(data[i].jumlahGangguan)
+        console.log(data[i].coba)
+        console.log(data[i].tes)
+    }
+    state.pieChart = {
+        labels: ['Kejahatan', 'Pelanggaran', 'Gangguan', 'Benana'],
+        responsive: [{
+            breakpoint: 480,
+            options: {
+            chart: {
+                width: 200
+            },
+            legend: {
+                position: 'bottom'
+            }
+            }
+        }]
+    }
   }
+
 }

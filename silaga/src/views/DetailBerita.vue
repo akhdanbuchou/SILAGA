@@ -105,9 +105,9 @@ import { mapGetters } from 'vuex';
 import ModalCreateBerita from "@/components/utilities/berita/ModalCreateBerita.vue";
 import ModalDetailBerita from "@/components/utilities/berita/ModalDetailBerita.vue";
 import ModalUpdateBerita from "@/components/utilities/berita/ModalUpdateBerita.vue";
+import axios from 'axios'
 const defaultApi = 'http://127.0.0.1:5000/'
 
-import axios from 'axios'
 export default {
   components: {
     ModalCreateBerita,
@@ -195,7 +195,7 @@ export default {
               language:'id',
               kategori3: tempKategori,
               lokasi: tempLokasi,
-              waktu: this.news[i].timestamp,
+              waktu: this.news[i].timestamp.replace(':00', ''),
               jam: clock,
               date: date,
               isi: this.news[i].content,

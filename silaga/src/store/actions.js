@@ -73,6 +73,14 @@ export default {
           })
       })
   },
+  getFirstCategories({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'categories',
+    }).then(response => {
+        commit('setGangguanGol1', response.data)
+    })
+  },
   getAllCategories({commit}){
     axios({
       method: 'get',
@@ -216,7 +224,6 @@ export default {
     }).then(response => {
       commit('setPieChart',response.data)
     })
-
   }
   
 }

@@ -8,16 +8,17 @@ from datetime import datetime
 from xml.etree.ElementTree import fromstring
 
 import requests
-from flask import Flask, Response, jsonify, request
+from flask import Flask, Response, jsonify, request, send_file
 
 import hbase_rest as hbase
 import mysql_rest as mysql
 import solr_rest as solr
+import printer as printer
 
 from flask_cors import CORS, cross_origin
 
 # instantiate flask app
-app = Flask(__name__)
+app = Flask(__name__,static_folder='docx')
 CORS(app)
 
 IP = '10.32.6.225'
@@ -25,6 +26,16 @@ PORT = 18880
 # dev 
 IP = '127.0.0.1'
 PORT = 5000
+
+# LAPORAN RELATED
+@app.route('/cetak', methods=['GET'])
+@cross_origin()
+def download():
+    content = request.get_json()
+    piedata = content['piedata']
+    linedata = content['linedata']
+    printer.createLaporan(pie_data, line_data)
+    return send_file('lapor.docx')
 
 # USER RELATED
 

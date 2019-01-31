@@ -108,7 +108,10 @@ def get_all_omed_classified(num):
         if kat == 0:
             kat_name = ['Netral', 'Netral', 'Netral']
         else:
-            kat_name = ALL_KAT_3[kat]
+            kname = ALL_KAT_3[kat]
+            kat_name = []
+            for k in kname:
+                kat_name.append(k.capitalize())
         doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
         doc['kategori'] = kat_name # override 
         doc['content'] = doc['content'][0]

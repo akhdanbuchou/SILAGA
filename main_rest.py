@@ -28,7 +28,7 @@ IP = '127.0.0.1'
 PORT = 5000
 
 # LAPORAN RELATED
-@app.route('/cetak', methods=['POST'])
+@app.route('/cetak', methods=['GET','POST'])
 @cross_origin()
 def download():
     content = request.get_json()

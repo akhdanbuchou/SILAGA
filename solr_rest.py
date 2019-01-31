@@ -14,11 +14,9 @@ import mysql_rest as mysql
 
 ROW_NUM = 10000
 HOST = 'http://10.32.6.225:8983/'
-HOST_CLASSIFIER = 'http://10.32.6.225:18881'
 
 #dev
 HOST = 'http://localhost:8983/'
-HOST_CLASSIFIER = 'http://localhost:18881'
 
 ITER_NUM = 5
 
@@ -212,14 +210,19 @@ def get_all_telegram_reports():
     result = []
     for doc in docs:
         res = {}
+        name = []
         kat = doc['kategori'][0]
+        if kat==0:
+            name = ['Netral', 'Netral', 'Netral']
+        else:
+            lst = ALL_KAT_3[kat]
+            name = []
+            for i in lst:
+                name.append(i.capitalize())
 
-        con = urllib2.urlopen(HOST_CLASSIFIER + '/category-name/{}'.format(kat))
-        res = eval(con.read())
-        kat_name = res['result']
 
         res['timestamp'] = str(doc['date'][0])[0:10] + " "+str(doc['date'][0])[11:19]
-        res['kategori'] = kat_name # override 
+        res['kategori'] = name # override 
         res['pelapor'] = doc['pelapor'][0]
         res['content'] = doc['laporan'][0]
         res['id'] = doc['id']

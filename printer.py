@@ -3,6 +3,7 @@ from docx import Document
 from docx.shared import Inches 
 
 def create_pie(data):
+    print('sedang buat pie chart')
     # Labels 
     labels = []
     nums = []
@@ -18,6 +19,7 @@ def create_pie(data):
     plt.close()
 
 def create_line(data):
+    print('sedang buat line chart')
     plt.xlabel('Tanggal')
     plt.ylabel('Jumlah Berita')
     #plt.title('Judul')

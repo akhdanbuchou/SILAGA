@@ -35,6 +35,7 @@ def download():
     piedata = content['piedata']
     linedata = content['linedata']
     printer.createLaporan(piedata, linedata)
+    print('mencetak')
     return send_file('lapor.docx')
 
 # USER RELATED

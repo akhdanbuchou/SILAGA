@@ -7,8 +7,8 @@ def create_pie(data):
     labels = []
     nums = []
     for d in data:
-        labels.append(d['nama'])
-        nums.append(d['jumlah'])
+        labels.append(d['namaGangguan'])
+        nums.append(d['jumlahGangguan'])
     fig1, ax1 = plt.subplots()
     ax1.pie(nums, labels=labels, autopct='%1.1f%%',
             shadow=False, startangle=90)
@@ -24,8 +24,8 @@ def create_line(data):
     date = data['axisx']
 
     for d in data['result']:
-        jumlah = d['jumlah']
-        plt.plot(date, jumlah, label=d['nama'])
+        jumlah = d['jumlahPerInterval']
+        plt.plot(date, jumlah, label=d['namaGangguan'])
     plt.legend(loc='upper-left', frameon=False)
     plt.savefig('line.png')
     # plt.show()
@@ -35,6 +35,8 @@ def createLaporan(pie_data, line_data):
     create_pie(pie_data)
     create_line(line_data)
 
+    start = line_data['axisx'][0]
+    end = line_data['axisx'][len(line_data['axisx'])-1]
     # buat docx
     doc = Document()
 
@@ -49,3 +51,14 @@ def createLaporan(pie_data, line_data):
 
     # menyimpan docx 
     doc.save('lapor.docx')
+
+pie_data = [
+    {
+        'nama':'kejahatan',
+        'jumlah':30
+    },{
+        'nama':'pelangga'
+    }
+]
+
+createLaporan()

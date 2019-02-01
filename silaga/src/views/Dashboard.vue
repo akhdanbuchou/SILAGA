@@ -179,6 +179,7 @@ export default {
 
       },
       applyFilter(filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi){
+        document.getElementById('mapContainer').innerHTML = ''
         this.showMap = false
 
         this.loadLineFlag = true
@@ -220,15 +221,22 @@ export default {
         })
 
         var gangguan = ''
+        var tLinechart = ''
+        var tPiechart = ''
+        var tMap = ''
         if(filterGangguan == '0'){gangguan = ''}
         else if(filterGangguan == '1'){gangguan = "Kejahatan"}
         else if(filterGangguan == '2'){gangguan = "Pelanggaran"}
-        else if(filterGangguan == '3'){gangguan = "Kejahatan"}
+        else if(filterGangguan == '3'){gangguan = ""}
         else if(filterGangguan == '4'){gangguan = "Bencana"}
 
-        this.titleLineChart += gangguan
-        this.titlePieChart += gangguan
-        this.titleMap += gangguan
+        tLinechart = 'Analisis Linechart Gangguan ' + gangguan
+        tPiechart = 'Analisis Piechart Gangguan ' + gangguan
+        tMap = 'Analisis Pesebaran Gangguan ' + gangguan
+
+        this.titleLineChart = tLinechart
+        this.titlePieChart = tPiechart
+        this.titleMap = tMap
       },
       loadMap(filterGangguan, filterKunci, filterStartDate, filterEndDate){
         this.showMap = true

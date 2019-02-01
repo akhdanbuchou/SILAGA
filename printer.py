@@ -29,13 +29,29 @@ def create_line(data):
         jumlah = d['jumlahPerInterval']
         plt.plot(date, jumlah, label=d['namaGangguan'])
     plt.legend(loc='upper left', frameon=False)
+    plt.xticks(rotation=-22)
     plt.savefig('line.png')
     # plt.show()
     plt.close()
 
-def createLaporan(pie_data, line_data):
+def create_hist(data):
+    date = [''] + data['axisx']
+    rows = []
+    for d in data['result']:
+        rname = d['namaGangguan']
+        rows.append([rname] + d['jumlahPerInterval'])
+    plt.table(cellText=rows,colLabels=date,loc='center')
+    #plt.title('Tabel Hasil Analisis')
+    plt.axis('off')
+    plt.axis('tight')
+    plt.savefig('table.png')
+    # plt.show()
+    plt.close()
+
+def createLaporan(pie_data, line_data, start, end):
     create_pie(pie_data)
     create_line(line_data)
+    create_hist(line_data)
 
     start = line_data['axisx'][0]
     end = line_data['axisx'][len(line_data['axisx'])-1]
@@ -43,13 +59,15 @@ def createLaporan(pie_data, line_data):
     doc = Document()
 
     # kasih heading 
-    doc.add_heading('Ringkasan Hasil Analisis', 0)
+    doc.add_heading('Ringkasan Hasil Analisis \n{} s/d {}'.format(start, end), 0)
 
     # memasukkan chart ke docx
     doc.add_heading('Pie chart persebaran gangguan', level=1)
     doc.add_picture('pie.png', width=Inches(6))
     doc.add_heading('Line chart persebaran gangguan', level=1)
     doc.add_picture('line.png', width=Inches(6))
+    doc.add_heading('Tabel persebaran gangguan', level=1)
+    doc.add_picture('table.png', width=Inches(6))
 
     # menyimpan docx 
     doc.save('lapor.docx')

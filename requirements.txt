@@ -11,3 +11,4 @@ Flask-Cors==3.0.7
 python-dateutil==2.7.5
 hdfs==2.2.2
 matplotlib==3.0.2
+python-docx==0.8.10

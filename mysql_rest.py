@@ -4,13 +4,14 @@ import security as security
 QUERY_USER = ("SELECT * FROM user")
 
 # QUERY-RELATED
-
+'''
 IP = '10.32.6.227'
 USER = 'magang'
 PASSWORD = 'poc**219'
 DATABASE = 'lapor'
 
 # dev
+'''
 IP = 'localhost'
 USER = 'root'
 PASSWORD = None
@@ -303,7 +304,8 @@ def get_all_roles():
             'wewenang':type_fixed_row[1],
             'user_config':str(type_fixed_row[2]),
             'berita_config':str(type_fixed_row[3]),
-            'access_report':str(type_fixed_row[4])
+            'access_news':str(type_fixed_row[4]),
+            'access_telegram':str(type_fixed_row[5])
         }
         roles.append(role)
     cur.close()
@@ -318,8 +320,9 @@ def update_role(roles):
         id_role = data['id']
         user_config = data['user_config']
         berita_config = data['berita_config']
-        access_report = data['access_report']
-        query = ("UPDATE wewenang SET user_config=\'{}\', berita_config=\'{}\', access_report=\'{}\' WHERE id=\'{}\'".format(user_config, berita_config, access_report, id_role))
+        access_news = data['access_news']
+        access_telegram = data['access_telegram']
+        query = ("UPDATE wewenang SET user_config=\'{}\', berita_config=\'{}\', access_news=\'{}\', access_telegram=\'{}\' WHERE id=\'{}\'".format(user_config, berita_config, access_news, access_telegram, id_role))
         execute_query(query)
 
 # KEYWORDS-RELATED

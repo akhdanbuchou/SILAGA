@@ -20,10 +20,11 @@ from flask_cors import CORS, cross_origin
 # instantiate flask app
 app = Flask(__name__,static_folder='docx')
 CORS(app)
-
-IP = '10.32.6.225'
+'''
+IP = '5.79.64.131'
 PORT = 18880
 # dev 
+'''
 IP = '127.0.0.1'
 PORT = 5000
 
@@ -31,11 +32,40 @@ PORT = 5000
 @app.route('/cetak', methods=['GET','POST'])
 @cross_origin()
 def download():
+    
     content = request.get_json()
-    piedata = content['piedata']
     linedata = content['linedata']
-    printer.createLaporan(piedata, linedata)
-    print('mencetak')
+    piedata = []
+    for res in linedata['result']:
+        nama = res['namaGangguan']
+        jumlah = sum(res['jumlahPerInterval'])
+        new_dict = {
+            "namaGangguan":nama,
+            "jumlahGangguan":jumlah
+        }
+        piedata.append(new_dict)
+    '''
+    data = {
+        "linedata":{
+            "axisx":["2018","2019"],
+            "result":[
+                {
+                    "namaGangguan":"kejahatan",
+                    "jumlahPerInterval":[1,2]
+                }
+            ]
+        },
+        "piedata":[{
+            "namaGangguan":"kejahatan",
+            "jumlahGangguan":2
+        }]
+    }
+    linedata = data['linedata']
+    piedata = data['piedata']
+    '''
+    start = linedata['axisx'][0]
+    end = linedata['axisx'][len(content['linedata']['axisx'])-1]
+    printer.createLaporan(piedata, linedata, start, end)
     return send_file('lapor.docx')
 
 # USER RELATED

@@ -10,11 +10,13 @@ import requests
 from xmljson import badgerfish as bf
 
 import mysql_rest as mysql
-
+'''
 URL = 'http://10.32.6.225:16001'
 ###
 # development
+'''
 URL = 'http://localhost:16001'
+
 ###
 
 def b64decode(b): # basis 64 decoder

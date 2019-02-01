@@ -13,9 +13,11 @@ import hbase_rest as hbase
 import mysql_rest as mysql
 
 ROW_NUM = 10000
+'''
 HOST = 'http://10.32.6.225:8983/'
 
 #dev
+'''
 HOST = 'http://localhost:8983/'
 
 ITER_NUM = 5

@@ -66,6 +66,12 @@ export default {
     methods:{
         createUser (newUser) {
             this.$store.dispatch('createUser', newUser)
+            this.newUser = {
+                nama:"",
+                role:"",
+                username:"",
+                password:""
+            },
             this.close()
         },
         close(){

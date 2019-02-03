@@ -1,7 +1,7 @@
 <template>
     <div class="ModalCreateBerita">
         <v-dialog v-model="modalCreate" max-width="500px">
-            <v-btn slot="activator" color="green darken-1 " dark class="mb-2 ml-3">Tambah Berita</v-btn>
+            <v-btn v-if="this.$session.get('berita_config') == '1'" slot="activator" color="green darken-1 " dark class="mb-2 ml-3">Tambah Berita</v-btn>
             <v-card>
                 <v-card-title>
                     <span class="headline">Tambah Berita</span>

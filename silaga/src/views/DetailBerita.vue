@@ -52,7 +52,7 @@
               color="green"
               indeterminate
             ></v-progress-circular>
-          <v-data-table v-else
+          <v-data-table v-else-if="news.length != 0 || !loadFlag"
             :headers="headers"
             :items="berita"
             :search="search"
@@ -63,9 +63,10 @@
               <td class="text-xs-left">{{ props.item.kategori3 }}</td>
               <td class="text-xs-left">{{ props.item.lokasi }}</td>
               <td class="text-xs-left">{{ props.item.waktu }}</td>
+              <td class="text-xs-left">{{ props.item.tempSitename }}</td>
               <td class="text-xs-left">{{ conciseNews(props.item.isi) }}</td>
               <td class="justify-left pl-3 layout px-0">
-                <v-icon
+                <v-icon 
                   small
                   class="mr-2"
                   @click="popDetail(props.item)"
@@ -73,7 +74,8 @@
                 >
                   mdi-feature-search-outline
                 </v-icon>
-                <v-icon
+                <v-icon 
+                  v-if="konfigFlag"
                   small
                   class="mr-2"
                   @click="popEdit(props.item)"
@@ -81,12 +83,6 @@
                 >
                   mdi-pencil
                 </v-icon>
-                <!--<v-icon
-                  small
-                  @click="popDelete(props.item)"
-                >
-                  mdi-delete
-                </v-icon>-->
               </td>
             </template>
             <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
@@ -130,6 +126,7 @@ export default {
       { text: 'Kategori', value: 'kategori' },
       { text: 'Lokasi', value: 'lokasi' },
       { text: 'Waktu', value: 'timestamp' },
+      { text: 'Sumber', value: 'sitename'},
       { text: 'Isi Berita', value: 'isi' },
       { text: 'Action', value: 'action' }
     ],
@@ -154,6 +151,13 @@ export default {
           news:'getNews',
           categories:'getCategories'
       }),
+      konfigFlag(){
+        if(this.$session.get('berita_config') == '1'){
+          return true
+        }else{
+          return false
+        }
+      },
       formTitle () {
         return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
       },
@@ -163,8 +167,10 @@ export default {
           for(var i = 0; i < this.news.length; i++){
             var tempKategori = ""
             var tempLokasi = ""
+            var tempSitename = ""
             var toLoopKategori = this.news[i].kategori
             var toLoopLokasi =  this.news[i].lokasi
+            var toLoopSitename = this.news[i].sitename
 
             for(var j = 0; j < toLoopKategori.length; j++){
               if(toLoopKategori.length - j == 1){
@@ -179,6 +185,14 @@ export default {
                 tempLokasi += this.news[i].lokasi[j]
               }else{
                 tempLokasi += this.news[i].lokasi[j] + ", "
+              }
+            }
+
+            for(var j = 0; j < toLoopSitename.length; j++){
+              if(toLoopSitename.length - j == 1){
+                tempSitename += this.news[i].sitename[j]
+              }else{
+                tempSitename += this.news[i].sitename[j] + ", "
               }
             }
 
@@ -200,6 +214,7 @@ export default {
               date: date,
               isi: this.news[i].content,
               url: this.news[i].url,
+              tempSitename: tempSitename,
               sitename: this.news[i].sitename,
               author: this.news[i].author 
             }

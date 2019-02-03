@@ -21,7 +21,15 @@
                                     <td class="text-xs-left">{{ props.item.wewenang }}</td>
                                     <td>
                                         <v-checkbox
-                                        v-model="props.item.user_config"
+                                        v-model="props.item.access_news"
+                                        value="1"
+                                        primary
+                                        hide-details
+                                        ></v-checkbox>
+                                    </td>
+                                    <td>
+                                        <v-checkbox
+                                        v-model="props.item.access_telegram"
                                         value="1"
                                         primary
                                         hide-details
@@ -37,7 +45,7 @@
                                     </td>
                                     <td>
                                         <v-checkbox
-                                        v-model="props.item.access_report"
+                                        v-model="props.item.user_config"
                                         value="1"
                                         primary
                                         hide-details
@@ -67,9 +75,10 @@ export default {
         return{
             headers:[
                 {text:'Wewenang', value:'wewenang'},
-                {text:'Konfigurasi User',value:'user_config'},
+                {text:'Akses Berita',value:'access_news'},
+                {text:'Akses Laporan',value:'access_telegram'},
                 {text:'Konfirugasi Berita',value:'berita_config'},
-                {text:'Akses Laporan',value:'access_report'}
+                {text:'Konfigurasi User',value:'user_config'}
             ],
             modalCreate: false,
         }

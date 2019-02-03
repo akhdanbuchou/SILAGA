@@ -81,7 +81,10 @@ export default{
                     this.$session.set('username', response.data.user.username)
                     axios.get(defaultApi + 'role?id=' + response.data.user.role)
                     .then(res => {
-                        this.$session.set('currentUser', res.data)
+                        this.$session.set('user_config', res.data.user_config)
+                        this.$session.set('berita_config', res.data.berita_config)
+                        this.$session.set('access_news', res.data.access_news)
+                        this.$session.set('access_telegram', res.data.access_telegram)
                         this.$router.push({path: '/'})
                         
                     })

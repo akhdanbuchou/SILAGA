@@ -161,7 +161,7 @@ export default {
         updated_roles: updated_roles
       }
     }).then(response => {
-      axsios({
+      axios({
         method: 'get',
         url: defaultApi + 'roles',
       }).then(response=>{

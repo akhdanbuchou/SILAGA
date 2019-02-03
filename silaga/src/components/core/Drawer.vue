@@ -7,7 +7,7 @@
     floating
     persistent
     mobile-break-point="991"
-    width="260"
+    width="240"
   >
     <v-layout
       class="fill-height"
@@ -61,7 +61,7 @@
         <v-list-tile-title>Beranda</v-list-tile-title>
       </v-list-tile>
 
-      <v-list-tile v-if="this.$session.get('currentUser').berita_config == '1'"
+      <v-list-tile v-if="this.$session.get('access_news') == '1'"
       to="/detail-berita" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
           <v-icon>mdi-newspaper</v-icon>
@@ -69,7 +69,7 @@
         <v-list-tile-title>Daftar Berita</v-list-tile-title>
       </v-list-tile>
 
-      <v-list-tile v-if="this.$session.get('currentUser').access_report == '1'"
+      <v-list-tile v-if="this.$session.get('access_telegram') == '1'"
       to="/laporan-lapangan" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
           <v-icon>mdi-telegram</v-icon>
@@ -77,7 +77,7 @@
         <v-list-tile-title>Berita Lapangan</v-list-tile-title>
       </v-list-tile>
 
-      <v-list-tile v-if="this.$session.get('currentUser').user_config == '1'"
+      <v-list-tile v-if="this.$session.get('user_config') == '1'"
       to="/konfigurasi" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
           <v-icon>mdi-settings</v-icon>

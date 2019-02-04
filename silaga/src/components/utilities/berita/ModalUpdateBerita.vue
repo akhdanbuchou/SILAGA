@@ -73,7 +73,7 @@
                             label="Tanggal Berita"
                             readonly
                             ></v-text-field>
-                            <v-date-picker v-model="selectedNews.date" @input="menuDate = false"></v-date-picker>
+                            <v-date-picker dark v-model="selectedNews.date" @input="menuDate = false"></v-date-picker>
                         </v-menu>
                     </v-flex>
                     <v-flex xs6 sm6 md6>

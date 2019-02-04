@@ -36,7 +36,7 @@
                   lazy transition="scale-transition" offset-y full-width min-width="290px">
                   <v-text-field slot="activator" v-model="filterStartDate" label="Tanggal Mulai" readonly>
                   </v-text-field>
-                  <v-date-picker v-model="filterStartDate" @input="menuDate1 = false"></v-date-picker>
+                  <v-date-picker dark v-model="filterStartDate" @input="menuDate1 = false"></v-date-picker>
                 </v-menu>
               </v-flex>
               <v-flex xs4 sm4 md4>
@@ -44,7 +44,7 @@
                   lazy transition="scale-transition" offset-y full-width min-width="290px">
                   <v-text-field slot="activator" v-model="filterEndDate" label="Tanggal Berakhir" readonly>
                   </v-text-field>
-                  <v-date-picker v-model="filterEndDate" @input="menuDate2 = false"></v-date-picker>
+                  <v-date-picker dark v-model="filterEndDate" @input="menuDate2 = false"></v-date-picker>
                 </v-menu>
               </v-flex>
               <v-flex xs4 sm4 md4>

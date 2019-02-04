@@ -74,7 +74,7 @@
                                 label="Tanggal Berita"
                                 readonly
                                 ></v-text-field>
-                                <v-date-picker v-model="date" @input="menuDate = false"></v-date-picker>
+                                <v-date-picker dark v-model="date" @input="menuDate = false"></v-date-picker>
                             </v-menu>
                         </v-flex>
                         <v-flex xs6 sm6 md6>
@@ -107,8 +107,7 @@
 export default {
     name:"ModalCreateBerita",
     props:['categories'],
-    data(){
-        return{
+    data: () => ({
             date: new Date().toISOString().substr(0, 10),
             modalCreate: false,
             menuJam: false,
@@ -125,13 +124,11 @@ export default {
                 author: ""
             },
             jam: "",
-            date: "",
             loading: false,
             items: [],
             search: null,
             select: null
-        }
-    },
+    }),
     computed:{
         objekKategori(){
             var result = []

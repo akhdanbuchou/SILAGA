@@ -27,18 +27,29 @@ export default {
   },
   setLineChart(state, data){
     state.lineToPrint = data
-    var temp = []
+    var tempLine = []
+    var tempHeaderExcel = {
+        Jenis: "jenis"
+    }
+    var tempHeaderCsv = []
+    tempHeaderCsv.push('id')
+    tempHeaderCsv.push('jenis')
+    var tempDataExcel = []
+    var tempDataCsv = []
     var min = []
     var max = []
+
     for(var i = 0; i < data.result.length; i++){
         max.push(Math.max.apply(null, data.result[i].jumlahPerInterval))
         min.push(Math.min.apply(null, data.result[i].jumlahPerInterval))
+
         var obj = {
             name: data.result[i].namaGangguan,
             data: data.result[i].jumlahPerInterval
         }
-        temp.push(obj)
+        tempLine.push(obj)
     }
+
     max = Math.max.apply(null, max)
     min = Math.min.apply(null, min)
     var maxBar = max + 2
@@ -46,7 +57,7 @@ export default {
     if(min > 1){
         minBar = min - 2
     }
-    state.lineData = temp
+    state.lineData = tempLine
 
     state.lineChart = {
         chart: {
@@ -68,6 +79,32 @@ export default {
         }
     }
 
+    for(var i = 0; i < data.result.length; i++){
+        var tempExcelData = {}
+        var tempCsvData = {}
+        tempExcelData.jenis = data.result[i].namaGangguan
+        tempCsvData.jenis = data.result[i].namaGangguan
+        tempCsvData.id = i + 1
+        for(var j = 0; j < data.axisx.length; j ++){
+            var headCount = 1
+            
+            var inCount = j + headCount
+            tempHeaderExcel[data.axisx[j]] = 'header' + inCount
+            headCount++
+            tempExcelData['header' + inCount] = data.result[i].jumlahPerInterval[j]
+            tempCsvData[data.axisx[j]] = data.result[i].jumlahPerInterval[j]
+        }
+        tempDataExcel.push(tempExcelData)
+        tempDataCsv.push(tempCsvData)
+    }
+
+    for(var i = 0; i < data.axisx.length; i++){
+        tempHeaderCsv.push(data.axisx[i])
+    }
+    state.csvData = tempDataCsv
+    state.csvHeader = tempHeaderCsv
+    state.excelData = tempDataExcel
+    state.excelHeader = tempHeaderExcel   
 
   },
   setPieChart(state, data){

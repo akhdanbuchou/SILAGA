@@ -102,7 +102,7 @@ import ModalCreateBerita from "@/components/utilities/berita/ModalCreateBerita.v
 import ModalDetailBerita from "@/components/utilities/berita/ModalDetailBerita.vue";
 import ModalUpdateBerita from "@/components/utilities/berita/ModalUpdateBerita.vue";
 import axios from 'axios'
-const defaultApi = 'http://127.0.0.1:5000/'
+const defaultApi = "http://5.79.64.131:18880/"
 
 export default {
   components: {

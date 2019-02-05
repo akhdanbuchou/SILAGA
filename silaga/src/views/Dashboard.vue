@@ -9,14 +9,28 @@
           <v-card-title xs12 sm12 md12 class="font-weight-medium">
             Filter Pencarian Analisis
             <v-spacer></v-spacer>
-            <v-btn color="green lighten-1 " dark class="ml-3 ml-3" 
+            <v-btn color="green lighten-1 " dark class="ml-3" 
               @click="applyFilter( 
                 filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi)">
               Terapkan Filter
             </v-btn>
-            <v-btn color="green darken-2" dark class="ml-3 ml-3" @click="cetakAnalisis()">
+            <v-btn color="green darken-2" dark class="ml-3" @click="cetakAnalisis()">
               Cetak Analisis
             </v-btn>
+            <download-excel
+                class   ="v-btn green darken-2 ml-3"
+                :data   ="excelData"
+                :fields ="excelHeader"
+                name    ="Rekap Analisis.xls">
+                Unduh Excel
+            </download-excel>
+            <vue-csv-downloader
+                class         ="v-btn green darken-2 ml-3"
+                :data         ="csvData"
+                :fields       ="csvHeader"
+                download-name ="Rekap Analisis.csv">
+                Unduh CSV
+            </vue-csv-downloader>
           </v-card-title>
           <v-card-text>
             <v-layout>
@@ -111,16 +125,17 @@
 <script>
 
 import VueApexCharts from 'vue-apexcharts'
+import VueCsvDownloader from 'vue-csv-downloader';
 import { mapGetters } from 'vuex';
 import axios from 'axios'
-const defaultApi = 'http://127.0.0.1:5000/'
+const defaultApi = "http://5.79.64.131:18880/"
 
 export default {
   components: {
-    apexchart: VueApexCharts
+    apexchart: VueApexCharts,
+    VueCsvDownloader
   },
-    data () {
-      return {
+     data: () => ({
         titleLineChart:'Analisis Linechart Gangguan ',
         titlePieChart:'Analisis Piechart Gangguan ',
         titleMap:'Analisis Pesebaran Gangguan ',
@@ -156,8 +171,7 @@ export default {
             value:'tahunan'
           }
         ]
-      }
-    },
+    }),
     methods: {
       cetakAnalisis(){
         axios({
@@ -331,7 +345,11 @@ export default {
           chartOptionsPie:'getPieChart',
           gangguanGol1:'getGangguanGol1',
           lineToPrint:'getLineToPrint',
-          pieToPrint:'getPieToPrint'
+          pieToPrint:'getPieToPrint',
+          excelHeader:'getExcelHeader',
+          excelData:'getExcelData',
+          csvHeader:'getCsvHeader',
+          csvData:'getCsvData'
       }),
       dropdownGangguan(){
         var result = []

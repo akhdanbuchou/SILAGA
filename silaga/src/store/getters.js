@@ -48,5 +48,17 @@ export default {
   },
   getPieToPrint(state){
     return state.PieToPrint
+  },
+  getExcelHeader(state){
+    return state.excelHeader
+  },
+  getExcelData(state){
+    return state.excelData
+  },
+  getCsvHeader(state){
+    return state.csvHeader
+  },
+  getCsvData(state){
+    return state.csvData
   }
 }

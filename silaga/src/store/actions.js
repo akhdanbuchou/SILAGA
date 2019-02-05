@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 
-var defaultApi = 'http://127.0.0.1:5000/'
+var defaultApi = "http://5.79.64.131:18880/"
 
 export default {
   getAllNews({commit}, jumlah){

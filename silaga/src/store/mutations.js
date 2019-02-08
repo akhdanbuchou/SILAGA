@@ -84,9 +84,20 @@ export default {
     state.lineData = tempLine
 
     state.lineChart = {
+        tooltip:{
+            intersect: true,
+            shared: false
+        },
         chart: {
-          shadow: {enabled: true, color: '#000', top: 18, left: 7, blur: 10, opacity: 1},
-          toolbar: {show: false}
+            shadow: {enabled: true, color: '#000', top: 18, left: 7, blur: 10, opacity: 1},
+            toolbar: {show: false},
+            events: {
+                dataPointSelection: function(event, chartContext, config) {
+                    console.log(event)
+                    console.log(chartContext)
+                    console.log(config)
+                }
+            }
         },
         colors: ['rgb(0, 143, 251)', 'rgb(0, 227, 150)','rgb(254, 176, 25)','rgb(255, 69, 96)'
         ,'rgb(173, 31, 159)','rgb(56, 46, 55)'],
@@ -99,8 +110,7 @@ export default {
         markers: {size: 6},
         xaxis: {categories: data.axisx,title: {text: 'Tanggal'}},
         yaxis: {title: {text: 'Jumlah Berita'},min: minBar,max: maxBar},
-        legend: {position: 'top',horizontalAlign: 'right',floating: true,offsetY: -25,offsetX: -5
-        }
+        legend: {position: 'top',horizontalAlign: 'right',floating: true,offsetY: -25,offsetX: -5}
     }
 
     for(var i = 0; i < data.result.length; i++){

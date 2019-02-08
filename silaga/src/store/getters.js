@@ -60,5 +60,14 @@ export default {
   },
   getCsvData(state){
     return state.csvData
+  },
+  getMedia(state){
+    return state.media
+  },
+  getMediaGambar(state){
+    return state.mediaGambar
+  },
+  getMediaVideo(state){
+    return state.mediaVideo
   }
 }

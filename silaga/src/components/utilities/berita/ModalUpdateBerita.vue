@@ -14,7 +14,7 @@
                     <v-flex xs12 sm12 md12>
                         <v-autocomplete
                         :loading="loading"
-                        :items="objekKategori"
+                        :items="dropGangguan"
                         :search-input.sync="search"
                         v-model="selectedNews.kategori3"
                         cache-items
@@ -114,7 +114,7 @@ export default{
             select: null
         }
     },
-    props:['selectedNews','categories'],
+    props:['selectedNews','dropGangguan'],
     methods:{
         close () {
             this.$emit("closeEdit", false)
@@ -127,17 +127,6 @@ export default{
         }
     },
     computed:{
-        objekKategori(){
-            var result = []
-            for(var i = 0; i < this.categories.length; i++){
-                var temp = {
-                    value: this.categories[i].id,
-                    text: this.categories[i].kategori
-                }
-                result.push(temp)
-            }
-            return result
-        },
         kategoriSekarang(){
             var result = []
             for(var i = 0; i < this.categories.length; i++){

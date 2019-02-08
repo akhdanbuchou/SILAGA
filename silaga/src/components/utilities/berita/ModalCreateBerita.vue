@@ -15,14 +15,14 @@
                         <v-flex xs12 sm12 md12>
                             <v-autocomplete
                             :loading="loading"
-                            :items="objekKategori"
+                            :items="dropGangguan"
                             :search-input.sync="search"
                             v-model="newBerita.kategori3"
                             cache-items
                             flat
                             hide-no-data
                             hide-details
-                            label="Cari Kategori"
+                            label="Cari Gangguan"
                             solo-inverted
                             ></v-autocomplete>
                         </v-flex>
@@ -106,7 +106,7 @@
 
 export default {
     name:"ModalCreateBerita",
-    props:['categories'],
+    props:['dropGangguan'],
     data: () => ({
             date: new Date().toISOString().substr(0, 10),
             modalCreate: false,
@@ -129,19 +129,6 @@ export default {
             search: null,
             select: null
     }),
-    computed:{
-        objekKategori(){
-            var result = []
-            for(var i = 0; i < this.categories.length; i++){
-                var temp = {
-                    value: this.categories[i].id,
-                    text: this.categories[i].kategori
-                }
-                result.push(temp)
-            }
-            return result
-        }
-    },
     methods:{
       popCreate (){
         this.modalCreate = true

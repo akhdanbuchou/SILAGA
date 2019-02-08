@@ -27,7 +27,7 @@
             ></v-text-field>
             <v-icon>mdi-magnify</v-icon>
 
-            <ModalCreateBerita :categories="categories"></ModalCreateBerita>
+            <ModalCreateBerita :dropGangguan="dropGangguan"></ModalCreateBerita>
 
             <v-dialog v-model="modalDetail" max-width="500px">
               <ModalDetailBerita 
@@ -38,12 +38,26 @@
           
             <v-dialog v-model="modalEdit" max-width="500px">
               <ModalUpdateBerita 
-              :categories="categories"
+              :dropGangguan="dropGangguan"
               :selectedNews="selectedNews" 
               :modalEdit="modalEdit" v-on:closeEdit="closeEdit($event)"
               ></ModalUpdateBerita>
             </v-dialog>
-            
+          <v-flex xs6 sm6 md6>
+            <v-autocomplete
+              :loading="loading" :items="dropGangguan" v-model="filterGangguan" 
+              cache-items flat hide-no-data hide-details
+              label="Pilih Filter Gangguan" solo-inverted>
+            </v-autocomplete>
+          </v-flex>
+          <v-flex xs6 sm6 md6>
+              <v-menu :close-on-content-click="false" v-model="menuDate1" :nudge-right="40"
+                lazy transition="scale-transition" offset-y full-width min-width="290px">
+                <v-text-field slot="activator" v-model="filterTanggal" label="Pilih Filter Tanggal" readonly>
+                </v-text-field>
+                <v-date-picker dark v-model="filterTanggal" @input="menuDate1 = false"></v-date-picker>
+              </v-menu>
+          </v-flex>
           
           </v-card-title>
           <v-progress-circular v-if="news.length == 0 || loadFlag" class="mb-3 ml-3"
@@ -54,7 +68,7 @@
             ></v-progress-circular>
           <v-data-table v-else-if="news.length != 0 || !loadFlag"
             :headers="headers"
-            :items="berita"
+            :items="filterBy(berita, filterGangguan, filterTanggal)"
             :search="search"
           >
             <template slot="items" slot-scope="props">
@@ -111,11 +125,15 @@ export default {
     ModalUpdateBerita
   },
   data: () => ({
+    loading: false,
     loadFlag: false,
     alertCreate: false,
     alertUpdate: false,
     modalDetail: false,
     modalEdit: false,
+    menuDate1: false,
+    filterGangguan:'',
+    filterTanggal:'',
     jumlahBerita:'',
     oldBerita:[],
     selectedNews:{},
@@ -151,6 +169,22 @@ export default {
           news:'getNews',
           categories:'getCategories'
       }),
+      dropGangguan(){
+        var result = []
+        var awal = {
+          value: 'Semua',
+          text: 'Semua'
+        }
+        result.push(awal)
+        for(var i = 0; i < this.categories.length; i++){
+            var temp = {
+                value: this.categories[i].kategori,
+                text: this.categories[i].kategori
+            }
+            result.push(temp)
+        }
+        return result
+      },
       konfigFlag(){
         if(this.$session.get('berita_config') == '1'){
           return true
@@ -210,6 +244,7 @@ export default {
               kategori3: tempKategori,
               lokasi: tempLokasi,
               waktu: this.news[i].timestamp.replace(':00', ''),
+              tanggal: this.news[i].timestamp.substring(0, 10),
               jam: clock,
               date: date,
               isi: this.news[i].content,
@@ -229,7 +264,37 @@ export default {
       }
     },
     methods: {
+      filterBy(list, filterGangguan, filterTanggal){
+        if (filterTanggal == '') {
+          if(filterGangguan == 'Semua'){
+            return list
+          }else{
+            return list.filter(berita => {
+              return berita.kategori3.indexOf(filterGangguan) > -1
+            })
+          }
+        
+        } else if (filterGangguan == 'Semua') {
+          return list.filter(berita => {
+            return (
+              berita.tanggal.indexOf(filterTanggal) > -1
+            )
+          })
+        } else if(filterGangguan != 'Semua' && filterTanggal != ''){
+          return list.filter(berita => {
+            return (
+              berita.kategori3.indexOf(filterGangguan) > -1 &&
+              berita.tanggal.indexOf(filterTanggal) > -1
+            )
+          })
+        }else{
+          return list
+        }
+      },
       loadBerita(jumlah){
+        if(jumlah == ''){
+          jumlah = '5'
+        }
         this.loadFlag = true
         axios.get(defaultApi + 'allnews/' + jumlah)
         .then(response => {

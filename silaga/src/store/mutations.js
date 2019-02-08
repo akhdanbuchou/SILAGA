@@ -25,6 +25,30 @@ export default {
   setGangguanGol1(state,data){
       state.gangguanGol1 = data
   },
+  setMedia(state, data){
+      if(state.mediaGambar.length == 0){
+        Array.prototype.push.apply(state.mediaGambar, data.list_gambar)
+        Array.prototype.push.apply(state.media, data.list_gambar)
+      }else{
+        state.mediaGambar = []
+        Array.prototype.push.apply(state.mediaGambar, data.list_gambar)
+        Array.prototype.push.apply(state.media, data.list_gambar)
+      }
+
+      if(state.mediaVideo.length == 0){
+        Array.prototype.push.apply(state.mediaVideo, data.list_rekaman)
+        Array.prototype.push.apply(state.media, data.list_rekaman)
+      }else{
+        state.mediaVideo = []
+        Array.prototype.push.apply(state.mediaVideo, data.list_rekaman)
+        Array.prototype.push.apply(state.media, data.list_rekaman)
+      }
+  },
+  emptyMedia(state){
+      state.media = []
+      state.mediaGambar = []
+      state.mediaVideo = []
+  },
   setLineChart(state, data){
     state.lineToPrint = data
     var tempLine = []

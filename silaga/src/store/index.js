@@ -22,6 +22,9 @@ Vue.use(Vuex)
 // Create a new store
 const store = new Vuex.Store({
   state:{
+    media:[],
+    mediaGambar:[],
+    mediaVideo:[],
     csvHeader:[],
     csvData:[],
     excelHeader:{},

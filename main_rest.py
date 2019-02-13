@@ -14,6 +14,7 @@ import hbase_rest as hbase
 import mysql_rest as mysql
 import solr_rest as solr
 import printer as printer
+import hdfs_rest as hdfs
 
 from flask_cors import CORS, cross_origin
 
@@ -366,6 +367,15 @@ def delete_news():
     solr.delete_from_omed_classified(id_news)
     return 'success'
 
+# CHART RELATED
+
+@app.route("/detail-rekap/<jenis>/<start>/<freq>")
+@cross_origin()
+def detailRekapBerita(jenis, start, freq):
+    result = solr.detail_rekap(jenis, start, freq)
+    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
+    return resp
+
 @app.route("/rekap/<jenis>/<start>/<end>/<keyword>/<freq>")
 @cross_origin()
 def rekapBerita(jenis, start, end, keyword, freq):
@@ -374,8 +384,6 @@ def rekapBerita(jenis, start, end, keyword, freq):
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
-
-# CHART RELATED
 
 @app.route("/pie-chart/<jenis>/<start>/<end>/<keyword>")
 @cross_origin()
@@ -400,6 +408,26 @@ def viewallReports():
     report = solr.get_all_telegram_reports()
     resp = Response(json.dumps(report), status=200, mimetype='application/json')
     return resp
+
+@app.route("/nontext/<id_tel>")
+@cross_origin()
+def getImageName(id_tel):
+    '''
+    report = hdfs.getfile(id_tel)
+    '''
+    list_image = solr.get_telegram_medias(id_tel)
+    resp = Response(json.dumps(list_image), status=200, mimetype='application/json')
+    return resp
+
+@app.route("/getfile/<name>")
+@cross_origin()
+def getNonTextFile(name):
+    '''
+    return base64 dari file 
+    '''
+    b64 = hdfs.getfile(name)
+    #resp = Response(json.dumps(b64), status=200, mimetype='application/json')
+    return b64
 
 if __name__ == '__main__':
     app.run(debug=True, port=PORT, host=IP)

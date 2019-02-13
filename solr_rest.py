@@ -11,9 +11,8 @@ import requests
 
 import hbase_rest as hbase
 import mysql_rest as mysql
-
-ROW_NUM = 10000
 '''
+ROW_NUM = 10000
 HOST = 'http://10.32.6.225:8983/'
 
 #dev
@@ -234,6 +233,33 @@ def get_all_telegram_reports():
         result.append(res)
     return result
 
+def get_telegram_medias(id_tel):
+    '''
+    mengembalikan json berisi list nama image dan video sebuah report telegram 
+    '''
+    uri = '{}solr/telegram/select?indent=on&q=id:{}&rows=1&wt=python'.format(HOST, id_tel)
+    conn = urllib2.urlopen(uri)
+    response = eval(conn.read())
+    docs = response['response']['docs']
+    list_gambar = []
+    list_rekaman = []
+    # mencoba mengambil gambar 
+    try:
+        list_gambar = docs[0]['gambar'][0].split(',')
+    except Exception:
+        pass
+    # mencoba mengambil gambar 
+    try:
+        list_rekaman = docs[0]['rekaman'][0].split(',')
+    except Exception:
+        pass
+    
+    data = {
+        "list_gambar":list_gambar,
+        "list_rekaman":list_rekaman
+    }
+    return data
+
 def delete_from_telegram(id_report):
     '''
     fungsi delete row dengan id=id_report dari solr collection : telegram
@@ -445,6 +471,7 @@ def get_rekap(jenis, start, end, keyword, freq):
         
         id_arr = []
         # ambil semua berita di interval tanggal ini , simpan di list id_arr
+
         d = {}
         for doc in docs:
             # ambil namanya dari kategorinya 
@@ -459,7 +486,7 @@ def get_rekap(jenis, start, end, keyword, freq):
                 d[nama] = 1
             else:
                 d[nama] += 1
-        
+
         # masukin id_arr ke arr
         n_dict[now_str[0:10]] = d
 
@@ -468,6 +495,7 @@ def get_rekap(jenis, start, end, keyword, freq):
     
     # beberes
     print(list_kategori)
+
     axisx = []
     for k in n_dict.keys():
         axisx.append(k)
@@ -475,7 +503,6 @@ def get_rekap(jenis, start, end, keyword, freq):
     result = []
     for k in list_kategori:
         rekap = []
-
         #jika di interval itu ada yang namanya ini, tambahin, kalo gaada, 0 
         for key, value in n_dict.items():
             if k in value.keys():
@@ -496,5 +523,73 @@ def get_rekap(jenis, start, end, keyword, freq):
         'axisx':axisx,
         'result':result
     }
-
+    
     return data
+
+def detail_rekap(jenis, start, freq):
+     # kategori like a madman
+    q = ''
+    idx = 1
+    if jenis == '0':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+        idx = 0
+    if jenis == '1':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+    if jenis == '2':
+        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+    if jenis == '3':
+        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+    if jenis == '4':
+        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+    
+    reldelta = None
+    if freq=='harian':
+        reldelta = relativedelta(days=1)
+    elif freq == 'mingguan':
+        reldelta = relativedelta(weeks=1)
+    elif freq=='bulanan':
+        reldelta = relativedelta(months=1)
+    elif freq == 'tahunan':
+        reldelta = relativedelta(years=1)
+
+    dt_start = datetime.strptime(start, '%Y-%m-%d')
+    dt_end = dt_start + reldelta
+    #print('aaaaaaaaaaaaaaaa {} {}'.format(dt_start, dt_end))
+
+    now = dt_start.strftime('%Y-%m-%dT00:00:00Z')
+    nxt = dt_end.strftime('%Y-%m-%dT00:00:00Z')
+
+    startdate = '[{}%20TO%20{}]'.format(now, nxt)
+
+     # ambil jumlah row 
+    test = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q )
+    print(test)
+    connection = urllib2.urlopen(test)
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+
+    # ambill data 
+    result = {}
+    url = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
+    print(url)
+    connection = urllib2.urlopen(url)
+    response = eval(connection.read())
+    docs = response['response']['docs']
+
+    for doc in docs:
+        kat = doc['kategori'][0]
+        katname = None
+        if kat == 0:
+            kat_name = ['Netral', 'Netral', 'Netral']
+        else:
+            kname = ALL_KAT_3[kat]
+            kat_name = []
+            for k in kname:
+                kat_name.append(k.capitalize())
+        doc['kategori'] = kat_name
+        doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
+        doc['kategori'] = kat_name # override 
+        doc['content'] = doc['content'][0]
+        doc['title'] = doc['title'][0]
+
+    return docs

@@ -22,9 +22,13 @@ Vue.use(Vuex)
 // Create a new store
 const store = new Vuex.Store({
   state:{
-    media:[],
-    mediaGambar:[],
-    mediaVideo:[],
+    //dashboard
+    frekuensiRekap:'',
+    loadPopTableFlag: false,
+    flagLayer1:false,
+    filterLayer1: '',
+    dateFilter:[],
+    popTable:[],
     csvHeader:[],
     csvData:[],
     excelHeader:{},
@@ -35,10 +39,19 @@ const store = new Vuex.Store({
     pieData: [],
     pieChart: {},
     pieToPrint:[],
+
+    //Detail Berita
     news: [],
+
+    //Laporan Lapangan
+    telegram: [],
+    media:[],
+    mediaGambar:[],
+    mediaVideo:[],
+
+    //Konfigurasi Sistem
     users: [],
     keywordTable:[],
-    telegram: [],
     keyword: [],
     categories: [],
     gangguanGol1:[],

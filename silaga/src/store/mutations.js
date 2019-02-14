@@ -1,29 +1,42 @@
 // https://vuex.vuejs.org/en/mutations.html
+import axios from 'axios';
 
 export default {
   setAllNews(state, data) {
-      state.news = data
+        state.news = data
   },
   setAllUsers(state, data) {
-      state.users = data
+        state.users = data
   },
   setCategories(state, data){
-      state.categories = data
+        state.categories = data
   },
   setRoles(state,data){
-      state.roles = data
+        state.roles = data
   },
   setCurrentRole(state,data){
-      state.currentRole = data
+        state.currentRole = data
   },
   setTelegramReport(state,data){
-      state.telegram = data
+        state.telegram = data
   },
   setKeywordTable(state,data){
-      state.keywordTable = data
+        state.keywordTable = data
   },
   setGangguanGol1(state,data){
-      state.gangguanGol1 = data
+        state.gangguanGol1 = data
+  },
+  setFrekuensiRekap(state,data){
+        state.frekuensiRekap = data
+  },
+  setFlagLayer1(state,data){
+        state.flagLayer1 = data
+  },
+  setFilterLayer1(state,data){
+        state.filterLayer1 = data
+  },
+  setLoadPopTableFlag(state, data){
+        state.loadPopTableFlag = data
   },
   setMedia(state, data){
       if(state.mediaGambar.length == 0){
@@ -50,6 +63,11 @@ export default {
       state.mediaVideo = []
   },
   setLineChart(state, data){
+    var frek = 'bulanan'
+    if(state.frekuensiRekap != 'bulanan' && state.frekuensiRekap != ''){
+        frek = state.frekuensiRekap
+    }
+
     state.lineToPrint = data
     var tempLine = []
     var tempHeaderExcel = {
@@ -82,7 +100,7 @@ export default {
         minBar = min - 2
     }
     state.lineData = tempLine
-
+    state.dateFilter = data.axisx
     state.lineChart = {
         tooltip:{
             intersect: true,
@@ -93,9 +111,25 @@ export default {
             toolbar: {show: false},
             events: {
                 dataPointSelection: function(event, chartContext, config) {
-                    console.log(event)
-                    console.log(chartContext)
-                    console.log(config)
+                    
+                    //console.log(frek) 
+                    //console.log(state.dateFilter[config.dataPointIndex])
+                    //console.log(config.seriesIndex + 1)
+                    //console.log('====')
+                    //console.log(state.flagLayer1)
+                    //console.log(state.filterLayer1)
+
+                    var date = state.dateFilter[config.dataPointIndex]
+                    var kodeGangguan = config.seriesIndex + 1
+                    
+                    axios.get('http://5.79.64.131:18880/detail-rekap/' + kodeGangguan
+                                + '/' + date + '/' + frek)
+                    .then(response => {
+                        state.popTable = response.data
+                        state.loadPopTableFlag = true
+                    })
+
+                    
                 }
             }
         },

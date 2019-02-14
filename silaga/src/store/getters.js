@@ -69,5 +69,17 @@ export default {
   },
   getMediaVideo(state){
     return state.mediaVideo
+  },
+  getDateFilteR(state){
+    return state.dateFilter
+  },
+  getFrekuensiRekap(state){
+    return state.frekuensiRekap
+  },
+  getPopTable(state){
+    return state.popTable
+  },
+  getLoadPopTableFlag(state){
+    return state.loadPopTableFlag
   }
 }

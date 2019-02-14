@@ -84,6 +84,46 @@
           <div v-else id="chart">
             <apexchart type=line height=350 :options="chartOptionsLine" :series="seriesLine"/>
           </div>
+          
+          <div v-if="popTable.length == 0 && loadPopTableFlag">Tidak ada berita</div>
+          <div v-else-if="popTable.length != 0 && loadPopTableFlag">
+            <v-card-title>
+              <v-btn color="green darken-3" dark @click="closePopTable()">Tutup Tabel</v-btn>
+              <v-spacer></v-spacer>
+              <v-text-field
+                  v-model="search"
+                  label="Cari Berita"
+              ></v-text-field>
+              <v-icon>mdi-magnify</v-icon>
+            </v-card-title>
+            <v-data-table 
+              :headers="headers"
+              :items="popBerita"
+              :search="search"
+            >
+              <template slot="items" slot-scope="props">
+                <td class="text-xs-left">{{ props.index + 1 }}</td>
+                <td class="text-xs-left">{{ props.item.title }}</td>
+                <td class="text-xs-left">{{ props.item.kategori3 }}</td>
+                <td class="text-xs-left">{{ props.item.lokasi }}</td>
+                <td class="text-xs-left">{{ props.item.waktu }}</td>
+                <td class="text-xs-left">{{ props.item.tempSitename }}</td>
+                <td class="text-xs-left">{{ conciseNews(props.item.isi) }}</td>
+                <td class="justify-left pl-3 layout px-0">
+                  <v-icon 
+                    small
+                    class="mr-2"
+                    color="blue"
+                  >
+                    mdi-feature-search-outline
+                  </v-icon>
+                </td>
+              </template>
+              <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
+                Your search for "{{ search }}" found no results.
+              </v-alert>
+            </v-data-table>
+          </div>
         </material-card>
       </v-flex>  
     </v-layout>
@@ -144,6 +184,7 @@ export default {
         secondLayerFlag: false,
         menuDate1: false,
         menuDate2: false,
+        search:'',
         showMap: false,
         map: [],
         selectedGangguan: '',
@@ -153,6 +194,16 @@ export default {
         filterEndDate: '',
         filterFrekuensi: 'bulanan',
         filterMap:'1',
+        headers: [
+          { text: 'No', value: 'no' },
+          { text: 'Judul Berita', value: 'judul' },
+          { text: 'Kategori', value: 'kategori' },
+          { text: 'Lokasi', value: 'lokasi' },
+          { text: 'Waktu', value: 'timestamp' },
+          { text: 'Sumber', value: 'sitename'},
+          { text: 'Isi Berita', value: 'isi' },
+          { text: 'Action', value: 'action' }
+        ],
         dropdownFrekuensi:[
           {
             text:'Harian',
@@ -173,6 +224,13 @@ export default {
         ]
     }),
     methods: {
+      closePopTable(){
+        this.$store.commit('setLoadPopTableFlag',false)
+      },
+      conciseNews(text){
+        var result = text.substring(0,120) + "..."
+        return result
+      },
       cetakAnalisis(){
         axios({
           method: 'post',
@@ -193,6 +251,17 @@ export default {
 
       },
       applyFilter(filterGangguan, filterKunci, filterStartDate, filterEndDate, filterFrekuensi){
+        this.$store.commit('setLoadPopTableFlag',false)
+        this.$store.commit('setFrekuensiRekap',filterFrekuensi)
+
+        if(filterGangguan != '0'){
+          this.$store.commit('setFlagLayer1', true)
+          this.$store.commit('setFilterLayer1', filterGangguan)
+        }else{
+          this.$store.commit('setFlagLayer1', false)
+          this.$store.commit('setFilterLayer1', '')
+        }
+
         document.getElementById('mapContainer').innerHTML = ''
         this.showMap = false
 
@@ -349,7 +418,9 @@ export default {
           excelHeader:'getExcelHeader',
           excelData:'getExcelData',
           csvHeader:'getCsvHeader',
-          csvData:'getCsvData'
+          csvData:'getCsvData',
+          popTable: 'getPopTable',
+          loadPopTableFlag: 'getLoadPopTableFlag'
       }),
       dropdownGangguan(){
         var result = []
@@ -366,6 +437,68 @@ export default {
           result.push(temp)
         }
         return result
+      },
+      popBerita(){
+        var berita = []
+        var tempBerita
+          for(var i = 0; i < this.popTable.length; i++){
+            var tempKategori = ""
+            var tempLokasi = ""
+            var tempSitename = ""
+            var toLoopKategori = this.popTable[i].kategori
+            var toLoopLokasi =  this.popTable[i].lokasi
+            var toLoopSitename = this.popTable[i].sitename
+
+            for(var j = 0; j < toLoopKategori.length; j++){
+              if(toLoopKategori.length - j == 1){
+                tempKategori += this.popTable[i].kategori[j]
+              }else{
+                tempKategori += this.popTable[i].kategori[j] + " - "
+              }
+            }
+
+            for(var j = 0; j < toLoopLokasi.length; j++){
+              if(toLoopLokasi.length - j == 1){
+                tempLokasi += this.popTable[i].lokasi[j]
+              }else{
+                tempLokasi += this.popTable[i].lokasi[j] + ", "
+              }
+            }
+
+            for(var j = 0; j < toLoopSitename.length; j++){
+              if(toLoopSitename.length - j == 1){
+                tempSitename += this.popTable[i].sitename[j]
+              }else{
+                tempSitename += this.popTable[i].sitename[j] + ", "
+              }
+            }
+
+            var tempDate = this.popTable[i].timestamp.split(' ')
+            var date = tempDate[0]
+            var tempClock = tempDate[1]
+            var clock = tempClock.substring(0,5)
+
+            tempBerita = {
+              id: this.popTable[i].id,
+              title: this.popTable[i].title,
+              location: toLoopLokasi,
+              idKategori: '',
+              language:'id',
+              kategori3: tempKategori,
+              lokasi: tempLokasi,
+              waktu: this.popTable[i].timestamp.replace(':00', ''),
+              tanggal: this.popTable[i].timestamp.substring(0, 10),
+              jam: clock,
+              date: date,
+              isi: this.popTable[i].content,
+              url: this.popTable[i].url,
+              tempSitename: tempSitename,
+              sitename: this.popTable[i].sitename,
+              author: this.popTable[i].author 
+            }
+            berita.push(tempBerita)
+          }
+          return berita
       }
     },
     mounted(){

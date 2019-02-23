@@ -446,6 +446,8 @@ def get_rekap(jenis, start, end, keyword, freq):
     # dari start, berjalan ke end sesuai interval 
     list_kategori = []
     while dt_start < dt_end:
+        d = {'Kejahatan': 0, 'Pelanggaran': 0, 'Gangguan': 0, 'Bencana': 0}
+        list_kategori = ['Kejahatan','Pelanggaran','Gangguan','Bencana']
         # print('sedang di {} '.format(dt_start))
         # sembari di sini, mengambil data di interval ini
         now = dt_start
@@ -472,21 +474,26 @@ def get_rekap(jenis, start, end, keyword, freq):
         id_arr = []
         # ambil semua berita di interval tanggal ini , simpan di list id_arr
 
-        d = {}
+
+        # print(ALL_KAT_3) ##nampilin semua kategori
+        
+        
         for doc in docs:
             # ambil namanya dari kategorinya 
             nama = ALL_KAT_3[doc['kategori'][0]][idx].capitalize()
             
-            # memasukkan ke daftar kategori yang ada di interval ini 
-            if nama not in list_kategori:
-                list_kategori.append(nama)
+            
+            # memasukkan ke daftar kategori yang ada di interval ini
+            
+            # if nama not in list_kategori:
+            #     list_kategori.append(nama)
+            # print(list_kategori)
 
             # mengupdate jumlah berita dengan kategori tsb 
-            if nama not in d:
-                d[nama] = 1
-            else:
+            if nama in d:
                 d[nama] += 1
-
+        
+        print(d)
         # masukin id_arr ke arr
         n_dict[now_str[0:10]] = d
 
@@ -495,11 +502,13 @@ def get_rekap(jenis, start, end, keyword, freq):
     
     # beberes
     print(list_kategori)
-
+    
+    print(n_dict.items(), "n_dict")
     axisx = []
     for k in n_dict.keys():
         axisx.append(k)
 
+    print(list_kategori)
     result = []
     for k in list_kategori:
         rekap = []
@@ -593,3 +602,8 @@ def detail_rekap(jenis, start, freq):
         doc['title'] = doc['title'][0]
 
     return docs
+
+
+    '''
+date:[2018-12-01T07:03:17Z TO 2019-02-01T07:03:17Z]
+    '''

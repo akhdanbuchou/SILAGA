@@ -381,6 +381,7 @@ def detailRekapBerita(jenis, start, freq):
 def rekapBerita(jenis, start, end, keyword, freq):
 
     result = solr.get_rekap(jenis, start, end, keyword, freq)
+    # print(result)
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp

@@ -14,8 +14,15 @@ DATABASE = 'lapor'
 '''
 IP = 'localhost'
 USER = 'root'
-PASSWORD = None
+PASSWORD = ''
 DATABASE = 'poc219'
+
+# conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)
+# cur = conn.cursor()
+# cur.execute(QUERY_USER)
+# conn.commit()
+# cur.close()
+# conn.close()
 
 def execute_query(query):
     '''

@@ -430,5 +430,15 @@ def getNonTextFile(name):
     #resp = Response(json.dumps(b64), status=200, mimetype='application/json')
     return b64
 
+@app.route("/rekap-telegram/<jenis>/<start>/<end>/<keyword>/<freq>")
+@cross_origin()
+def rekapBeritaTelegram(jenis, start, end, keyword, freq):
+
+    result = solr.get_rekap_telegram(jenis, start, end, keyword, freq)
+    # print(result)
+
+    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
+    return resp
+
 if __name__ == '__main__':
     app.run(debug=True, port=PORT, host=IP)

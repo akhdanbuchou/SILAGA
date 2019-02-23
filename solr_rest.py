@@ -608,6 +608,144 @@ def detail_rekap(jenis, start, freq):
 
     return docs
 
+def get_rekap_telegram(jenis, start, end, keyword, freq):
+    
+    # kategori like a madman
+    q = ''
+    idx = 1
+    if jenis == '0':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+        idx = 0
+    if jenis == '1':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+    if jenis == '2':
+        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+    if jenis == '3':
+        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+    if jenis == '4':
+        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+
+    reldelta = None
+    if freq=='harian':
+        reldelta = relativedelta(days=1)
+    elif freq == 'mingguan':
+        reldelta = relativedelta(weeks=1)
+    elif freq=='bulanan':
+        reldelta = relativedelta(months=1)
+    elif freq == 'tahunan':
+        reldelta = relativedelta(years=1)
+
+    dt_start = None
+    dt_end = None 
+    if start=='-' and end=='-':
+        #todo
+        dt_end = datetime.now()
+        dt_start = dt_end - relativedelta(months=6)
+        print(dt_end)
+        print(dt_start)
+    else:
+        dt_start = datetime.strptime(start, '%Y-%m-%d')
+        dt_end = datetime.strptime(end, '%Y-%m-%d')
+    
+    n_dict = {}
+
+    list_kategori = list(ALL_KAT_3.values())
+    unique_category = list()
+
+    for category in list_kategori:
+        if category[idx].capitalize() not in unique_category:
+            unique_category.append(category[idx].capitalize())
+
+    # dari start, berjalan ke end sesuai interval 
+    # list_kategori = unique_category
+    while dt_start < dt_end:
+        d = {el:0 for  el in unique_category}       
+        
+        # print('sedang di {} '.format(dt_start))
+        # sembari di sini, mengambil data di interval ini
+        now = dt_start
+        nxt = dt_start + reldelta
+        now_str = now.strftime('%Y-%m-%dT00:00:00Z')
+        nxt_str = nxt.strftime('%Y-%m-%dT00:00:00Z')
+        startdate = '[{}%20TO%20{}]'.format(now_str, nxt_str)
+
+        # ambil jumlah row 
+        test = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q )
+        # print(test)
+        connection = urllib2.urlopen(test)
+        response = eval(connection.read())
+        numfound = response['response']['numFound']
+
+        # ambill data 
+        result = {}
+        url = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
+        # print(url)
+        connection = urllib2.urlopen(url)
+        response = eval(connection.read())
+        docs = response['response']['docs'] ##docs adalah berita
+        
+        
+        id_arr = []
+        # ambil semua berita di interval tanggal ini , simpan di list id_arr
+        
+        
+        for doc in docs:
+            # ambil namanya dari kategorinya 
+            nama = ALL_KAT_3[doc['kategori'][0]][idx].capitalize()
+            
+            
+            # memasukkan ke daftar kategori yang ada di interval ini
+            
+            # if nama not in list_kategori:
+            #     list_kategori.append(nama)
+            # print(list_kategori)
+
+            # mengupdate jumlah berita dengan kategori tsb 
+            if nama in d:
+                d[nama] += 1
+        
+        # print(d)
+        # masukin id_arr ke arr
+        n_dict[now_str[0:10]] = d
+
+        # increment 
+        dt_start += reldelta
+    
+    # beberes
+    
+    # print(n_dict.items(), "n_dict")
+    axisx = []
+    for k in n_dict.keys():
+        axisx.append(k)
+
+    # print(list_kategori)
+    result = []
+    for k in unique_category:
+        rekap = []
+        #jika di interval itu ada yang namanya ini, tambahin, kalo gaada, 0 
+        for key, value in n_dict.items():
+            if k in value.keys():
+                rekap.append(value[k])
+            else:
+                rekap.append(0)
+
+        #masukin rekap untuk kategori ini ke dict 
+        ddddddd = {
+            'namaGangguan':k,
+            'jumlahPerInterval':rekap
+            } 
+
+        #masukin dict ini ke result 
+        result.append(ddddddd)
+
+    data = {
+        'axisx':axisx,
+        'result':result
+    }
+    
+    return data
+
+
 
     '''
 date:[2018-12-01T07:03:17Z TO 2019-02-01T07:03:17Z]

@@ -443,11 +443,19 @@ def get_rekap(jenis, start, end, keyword, freq):
         dt_end = datetime.strptime(end, '%Y-%m-%d')
     
     n_dict = {}
+
+    list_kategori = list(ALL_KAT_3.values())
+    unique_category = list()
+
+    for category in list_kategori:
+        if category[idx].capitalize() not in unique_category:
+            unique_category.append(category[idx].capitalize())
+
     # dari start, berjalan ke end sesuai interval 
-    list_kategori = []
+    # list_kategori = unique_category
     while dt_start < dt_end:
-        d = {'Kejahatan': 0, 'Pelanggaran': 0, 'Gangguan': 0, 'Bencana': 0}
-        list_kategori = ['Kejahatan','Pelanggaran','Gangguan','Bencana']
+        d = {el:0 for  el in unique_category}       
+        
         # print('sedang di {} '.format(dt_start))
         # sembari di sini, mengambil data di interval ini
         now = dt_start
@@ -458,7 +466,7 @@ def get_rekap(jenis, start, end, keyword, freq):
 
         # ambil jumlah row 
         test = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q )
-        print(test)
+        # print(test)
         connection = urllib2.urlopen(test)
         response = eval(connection.read())
         numfound = response['response']['numFound']
@@ -466,16 +474,14 @@ def get_rekap(jenis, start, end, keyword, freq):
         # ambill data 
         result = {}
         url = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
-        print(url)
+        # print(url)
         connection = urllib2.urlopen(url)
         response = eval(connection.read())
-        docs = response['response']['docs']
+        docs = response['response']['docs'] ##docs adalah berita
+        
         
         id_arr = []
         # ambil semua berita di interval tanggal ini , simpan di list id_arr
-
-
-        # print(ALL_KAT_3) ##nampilin semua kategori
         
         
         for doc in docs:
@@ -493,7 +499,7 @@ def get_rekap(jenis, start, end, keyword, freq):
             if nama in d:
                 d[nama] += 1
         
-        print(d)
+        # print(d)
         # masukin id_arr ke arr
         n_dict[now_str[0:10]] = d
 
@@ -501,16 +507,15 @@ def get_rekap(jenis, start, end, keyword, freq):
         dt_start += reldelta
     
     # beberes
-    print(list_kategori)
     
-    print(n_dict.items(), "n_dict")
+    # print(n_dict.items(), "n_dict")
     axisx = []
     for k in n_dict.keys():
         axisx.append(k)
 
-    print(list_kategori)
+    # print(list_kategori)
     result = []
-    for k in list_kategori:
+    for k in unique_category:
         rekap = []
         #jika di interval itu ada yang namanya ini, tambahin, kalo gaada, 0 
         for key, value in n_dict.items():

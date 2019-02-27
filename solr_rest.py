@@ -324,6 +324,7 @@ def get_map(jenis, start, end, keyword):
     connection = urllib2.urlopen(url)
     response = eval(connection.read())
     docs = response['response']['docs']
+    print(docs)
     for doc in docs:
         print(doc['id'])
         print(doc['lokasi'])
@@ -745,7 +746,135 @@ def get_rekap_telegram(jenis, start, end, keyword, freq):
     
     return data
 
+def get_pie_telegram(jenis, start, end, keyword): 
+    dt_start = None
+    dt_end = None 
+    if start=='-' and end=='-':
+        #todo
+        dt_end = datetime.now()
+        dt_start = dt_end - relativedelta(months=6)
+        print(dt_end)
+        print(dt_start)
+    else:
+        dt_start = datetime.strptime(start, '%Y-%m-%d')
+        dt_end = datetime.strptime(end, '%Y-%m-%d')
+    start = dt_start.strftime('%Y-%m-%dT00:00:00Z')
+    end = dt_end.strftime('%Y-%m-%dT00:00:00Z')
 
+    startdate = '[{}%20TO%20{}]'.format(start, end)
+    # keyword 
+    
+    # kategori like a madman 
+    q = ''
+    idx = 1
+    if jenis == '0':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+        idx = 0
+    if jenis == '1':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+    if jenis == '2':
+        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+    if jenis == '3':
+        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+    if jenis == '4':
+        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+
+    # jumlah data dengan filter tersebut 
+    test = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q)
+    print(test)
+    connection = urllib2.urlopen(test)
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+    # print(numfound)
+
+    # mengambil data 
+    result = {}
+    url = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
+    print(url)
+    connection = urllib2.urlopen(url)
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    for doc in docs:
+        kat_id = doc['kategori'][0]
+        kat_name = ALL_KAT_3[kat_id][idx].capitalize()
+
+        if kat_name not in result:
+            result[kat_name] = 1
+        else:
+            result[kat_name] += 1
+    print(result)
+
+    # merapikan data buat dilempar ke Vue
+    arr =[]
+    for k,v in result.items():
+        new_dict = {}
+        new_dict['namaGangguan'] = k
+        new_dict['jumlahGangguan'] = v
+        arr.append(new_dict)
+    return arr
+
+##return no location
+##TODO: resolve
+def get_map_telegram(jenis, start, end, keyword):
+    dt_start = None
+    dt_end = None 
+    if start=='-' and end=='-':
+        #todo
+        dt_end = datetime.now()
+        dt_start = dt_end - relativedelta(months=6)
+        print(dt_end)
+        print(dt_start)
+    else:
+        dt_start = datetime.strptime(start, '%Y-%m-%d')
+        dt_end = datetime.strptime(end, '%Y-%m-%d')
+
+    start = dt_start.strftime('%Y-%m-%dT00:00:00Z')
+    end = dt_end.strftime('%Y-%m-%dT00:00:00Z')
+
+    startdate = '[{}%20TO%20{}]'.format(start, end)
+    # keyword 
+    
+    # kategori like a madman 
+    q = ''
+    if jenis == '0':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+        idx = 0
+    if jenis == '1':
+        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+    if jenis == '2':
+        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+    if jenis == '3':
+        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+    if jenis == '4':
+        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+
+    # jumlah data dengan filter tersebut
+    test = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q)
+    print(test)
+    connection = urllib2.urlopen(test)
+    response = eval(connection.read())
+    numfound = response['response']['numFound']
+    print(numfound)
+
+    # mengambil data 
+    location = []
+    url = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
+    print(url)
+    connection = urllib2.urlopen(url)
+    response = eval(connection.read())
+    docs = response['response']['docs']
+    # print(docs)
+    for doc in docs:
+        print(doc['id'])
+        print(doc['lokasi'])
+        lokasi = doc['lokasi']
+        for tempat in lokasi:
+            if tempat.capitalize() not in location:
+                location.append(tempat.capitalize())
+        print()
+
+    print(location)
+    return location
 
     '''
 date:[2018-12-01T07:03:17Z TO 2019-02-01T07:03:17Z]

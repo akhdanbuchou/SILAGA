@@ -440,5 +440,20 @@ def rekapBeritaTelegram(jenis, start, end, keyword, freq):
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 
+@app.route("/pie-chart-telegram/<jenis>/<start>/<end>/<keyword>")
+@cross_origin()
+def pieChartTelegram(jenis, start, end, keyword):
+    result = solr.get_pie_telegram(jenis, start, end, keyword)
+
+    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
+    return resp
+
+@app.route("/map-telegram/<jenis>/<start>/<end>/<keyword>")
+@cross_origin()
+def map_telegram(jenis, start, end, keyword):
+    result = solr.get_map_telegram(jenis, start, end, keyword)
+    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
+    return resp
+
 if __name__ == '__main__':
     app.run(debug=True, port=PORT, host=IP)

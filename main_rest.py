@@ -37,7 +37,10 @@ def test_periodic_call():
 
 scheduler = BackgroundScheduler()
 job = scheduler.add_job(test_periodic_call, 'interval', minutes=1)
-scheduler.start()   
+try:
+    scheduler.start()
+except (KeyboardInterrupt):
+    logger.debug('Got SIGTERM! Terminating...')
 
 # LAPORAN RELATED
 @app.route('/cetak', methods=['GET','POST'])
@@ -382,7 +385,9 @@ def delete_news():
 @app.route("/detail-rekap/<jenis>/<start>/<freq>")
 @cross_origin()
 def detailRekapBerita(jenis, start, freq):
-    result = solr.detail_rekap(jenis, start, freq)
+    result = Solr_Accessor_Omed_Classified().detail_rekap(
+        jenis, start, freq
+        )
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 
@@ -411,7 +416,9 @@ def pieChart(jenis, start, end, keyword):
 @app.route("/map/<jenis>/<start>/<end>/<keyword>")
 @cross_origin()
 def map(jenis, start, end, keyword):
-    result = solr.get_map(jenis, start, end, keyword)
+    result = Solr_Accessor_Omed_Classified().get_map(
+        jenis, start, end, keyword
+        )
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 

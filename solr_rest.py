@@ -953,7 +953,6 @@ class SolrAccessor:
         startdate = self.get_query_time_converted(dt_start,dt_end)
         q, idx = self.get_query_category_and_index(jenis)
 
-        # jumlah data dengan filter tersebut 
         response = self.request_solr_entry(HOST, startdate, q)
         docs = response['response']['docs']
 
@@ -974,6 +973,56 @@ class SolrAccessor:
             new_dict['jumlahGangguan'] = v
             arr.append(new_dict)
         return arr
+
+    def get_map(self, jenis, start, end, keyword):
+
+        dt_start, dt_end = self.get_query_timespan(start,end)
+        startdate = self.get_query_time_converted(dt_start,dt_end)
+        q, idx = self.get_query_category_and_index(jenis)
+ 
+        response = self.request_solr_entry(HOST, startdate, q)
+        docs = response['response']['docs']
+
+        # mengambil data 
+        location = []
+        for doc in docs:
+            lokasi = doc['lokasi']
+            for tempat in lokasi:
+                if tempat.capitalize() not in location:
+                    location.append(tempat.capitalize())
+
+        return location
+
+    def detail_rekap(self, jenis, start, freq):
+        reldelta = self.get_query_frequency(freq)
+        dt_start, dt_end = self.get_query_timespan(start,start)
+        dt_end = dt_start + reldelta
+        startdate = self.get_query_time_converted(dt_start,dt_end)
+        q, idx = self.get_query_category_and_index(jenis)
+
+        response = self.request_solr_entry(HOST, startdate, q)
+        docs = response['response']['docs']
+
+        # ambill data 
+        result = {}
+
+        for doc in docs:
+            kat = doc['kategori'][0]
+            katname = None
+            if kat == 0:
+                kat_name = ['Netral', 'Netral', 'Netral']
+            else:
+                kname = ALL_KAT_3[kat]
+                kat_name = []
+                for k in kname:
+                    kat_name.append(k.capitalize())
+            doc['kategori'] = kat_name
+            doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
+            doc['kategori'] = kat_name # override 
+            doc['content'] = doc['content'][0]
+            doc['title'] = doc['title'][0]
+
+        return docs
 
 
 class Solr_Accessor_Omed_Classified(SolrAccessor):
@@ -1002,4 +1051,7 @@ class Solr_Accessor_Telegram(SolrAccessor):
             return eval(connection.read())
         except:
             return dict()
+
+    def get_map(*args):
+        pass
         

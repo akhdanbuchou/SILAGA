@@ -1,4 +1,4 @@
-import mysql_rest as mysql
+import mysql_middleware as mysql
 import time
 
 def classify(data):
@@ -18,7 +18,7 @@ def classify(data):
         if cat not in categories:
             categories[cats] = 0
 
-    print(categories) # awal 
+    # print(categories) # awal 
 
     # iterasi tiap keyword, jika keyword ada dalam data, maka counter untuk category itu bertambah 
     for kc in kw_cat:
@@ -28,10 +28,11 @@ def classify(data):
             cats = str(cat)
             categories[cats] = categories[cats] + 1
 
-    print(categories) # akhir
+    # print(categories) # akhir
 
     # cat3 adalah id dari kategori dengan counter tertinggi 
     cat3 = eval(max(categories, key=lambda k: categories[k]))
+    print(cat3)
     return cat3
     
 def get_category_name(cat):

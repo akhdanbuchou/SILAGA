@@ -6,7 +6,7 @@ import urllib
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from xml.etree.ElementTree import fromstring
-
+from abc import ABCMeta, abstractmethod
 import requests
 
 import hbase_rest as hbase
@@ -813,69 +813,193 @@ def get_pie_telegram(jenis, start, end, keyword):
         arr.append(new_dict)
     return arr
 
-##return no location
-##TODO: resolve
-def get_map_telegram(jenis, start, end, keyword):
-    dt_start = None
-    dt_end = None 
-    if start=='-' and end=='-':
-        #todo
-        dt_end = datetime.now()
-        dt_start = dt_end - relativedelta(months=6)
-        print(dt_end)
-        print(dt_start)
-    else:
-        dt_start = datetime.strptime(start, '%Y-%m-%d')
-        dt_end = datetime.strptime(end, '%Y-%m-%d')
-
-    start = dt_start.strftime('%Y-%m-%dT00:00:00Z')
-    end = dt_end.strftime('%Y-%m-%dT00:00:00Z')
-
-    startdate = '[{}%20TO%20{}]'.format(start, end)
-    # keyword 
-    
-    # kategori like a madman 
-    q = ''
-    if jenis == '0':
-        q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
-        idx = 0
-    if jenis == '1':
-        q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
-    if jenis == '2':
-        q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
-    if jenis == '3':
-        q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
-    if jenis == '4':
-        q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
-
-    # jumlah data dengan filter tersebut
-    test = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows=1&wt=python'.format(HOST, startdate, q)
-    print(test)
-    connection = urllib2.urlopen(test)
-    response = eval(connection.read())
-    numfound = response['response']['numFound']
-    print(numfound)
-
-    # mengambil data 
-    location = []
-    url = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, numfound)
-    print(url)
-    connection = urllib2.urlopen(url)
-    response = eval(connection.read())
-    docs = response['response']['docs']
-    # print(docs)
-    for doc in docs:
-        print(doc['id'])
-        print(doc['lokasi'])
-        lokasi = doc['lokasi']
-        for tempat in lokasi:
-            if tempat.capitalize() not in location:
-                location.append(tempat.capitalize())
-        print()
-
-    print(location)
-    return location
-
     '''
 date:[2018-12-01T07:03:17Z TO 2019-02-01T07:03:17Z]
     '''
+
+class SolrAccessor:
+
+    def __init__(self):
+        pass
+
+    def get_query_category_and_index(cls, jenis, idx=1):
+        if jenis == '0':
+            q = 'kategori:[{}%20TO%20{}]'.format(1, 185)
+            idx = 0
+        if jenis == '1':
+            q = 'kategori:[{}%20TO%20{}]'.format(1, 90)
+        if jenis == '2':
+            q = 'kategori:[{}%20TO%20{}]'.format(91, 144)
+        if jenis == '3':
+            q = 'kategori:[{}%20TO%20{}]'.format(145, 167)
+        if jenis == '4':
+            q = 'kategori:[{}%20TO%20{}]'.format(168, 185)
+        
+        return q, idx
+
+    def get_query_frequency(self, freq, reldelta=None):
+        if freq =='harian':
+            reldelta = relativedelta(days=1)
+        elif freq == 'mingguan':
+            reldelta = relativedelta(weeks=1)
+        elif freq=='bulanan':
+            reldelta = relativedelta(months=1)
+        elif freq == 'tahunan':
+            reldelta = relativedelta(years=1)
+        
+        return reldelta
+
+    def get_query_timespan(self, start, end):
+        if start=='-' and end=='-':
+            dt_end = datetime.now()
+            dt_start = dt_end - relativedelta(months=6)
+        else:
+            dt_start = datetime.strptime(start, '%Y-%m-%d')
+            dt_end = datetime.strptime(end, '%Y-%m-%d')
+
+        return dt_start, dt_end
+    
+    def get_query_time_converted(self, now, nxt):
+        now_str = now.strftime('%Y-%m-%dT00:00:00Z')
+        nxt_str = nxt.strftime('%Y-%m-%dT00:00:00Z')
+        return '[{}%20TO%20{}]'.format(now_str, nxt_str)
+
+    @abstractmethod
+    def request_solr_entry(self, host, startdate, q, rows=1000):
+        return
+
+    def get_recap(self, jenis, start, end, keyword, freq):
+        q, idx = self.get_query_category_and_index(jenis)    
+        reldelta = self.get_query_frequency(freq)
+        dt_start, dt_end = self.get_query_timespan(start,end)
+        
+        n_dict = {}
+
+        list_kategori = list(ALL_KAT_3.values())
+        unique_category = list()
+
+        for category in list_kategori:
+            if category[idx].capitalize() not in unique_category:
+                unique_category.append(category[idx].capitalize())
+
+        # dari start, berjalan ke end sesuai interval 
+        while dt_start < dt_end:
+            d = {el:0 for  el in unique_category}       
+
+            # sembari di sini, mengambil data di interval ini
+            now = dt_start
+            nxt = dt_start + reldelta
+        
+            startdate = self.get_query_time_converted(now,nxt)
+            response = self.request_solr_entry(HOST, startdate, q)
+            try:
+                docs = response['response']['docs'] ##docs adalah berita
+            except:
+                docs = list()
+            
+            
+            id_arr = []
+            # ambil semua berita di interval tanggal ini , simpan di list id_arr
+            
+            
+            for doc in docs:
+                # ambil namanya dari kategorinya 
+                nama = ALL_KAT_3[doc['kategori'][0]][idx].capitalize()
+
+                # mengupdate jumlah berita dengan kategori tsb 
+                if nama in d:
+                    d[nama] += 1
+            
+            # masukin id_arr ke arr
+            now_str = now.strftime('%Y-%m-%dT00:00:00Z')
+            n_dict[now_str[0:10]] = d
+            dt_start += reldelta
+
+        ##finalize
+        axisx = []
+        for k in n_dict.keys():
+            axisx.append(k)
+
+        # print(list_kategori)
+        result = []
+        for k in unique_category:
+            rekap = []
+            #jika di interval itu ada yang namanya ini, tambahin, kalo gaada, 0 
+            for key, value in n_dict.items():
+                if k in value.keys():
+                    rekap.append(value[k])
+                else:
+                    rekap.append(0)
+
+            #masukin rekap untuk kategori ini ke dict 
+            ddddddd = {
+                'namaGangguan':k,
+                'jumlahPerInterval':rekap
+                } 
+
+            #masukin dict ini ke result 
+            result.append(ddddddd)
+
+        data = {
+            'axisx':axisx,
+            'result':result
+        }
+        
+        return data
+
+    def get_pie(self, jenis, start, end, keyword): 
+
+        dt_start, dt_end = self.get_query_timespan(start,end)
+        startdate = self.get_query_time_converted(dt_start,dt_end)
+        q, idx = self.get_query_category_and_index(jenis)
+
+        # jumlah data dengan filter tersebut 
+        response = self.request_solr_entry(HOST, startdate, q)
+        docs = response['response']['docs']
+
+        result = dict()
+        for doc in docs:
+            kat_id = doc['kategori'][0]
+            kat_name = ALL_KAT_3[kat_id][idx].capitalize()
+
+            if kat_name not in result:
+                result[kat_name] = 1
+            else:
+                result[kat_name] += 1
+        
+        arr = list()
+        for k,v in result.items():
+            new_dict = {}
+            new_dict['namaGangguan'] = k
+            new_dict['jumlahGangguan'] = v
+            arr.append(new_dict)
+        return arr
+
+
+class Solr_Accessor_Omed_Classified(SolrAccessor):
+    
+    def __init__(self):
+        super().__init__()
+
+    def request_solr_entry(self, host, startdate, q, rows=1000):
+        query = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, rows)
+        # print(test)
+        try:
+            connection = urllib2.urlopen(query)
+            return eval(connection.read())
+        except:
+            return dict()
+
+class Solr_Accessor_Telegram(SolrAccessor):
+
+    def __init__(self):
+        super().__init__()
+
+    def request_solr_entry(self, host, startdate, q, rows=1000):
+        query = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, rows)
+        try:
+            connection = urllib2.urlopen(query)
+            return eval(connection.read())
+        except:
+            return dict()
+        

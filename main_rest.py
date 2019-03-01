@@ -13,10 +13,13 @@ from flask import Flask, Response, jsonify, request, send_file
 import hbase_rest as hbase
 import mysql_rest as mysql
 import solr_rest as solr
+from solr_rest import Solr_Accessor_Omed_Classified, Solr_Accessor_Telegram
 import printer as printer
 import hdfs_rest as hdfs
 
 from flask_cors import CORS, cross_origin
+
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # instantiate flask app
 app = Flask(__name__,static_folder='docx')
@@ -28,6 +31,13 @@ PORT = 18880
 '''
 IP = '127.0.0.1'
 PORT = 5000
+
+def test_periodic_call():
+    print("working ", time.ctime())
+
+scheduler = BackgroundScheduler()
+job = scheduler.add_job(test_periodic_call, 'interval', minutes=1)
+scheduler.start()   
 
 # LAPORAN RELATED
 @app.route('/cetak', methods=['GET','POST'])
@@ -380,7 +390,9 @@ def detailRekapBerita(jenis, start, freq):
 @cross_origin()
 def rekapBerita(jenis, start, end, keyword, freq):
 
-    result = solr.get_rekap(jenis, start, end, keyword, freq)
+    result = Solr_Accessor_Omed_Classified().get_recap(
+        jenis, start, end, keyword, freq
+        )
     # print(result)
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
@@ -389,7 +401,9 @@ def rekapBerita(jenis, start, end, keyword, freq):
 @app.route("/pie-chart/<jenis>/<start>/<end>/<keyword>")
 @cross_origin()
 def pieChart(jenis, start, end, keyword):
-    result = solr.get_pie(jenis, start, end, keyword)
+    result = Solr_Accessor_Omed_Classified().get_pie(
+        jenis, start, end, keyword
+        )
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
@@ -434,7 +448,9 @@ def getNonTextFile(name):
 @cross_origin()
 def rekapBeritaTelegram(jenis, start, end, keyword, freq):
 
-    result = solr.get_rekap_telegram(jenis, start, end, keyword, freq)
+    result = Solr_Accessor_Telegram().get_recap(
+        jenis, start, end, keyword, freq
+        )
     # print(result)
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
@@ -443,17 +459,11 @@ def rekapBeritaTelegram(jenis, start, end, keyword, freq):
 @app.route("/pie-chart-telegram/<jenis>/<start>/<end>/<keyword>")
 @cross_origin()
 def pieChartTelegram(jenis, start, end, keyword):
-    result = solr.get_pie_telegram(jenis, start, end, keyword)
+    result = Solr_Accessor_Telegram().get_pie(jenis, start, end, keyword)
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 
-@app.route("/map-telegram/<jenis>/<start>/<end>/<keyword>")
-@cross_origin()
-def map_telegram(jenis, start, end, keyword):
-    result = solr.get_map_telegram(jenis, start, end, keyword)
-    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
-    return resp
 
 if __name__ == '__main__':
-    app.run(debug=True, port=PORT, host=IP)
+    app.run(debug=True, port=PORT, host=IP, use_reloader=False)

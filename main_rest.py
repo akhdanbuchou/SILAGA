@@ -29,18 +29,22 @@ IP = '5.79.64.131'
 PORT = 18880
 # dev 
 '''
-IP = '127.0.0.1'
-PORT = 5000
 
-def test_periodic_call():
-    print("working ", time.ctime())
 
-scheduler = BackgroundScheduler()
-job = scheduler.add_job(test_periodic_call, 'interval', minutes=1)
-try:
-    scheduler.start()
-except (KeyboardInterrupt):
-    logger.debug('Got SIGTERM! Terminating...')
+# def test_periodic_call():
+    # CLASSIFIER_HOST = 'http://127.0.0.1:5001'
+    # print("updating category ", time.ctime())
+    # query = '{}/update'.format(CLASSIFIER_HOST)
+    # response = eval(query.read())
+
+def periodic_call_helper():
+    scheduler = BackgroundScheduler(standalone=True)
+    job = scheduler.add_job(test_periodic_call, 'interval', minutes=1)
+    try:
+        scheduler.start()
+    except (KeyboardInterrupt):
+        logger.debug('Got SIGTERM! Terminating...')
+        print("EXIT")
 
 # LAPORAN RELATED
 @app.route('/cetak', methods=['GET','POST'])
@@ -473,4 +477,8 @@ def pieChartTelegram(jenis, start, end, keyword):
 
 
 if __name__ == '__main__':
+    IP = '127.0.0.1'
+    PORT = 5000
+    # periodic_call_helper()
+
     app.run(debug=True, port=PORT, host=IP, use_reloader=False)

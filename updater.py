@@ -9,14 +9,29 @@ import requests
 import classifier_rest as classifier
 import hbase_rest as hbase 
 
-ROW_PER_ITERATION = 10000
+from flask import Flask, Response, jsonify, request, send_file
+from flask_cors import CORS, cross_origin
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
+
+app = Flask(__name__,static_folder='docx')
+CORS(app)
+
+ROW_PER_ITERATION = 2
+current_row = 0
+
 DELAY = 5*60
 SOLR = 'http://localhost:8983/'
 IP_CLASSIFIER = 'http://localhost:18881/'
 
-# online_media & omed_classified
-def main():
-    main_helper(0, [])
+# def test_periodic_call():
+#     print("updating category ", time.ctime())
+#     query = '{}/update'.format(CLASSIFIER_HOST)
+#     response = eval(query.read())
+
+
+
 
 def main_helper(start, prev_loc):
     print('mulai dari {}, mengambil {} data'.format(start, ROW_PER_ITERATION))
@@ -47,6 +62,7 @@ def main_helper(start, prev_loc):
         except:
             pass 
 
+        print(doc['id'].split('_'))
         if len(doc['id'].split('_')) < 2:
             print('{}/{}'.format(start, ROW_PER_ITERATION))
             # print('data induk di iterasi ke {}'.format(start/ROW_PER_ITERATION + 1))
@@ -85,7 +101,8 @@ def main_helper(start, prev_loc):
 
     # selesai,lanjutkan ke start berikutnya dengan membawa loc sisa
     print('selesai, lanjutkan ke row {}'.format(start + ROW_PER_ITERATION))
-    main_helper(start + ROW_PER_ITERATION, loc)
+    # main_helper(start + ROW_PER_ITERATION, loc)
+    return start + ROW_PER_ITERATION
 
 def add_or_update_to_omed_classified(bulk): # checked 
     '''
@@ -118,5 +135,38 @@ def add_or_update_to_omed_classified(bulk): # checked
     print(response)
     print()
 
-if __name__=='__main__':
-    main()
+# online_media & omed_classified
+def main_caller():
+    print("updating category ", time.ctime())
+    global current_row
+    current_row = main_helper(current_row, [])
+    print(current_row)
+
+def periodic_call_helper():
+    # print("helper")
+    scheduler = BackgroundScheduler(standalone=True)
+    job = scheduler.add_job(main_caller, 'interval', minutes=1, id='id_scheduler')
+    try:
+        # print("start")
+        scheduler.start()
+    except (KeyboardInterrupt):
+        logger.debug('Got SIGTERM! Terminating...')
+        print("EXIT")
+
+
+
+
+if __name__ == '__main__':
+    IP = '127.0.0.1'
+    PORT = 5002
+    scheduler = BackgroundScheduler(standalone=True)
+    job = scheduler.add_job(main_caller, 'interval', minutes=1, id='id_scheduler')
+    try:
+        # print("start")
+        scheduler.start()
+    except (KeyboardInterrupt):
+        logger.debug('Got SIGTERM! Terminating...')
+        print("EXIT")
+    app.run(debug=True, port=PORT, host=IP, use_reloader=False)
+    scheduler.remove_job('id_scheduler')
+    print("EXIT 2")

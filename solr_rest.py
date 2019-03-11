@@ -877,11 +877,42 @@ class SolrAccessor:
 
         list_kategori = list(ALL_KAT_3.values())
         unique_category = list()
+        common_category = list()
 
         for category in list_kategori:
+            
             if category[idx].capitalize() not in unique_category:
+                common_category.append(category[0].capitalize())
                 unique_category.append(category[idx].capitalize())
+        
+        # print(common_category)
+        sought_category = None
+        if idx != 0:
+            unique_common_category = list()
+            for category in common_category:
+                if category not in unique_common_category:
+                    unique_common_category.append(category)
+            
+            sought_category = unique_common_category[int(jenis)-1]
 
+        category_catalog = list(zip(common_category, unique_category))
+        
+        if sought_category != None:
+            category_array_index = len(unique_category) - 1
+            while category_array_index >= 0:
+                if common_category[category_array_index] != sought_category:
+                    unique_category.pop(category_array_index)
+                category_array_index -= 1
+
+
+
+
+        # for category in list_kategori:
+
+        #     if category[idx].capitalize() not in unique_category:
+        #         unique_category.append(category[idx].capitalize())
+
+        # print(unique_category)
         # dari start, berjalan ke end sesuai interval 
         while dt_start < dt_end:
             d = {el:0 for  el in unique_category}       
@@ -905,7 +936,7 @@ class SolrAccessor:
             for doc in docs:
                 # ambil namanya dari kategorinya 
                 nama = ALL_KAT_3[doc['kategori'][0]][idx].capitalize()
-
+                # print("nama ", nama)
                 # mengupdate jumlah berita dengan kategori tsb 
                 if nama in d:
                     d[nama] += 1

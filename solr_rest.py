@@ -880,37 +880,17 @@ class SolrAccessor:
         common_category = list()
 
         for category in list_kategori:
-            
-            if category[idx].capitalize() not in unique_category:
+            if category[0].capitalize() not in common_category:
                 common_category.append(category[0].capitalize())
-                unique_category.append(category[idx].capitalize())
-        
-        # print(common_category)
-        sought_category = None
+
         if idx != 0:
-            unique_common_category = list()
-            for category in common_category:
-                if category not in unique_common_category:
-                    unique_common_category.append(category)
+            sought_category = common_category[int(jenis)-1]
+            for category in list_kategori:
+                if category[0].capitalize() == sought_category and category[1].capitalize() not in unique_category:
+                    unique_category.append(category[1].capitalize())
             
-            sought_category = unique_common_category[int(jenis)-1]
-
-        category_catalog = list(zip(common_category, unique_category))
-        
-        if sought_category != None:
-            category_array_index = len(unique_category) - 1
-            while category_array_index >= 0:
-                if common_category[category_array_index] != sought_category:
-                    unique_category.pop(category_array_index)
-                category_array_index -= 1
-
-
-
-
-        # for category in list_kategori:
-
-        #     if category[idx].capitalize() not in unique_category:
-        #         unique_category.append(category[idx].capitalize())
+        else:
+            unique_category = common_category
 
         # print(unique_category)
         # dari start, berjalan ke end sesuai interval 

@@ -11,13 +11,18 @@ export default [
   },
   {
     path: '/',
-    name: 'Dashboard Analisis',
-    view: 'Dashboard'
+    name: 'Analisis Berita',
+    view: 'AnalisisBerita'
   },
   {
     path: '/detail-berita',
     name: 'Detail Berita',
     view: 'DetailBerita'
+  },
+  {
+    path: '/analisis-laporan',
+    name: 'Analisis Laporan',
+    view: 'AnalisisLaporan'
   },
   {
     path: '/laporan-lapangan',

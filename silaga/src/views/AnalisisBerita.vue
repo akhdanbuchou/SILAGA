@@ -505,7 +505,7 @@ export default {
       this.$store.dispatch('getDefaultLineChart')
       this.$store.dispatch('getDefaultPieChart')
       this.$store.dispatch('getFirstCategories')     
-    
+      this.$store.dispatch('getFirstCategories')
     }
 }
 </script>

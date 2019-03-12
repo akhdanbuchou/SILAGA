@@ -111,24 +111,41 @@ export default {
             toolbar: {show: false},
             events: {
                 dataPointSelection: function(event, chartContext, config) {
-                    
-                    //console.log(frek) 
-                    //console.log(state.dateFilter[config.dataPointIndex])
-                    //console.log(config.seriesIndex + 1)
-                    //console.log('====')
-                    //console.log(state.flagLayer1)
-                    //console.log(state.filterLayer1)
 
                     var date = state.dateFilter[config.dataPointIndex]
-                    var kodeGangguan = config.seriesIndex + 1
-                    
-                    axios.get('http://5.79.64.131:18880/detail-rekap/' + kodeGangguan
+                    var nextDate = state.dateFilter[config.dataPointIndex + 1]
+                    if(state.filterLayer1 == ''){
+                        var kodeGangguan = config.seriesIndex + 1
+                        axios.get('http://5.79.64.131:18880/detail-rekap/' + kodeGangguan
                                 + '/' + date + '/' + frek)
-                    .then(response => {
-                        state.popTable = response.data
-                        state.loadPopTableFlag = true
-                    })
+                        .then(response => {
+                            state.popTable = response.data
+                            state.loadPopTableFlag = true
+                        })
+                    }else{
+                        
+                        var kodeGangguan = state.filterLayer1
+                        axios.get('http://5.79.64.131:18880/detail-rekap/' + kodeGangguan
+                                + '/' + date + '/' + frek)
+                        .then(response => {
 
+                            state.loadPopTableFlag = true
+                            var tempArray = []
+                            var indexLayer1 = state.filterLayer1 - 1
+                            var indexLayer2 = config.seriesIndex
+
+                            for(var i = 0; i < response.data.length; i++){
+                                if(response.data[i].kategori[1] == state.gangguan[indexLayer1].sublayer[indexLayer2]){
+                                    tempArray.push(response.data[i])
+                                }
+                            }
+                            state.popTable = tempArray
+                        })
+                    }
+                    
+
+                    
+                    
                     
                 }
             }
@@ -187,10 +204,10 @@ export default {
         state.pieChart = {
             labels: ['Kejahatan', 'Pelanggaran', 'Gangguan', 'Bencana'],
             responsive: [{
-                breakpoint: 480,
+                breakpoint: 300,
                 options: {
                 chart: {
-                    width: 500
+                    width: 200
                 },
                 legend: {
                     position: 'bottom'
@@ -213,10 +230,10 @@ export default {
         state.pieChart = {
             labels: label,
             responsive: [{
-                breakpoint: 480,
+                breakpoint: 300,
                 options: {
                 chart: {
-                    width: 500
+                    width: 200
                 },
                 legend: {
                     position: 'bottom'

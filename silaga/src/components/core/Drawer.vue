@@ -56,9 +56,9 @@
       <v-list-tile
       to="/" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
-          <v-icon>mdi-home</v-icon>
+          <v-icon>mdi-chart-areaspline</v-icon>
         </v-list-tile-action>
-        <v-list-tile-title>Beranda</v-list-tile-title>
+        <v-list-tile-title>Analisis Berita</v-list-tile-title>
       </v-list-tile>
 
       <v-list-tile v-if="this.$session.get('access_news') == '1'"
@@ -67,6 +67,14 @@
           <v-icon>mdi-newspaper</v-icon>
         </v-list-tile-action>
         <v-list-tile-title>Daftar Berita</v-list-tile-title>
+      </v-list-tile>
+
+      <v-list-tile v-if="this.$session.get('access_telegram') == '1'"
+      to="/analisis-laporan" :active-class="color" avatar class="v-list-item">
+        <v-list-tile-action>
+          <v-icon>mdi-chart-bar</v-icon>
+        </v-list-tile-action>
+        <v-list-tile-title>Analisis Laporan</v-list-tile-title>
       </v-list-tile>
 
       <v-list-tile v-if="this.$session.get('access_telegram') == '1'"
@@ -101,12 +109,17 @@ export default {
     links: [
       {
         to: '/',
-        icon: 'mdi-home',
-        text: 'Beranda'
+        icon: 'mdi-chart-areaspline',
+        text: 'Analisis Berita'
       },
       {
         to: '/detail-berita',
         icon: 'mdi-newspaper',
+        text: 'Detail Berita'
+      },
+      {
+        to: '/analisis-laporan',
+        icon: 'mdi-chart-bar',
         text: 'Detail Berita'
       },
       {

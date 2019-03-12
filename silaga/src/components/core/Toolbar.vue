@@ -44,7 +44,7 @@ export default {
   watch: {
     '$route' (val) {
       if(val.path == "/") {
-        this.title = "Dashboard Analisis"
+        this.title = "Analisis Berita"
       }else {
         this.title = val.name
       }

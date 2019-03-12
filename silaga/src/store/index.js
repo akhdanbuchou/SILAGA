@@ -39,6 +39,38 @@ const store = new Vuex.Store({
     pieData: [],
     pieChart: {},
     pieToPrint:[],
+    gangguan:[
+      {
+        id:'1',
+        nama:'Kejahatan',
+        sublayer:[
+          'Konvensional','Trans nasional','Terhadap kekayaan negara'
+          ,'Berimplikasi kontinjensi','Hak asasi manusia'
+        ]
+      },
+      {
+        id:'2',
+        nama:'Pelanggaran',
+        sublayer:[
+          'Hukum pidana','Hukum non pidana'
+        ]
+      },
+      {
+        id:'3',
+        nama:'Gangguan',
+        sublayer:[
+          'Terhadap orang','Terhadap barang','Terhadap hewan'
+          ,'Terhadap lingkungan hidup','Terhadap sarana dan fasilitas'
+        ]
+      },
+      {
+        id:'4',
+        nama:'Bencana',
+        sublayer:[
+          'Alam','Non alam','Sosial'
+        ]
+      }
+    ],
 
     //Detail Berita
     news: [],

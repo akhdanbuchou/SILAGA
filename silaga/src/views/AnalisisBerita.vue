@@ -502,8 +502,8 @@ export default {
       }
     },
     mounted(){
-      this.$store.dispatch('getDefaultLineChart')
-      this.$store.dispatch('getDefaultPieChart')
+      this.$store.dispatch('getDefaultBeritaLineChart')
+      this.$store.dispatch('getDefaultBeritaPieChart')
       this.$store.dispatch('getFirstCategories')     
       this.$store.dispatch('getFirstCategories')
     }

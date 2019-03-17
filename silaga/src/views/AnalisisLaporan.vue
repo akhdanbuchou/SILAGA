@@ -251,9 +251,6 @@ export default {
           this.$store.commit('setFilterLayer1', '')
         }
 
-        document.getElementById('mapContainer').innerHTML = ''
-        this.showMap = false
-
         this.loadLineFlag = true
         this.loadPieFlag = true
 
@@ -270,7 +267,7 @@ export default {
 
         axios({
           method: 'get',
-          url: defaultApi + 'rekap/'+ filterGangguan +'/'+ filterStartDate +
+          url: defaultApi + 'rekap-telegram/'+ filterGangguan +'/'+ filterStartDate +
           '/'+ filterEndDate +'/'+ filterKunci +'/'+ filterFrekuensi
         }).then(response => {
           if(response){
@@ -281,7 +278,7 @@ export default {
 
         axios({
           method: 'get',
-          url: defaultApi + 'pie-chart/'+ filterGangguan +'/'+ filterStartDate +
+          url: defaultApi + 'pie-chart-telegram/'+ filterGangguan +'/'+ filterStartDate +
           '/'+ filterEndDate +'/'+ filterKunci
         }).then(response => {
           if(response){
@@ -407,8 +404,8 @@ export default {
       }
     },
     mounted(){
-      this.$store.dispatch('getDefaultLineChart')
-      this.$store.dispatch('getDefaultPieChart')
+      this.$store.dispatch('getDefaultTelegramLineChart')
+      this.$store.dispatch('getDefaultTelegramPieChart')
       this.$store.dispatch('getFirstCategories')     
     
     }

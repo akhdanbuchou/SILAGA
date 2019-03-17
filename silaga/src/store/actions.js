@@ -208,7 +208,7 @@ export default {
       
     })
   },
-  getDefaultLineChart({commit}){
+  getDefaultBeritaLineChart({commit}){
     axios({
       method: 'get',
       url: defaultApi + 'rekap/0/-/-/-/bulanan'
@@ -217,10 +217,28 @@ export default {
     })
 
   },
-  getDefaultPieChart({commit}){
+  getDefaultBeritaPieChart({commit}){
     axios({
       method: 'get',
       url: defaultApi + 'pie-chart/0/-/-/-'
+    }).then(response => {
+      response.data.selectedGangguan = '0'
+      commit('setPieChart',response.data)
+    })
+  },
+  getDefaultTelegramLineChart({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'rekap-telegram/0/-/-/-/bulanan'
+    }).then(response => {
+      commit('setLineChart',response.data)
+    })
+
+  },
+  getDefaultTelegramPieChart({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'pie-chart-telegram/0/-/-/-'
     }).then(response => {
       response.data.selectedGangguan = '0'
       commit('setPieChart',response.data)

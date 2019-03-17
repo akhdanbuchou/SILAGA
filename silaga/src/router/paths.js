@@ -21,7 +21,7 @@ export default [
   },
   {
     path: '/analisis-laporan',
-    name: 'Analisis Laporan',
+    name: 'Analisis Laporan Telegram',
     view: 'AnalisisLaporan'
   },
   {

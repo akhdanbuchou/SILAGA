@@ -24,11 +24,11 @@ from apscheduler.schedulers.background import BackgroundScheduler
 # instantiate flask app
 app = Flask(__name__,static_folder='docx')
 CORS(app)
-'''
+
 IP = '5.79.64.131'
 PORT = 18880
 # dev 
-'''
+
 
 
 # def test_periodic_call():

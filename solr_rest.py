@@ -868,6 +868,26 @@ class SolrAccessor:
     def request_solr_entry(self, host, startdate, q, rows=1000):
         return
 
+    def get_category_list(self, all_category, idx, jenis):
+        list_kategori = all_category
+        unique_category = list()
+        common_category = list()
+
+        for category in list_kategori:
+            if category[0].capitalize() not in common_category:
+                common_category.append(category[0].capitalize())
+
+        if idx != 0:
+            sought_category = common_category[int(jenis)-1]
+            for category in list_kategori:
+                if category[0].capitalize() == sought_category and category[1].capitalize() not in unique_category:
+                    unique_category.append(category[1].capitalize())
+            
+        else:
+            unique_category = common_category
+
+        return unique_category
+
     def get_recap(self, jenis, start, end, keyword, freq):
         q, idx = self.get_query_category_and_index(jenis)    
         reldelta = self.get_query_frequency(freq)
@@ -875,6 +895,7 @@ class SolrAccessor:
         
         n_dict = {}
 
+        '''
         list_kategori = list(ALL_KAT_3.values())
         unique_category = list()
         common_category = list()
@@ -891,6 +912,9 @@ class SolrAccessor:
             
         else:
             unique_category = common_category
+        '''
+
+        unique_category = get_category_list(list(ALL_KAT_3.values()), idx, jenis)
 
         # print(unique_category)
         # dari start, berjalan ke end sesuai interval 
@@ -967,14 +991,14 @@ class SolrAccessor:
         response = self.request_solr_entry(HOST, startdate, q)
         docs = response['response']['docs']
 
-        result = dict()
+        unique_category = get_category_list(list(ALL_KAT_3.values()), idx, jenis)
+
+        result = {el:0 for  el in unique_category} 
         for doc in docs:
             kat_id = doc['kategori'][0]
             kat_name = ALL_KAT_3[kat_id][idx].capitalize()
 
-            if kat_name not in result:
-                result[kat_name] = 1
-            else:
+            if kat_name in result:
                 result[kat_name] += 1
         
         arr = list()

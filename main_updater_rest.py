@@ -26,10 +26,17 @@ DELAY = 5*60
 SOLR = 'http://localhost:8983/'
 IP_CLASSIFIER = 'http://localhost:18881/'
 
-@app.route("/update-new-entry",methods = ['GET'])
+@app.route("/update-new-entry/",methods=['POST'])
 @cross_origin()
 def update_new_entry():
-    ENTRY_UPDATER.update_entry()
+    input_request = request.get_json()
+    print(input_request)
+    ENTRY_UPDATER.updater_helper2(
+        input_request['earlier-time'],
+        input_request['later-time'],
+        input_request['interval']
+        )
+    # updater.main_caller()
     resp = Response({}, status=200, mimetype='application/json') 
     return resp
 
@@ -38,10 +45,10 @@ def update_new_entry():
 
 
 if __name__ == '__main__':
+    IP = '10.32.6.225'
+    PORT = 18881
     IP = '127.0.0.1'
-    PORT = 5000
-    # IP = '127.0.0.1'
-    # PORT = 5002
+    PORT = 5002
     # scheduler = BackgroundScheduler(standalone=True)
     # job = scheduler.add_job(main_caller, 'interval', minutes=1, id='id_scheduler')
     # try:

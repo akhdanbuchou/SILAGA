@@ -387,8 +387,7 @@ class EntryUpdater:
         #5 kalau datanya habis, ditandai dengan len(docs)<row_per_iterate -> jalanin dari awal lagi 
         '''
         #1
-        # print("ear ", type(earlier_time))
-        # print("later ", type(later_time))
+
         if earlier_time > later_time:
             earlier_time, later_time = later_time, earlier_time
 
@@ -396,7 +395,7 @@ class EntryUpdater:
         end_date = self.convert_datetime_to_string(later_time)
         timespan = self.get_query_timespan(start_date, end_date)
         q = '&q=timestamp:{}'.format(timespan)
-        print(timespan)
+        
         # URI = '{}solr/online_media/select?indent=on&q=*:*&rows={}&start={}&wt=python'.format(SOLR, ROW_PER_ITERATION, start)
         URI = '{}/solr/online_media/select?fl=*,[child%20parentFilter=keywords:*limit=0]&indent=on{}&rows={}&wt=python&sort=timestamp%20{}'.format(
             self.HOST, q, self.MAX_ROWS_PER_QUERY, sort
@@ -438,9 +437,8 @@ class EntryUpdater:
                 return
             try:
                 current_entry_timestamp = datetime.strptime(doc['timestamp'], '%Y-%m-%dT%H:%M:%SZ')
-                if  self.latest_entry_time == None or self.latest_entry_time < current_entry_timestamp :
+                if  self.permit_update and (self.latest_entry_time == None or self.latest_entry_time < current_entry_timestamp) :
                     self.latest_entry_time = current_entry_timestamp
-                    print("new time ",self.latest_entry_time)
 
                 # print('new latest entry time')
             except:
@@ -565,7 +563,7 @@ class EntryUpdater:
             next_entry_time += operation*timedelta(hours=abs(time_interval))
         
         self.halt_update()
-        self.switch_update_off()
+        self.switch_update_on()
         return
 
 
@@ -599,7 +597,6 @@ class EntryUpdater:
             next_entry_time += delta_time
 
         self.halt_update()
-        print("stop update")
         return
         
 

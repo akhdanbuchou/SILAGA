@@ -163,12 +163,14 @@ def periodic_call_helper():
 
 class EntryUpdater:
     HOST = 'http://localhost:8983'
-    MAX_ROWS_PER_QUERY = 1000
+    MAX_ROWS_PER_QUERY = 10000
     MAX_CHILDREN_ROWS_PER_QUERY = 10000
 
     def __init__(self):
         self.latest_entry_time = None
         self.latest_entry_id = None
+        self.on_updating = False
+        self.permit_update = True
     '''
     http://localhost:8983/solr/online_media/select?fl=*,[child%20parentFilter=keywords:*%20limit=1]
     &indent=on&q=timestamp:[2018-12-01T07:03:17Z%20TO%202019-02-01T07:03:17Z]&wt=json
@@ -180,6 +182,21 @@ class EntryUpdater:
 
     localhost:8983/solr/online_media/select?fl=*,[child parentFilter=keywords:* limit=100]&indent=on&q=id:b6fc135aa8ad5df17fee3b490832de01&wt=json
     '''
+    def switch_update_off(self):
+        self.permit_update = False
+        return self.permit_update
+    
+    def switch_update_on(self):
+        self.permit_update = True
+        return self.permit_update
+
+    def allow_update(self):
+        self.on_updating = True
+        return self.on_updating
+    
+    def halt_update(self):
+        self.on_updating = False
+        return self.on_updating
 
     def get_query_time(self, date):
         # print(datetime.strptime(date, '%Y-%m-%d').strftime('%Y-%m-%dT00:00:00Z'))
@@ -204,9 +221,19 @@ class EntryUpdater:
         print(input_datetime)
         return input_datetime.strftime('%Y-%m-%dT%H:%M:%SZ')
 
-    def update_entry(self, current_first_entry_id=None, current_first_entry_time=None, 
-        next_entry_id=None, next_entry_time=None):
-        print(current_first_entry_time, " ", self.latest_entry_time)
+    def get_earliest_entry_time(self):
+        URI = 'http://localhost:8983/solr/online_media/select?fl=*,[child%20parentFilter=keywords:*%20limit=1]&indent=on&q=keywords:*&wt=python&rows=1&sort=timestamp%20asc'
+        connection = urllib2.urlopen(URI) 
+        response = eval(connection.read())
+
+        docs = response['response']['docs']
+        timestamp = docs[0]['timestamp']
+
+        return datetime.strptime(timestamp, '%Y-%m-%dT%H:%M:%SZ')
+
+    # def update_entry(self, current_first_entry_id=None, current_first_entry_time=None, 
+        # next_entry_id=None, next_entry_time=None):
+        # print(current_first_entry_time, " ", self.latest_entry_time)
         # print('mulai dari {}, mengambil {} data'.format(start, ROW_PER_ITERATION))
         #print('sisa lokasi : {}'.format(prev_loc))
         '''
@@ -372,9 +399,8 @@ class EntryUpdater:
         print(timespan)
         # URI = '{}solr/online_media/select?indent=on&q=*:*&rows={}&start={}&wt=python'.format(SOLR, ROW_PER_ITERATION, start)
         URI = '{}/solr/online_media/select?fl=*,[child%20parentFilter=keywords:*limit=0]&indent=on{}&rows={}&wt=python&sort=timestamp%20{}'.format(
-            self.HOST, q, str(self.MAX_ROWS_PER_QUERY), sort
+            self.HOST, q, self.MAX_ROWS_PER_QUERY, sort
             )
-        print(URI)
 
         # URI = "http://localhost:8983/solr/online_media/select?indent=on&q=*:*&rows=2&start=0&wt=python"
 
@@ -383,19 +409,42 @@ class EntryUpdater:
         
         connection = urllib2.urlopen(URI) 
         response = eval(connection.read())
+
+            
         # print(response)
 
         docs = None
         numFound = None
         try:
-            docs = response['response']['docs']
+
             numFound = response['response']['numFound']
+
+            if numFound > self.MAX_ROWS_PER_QUERY:
+                URI = '{}/solr/online_media/select?fl=*,[child%20parentFilter=keywords:*limit=0]&indent=on{}&rows={}&wt=python&sort=timestamp%20{}'.format(
+                    self.HOST, q, numFound['numFound'], sort
+                    )
+                connection = urllib2.urlopen(URI) 
+                response = eval(connection.read())
+
+            docs = response['response']['docs']
+            
         except: 
             pass
         # print(numFound)
 
         # loc = prev_loc
         for doc in docs:
+            if  not self.on_updating:
+                return
+            try:
+                current_entry_timestamp = datetime.strptime(doc['timestamp'], '%Y-%m-%dT%H:%M:%SZ')
+                if  self.latest_entry_time == None or self.latest_entry_time < current_entry_timestamp :
+                    self.latest_entry_time = current_entry_timestamp
+                    print("new time ",self.latest_entry_time)
+
+                # print('new latest entry time')
+            except:
+                pass
 
             # print(doc['id'])
             q_parent_id = '&q=id:{}'.format(doc['id'])
@@ -476,21 +525,24 @@ class EntryUpdater:
         # return start + ROW_PER_ITERATION
         return ##numFound, current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time
 
-    def updater_helper(self):
-        next_entry_id = None
-        next_entry_time = None
-        current_first_entry_id = None
-        current_first_entry_time = None
-        condition = True
-        while condition:
-            numFound, current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time = self.update_entry(
-                current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time
-                )
-            condition = False if (numFound < self.MAX_ROWS_PER_QUERY) else True
-        self.latest_entry_id = current_first_entry_id
-        self.latest_entry_time = current_first_entry_time
+    # def updater_helper(self):
+    #     next_entry_id = None
+    #     next_entry_time = None
+    #     current_first_entry_id = None
+    #     current_first_entry_time = None
+    #     condition = True
+    #     while condition:
+    #         numFound, current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time = self.update_entry(
+    #             current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time
+    #             )
+    #         condition = False if (numFound < self.MAX_ROWS_PER_QUERY) else True
+    #     self.latest_entry_id = current_first_entry_id
+    #     self.latest_entry_time = current_first_entry_time
 
     def updater_helper2(self, earlier_time_input, later_time_input, time_interval):
+        self.allow_update()
+        self.switch_update_off()
+
         if time_interval > 0:
             sort = 'asc'
             basic_time = earlier_time_input
@@ -511,5 +563,44 @@ class EntryUpdater:
             condition = False if ((next_entry_time > limit_time and operation > 0) or (next_entry_time < limit_time and operation < 0)) else True
             basic_time = next_entry_time
             next_entry_time += operation*timedelta(hours=abs(time_interval))
+        
+        self.halt_update()
+        self.switch_update_off()
+        return
+
+
+    def periodic_updater_helper(self, time_interval_hours=1, time_interval_weeks=54/2):
+        if not self.on_updating and self.permit_update:
+            # print( "Will update: ", self.permit_update and not self.on_updating)
+            self.allow_update()
+        else:
+            print("...NOT UPDATING...") 
+            return
+
+        if self.latest_entry_time == None:
+            delta_time = timedelta(weeks=abs(time_interval_weeks))
+            earlier_time = self.get_earliest_entry_time()
+        else:
+            delta_time = timedelta(hours=abs(time_interval_hours))
+            earlier_time = self.latest_entry_time
+
+        sort = 'asc'
+        # next_entry_time = basic_time = datetime.strptime(basic_time,'%Y/%m/%d %H:%M:%S')
+        limit_time = datetime.now()
+        # print(earlier_time, " | ", limit_time, " | ", self.on_updating)
+        next_entry_time = earlier_time
+        next_entry_time += delta_time
+        condition = True
+        while condition and self.on_updating and self.permit_update:
+            # print("condition true ", self.on_updating and self.permit_update)
+            self.update_entry2(earlier_time, next_entry_time, time_interval_hours, sort)
+            condition = False if (next_entry_time > limit_time) else True
+            earlier_time = next_entry_time
+            next_entry_time += delta_time
+
+        self.halt_update()
+        print("stop update")
+        return
+        
 
         

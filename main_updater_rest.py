@@ -25,6 +25,37 @@ ENTRY_UPDATER = updater.EntryUpdater()
 DELAY = 5*60
 SOLR = 'http://localhost:8983/'
 IP_CLASSIFIER = 'http://localhost:18881/'
+scheduler = BackgroundScheduler(standalone=True)
+
+@app.route("/stop-current-update/",methods=['GET'])
+@cross_origin()
+def stop_current_update():
+    entry_status = ENTRY_UPDATER.halt_update()
+    resp = Response({'entry-status':entry_status}, status=200, mimetype='application/json') 
+    return resp
+
+@app.route("/allow-next-update/",methods=['GET'])
+@cross_origin()
+def allow_next_update():
+    entry_status = ENTRY_UPDATER.allow_update()
+    resp = Response({'entry-status':entry_status}, status=200, mimetype='application/json') 
+    return resp
+
+@app.route("/update-stop/",methods=['GET'])
+@cross_origin()
+def stop_update():
+    entry_status = ENTRY_UPDATER.switch_update_off()
+    scheduler.remove_job('id_scheduler')
+    resp = Response({'entry-status':entry_status}, status=200, mimetype='application/json') 
+    return resp
+
+@app.route("/update-continue/",methods=['GET'])
+@cross_origin()
+def continue_update():
+    entry_status = ENTRY_UPDATER.switch_update_on()
+    job = scheduler.add_job(updater_caller, 'interval', minutes=1, id='id_scheduler')
+    resp = Response({'entry-status':entry_status}, status=200, mimetype='application/json') 
+    return resp
 
 @app.route("/update-new-entry/",methods=['POST'])
 @cross_origin()
@@ -40,6 +71,33 @@ def update_new_entry():
     resp = Response({}, status=200, mimetype='application/json') 
     return resp
 
+@app.route("/stop-scheduler/",methods=['GET'])
+@cross_origin()
+def stop_scheduler():
+    scheduler.remove_job('id_scheduler')
+    resp = Response({}, status=200, mimetype='application/json') 
+    return resp
+
+def updater_caller():
+    return ENTRY_UPDATER.periodic_updater_helper()
+
+@app.route("/update-periodic-entry/",methods=['GET'])
+@cross_origin()
+def update_periodic_entry():
+    # scheduler = BackgroundScheduler(standalone=True)
+    # job = scheduler.add_job(updater_caller, 'interval', minutes=2, id='id_scheduler')
+    # try:
+        # print("start")
+    #     scheduler.start()
+    # except (KeyboardInterrupt):
+    #     logger.debug('Got SIGTERM! Terminating...')
+    #     print("EXIT")
+    #     scheduler.remove_job('id_scheduler')
+    # ENTRY_UPDATER.periodic_updater_helper()
+    # updater.main_caller()
+    resp = Response({}, status=200, mimetype='application/json') 
+    return resp
+    # return
 
 
 
@@ -50,13 +108,13 @@ if __name__ == '__main__':
     IP = '127.0.0.1'
     PORT = 5002
     # scheduler = BackgroundScheduler(standalone=True)
-    # job = scheduler.add_job(main_caller, 'interval', minutes=1, id='id_scheduler')
-    # try:
-    #     # print("start")
-    #     scheduler.start()
-    # except (KeyboardInterrupt):
-    #     logger.debug('Got SIGTERM! Terminating...')
-    #     print("EXIT")
+    job = scheduler.add_job(updater_caller, 'interval', minutes=1, id='id_scheduler')
+    try:
+        # print("start")
+        scheduler.start()
+    except (KeyboardInterrupt):
+        logger.debug('Got SIGTERM! Terminating...')
+        print("EXIT")
     app.run(debug=True, port=PORT, host=IP, use_reloader=False)
     # scheduler.remove_job('id_scheduler')
     # print("EXIT 2")

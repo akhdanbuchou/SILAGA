@@ -914,7 +914,7 @@ class SolrAccessor:
             unique_category = common_category
         '''
 
-        unique_category = get_category_list(list(ALL_KAT_3.values()), idx, jenis)
+        unique_category = self.get_category_list(list(ALL_KAT_3.values()), idx, jenis)
 
         # print(unique_category)
         # dari start, berjalan ke end sesuai interval 
@@ -991,7 +991,7 @@ class SolrAccessor:
         response = self.request_solr_entry(HOST, startdate, q)
         docs = response['response']['docs']
 
-        unique_category = get_category_list(list(ALL_KAT_3.values()), idx, jenis)
+        unique_category = self.get_category_list(list(ALL_KAT_3.values()), idx, jenis)
 
         result = {el:0 for  el in unique_category} 
         for doc in docs:
@@ -1028,6 +1028,30 @@ class SolrAccessor:
 
         return location
 
+
+class Solr_Accessor_Omed_Classified(SolrAccessor):
+    
+    def __init__(self):
+        super().__init__()
+
+    def request_solr_entry(self, host, startdate, q, rows=1000):
+        query = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, rows)
+        print(query)
+        try:
+            connection = urllib2.urlopen(query)
+            return eval(connection.read())
+
+            if response['response']['numFound'] > rows:
+                query = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(
+                    HOST, startdate, q, response['response']['numFound']
+                    )
+                connection = urllib2.urlopen(query)
+                response =  eval(connection.read())
+            
+            return response
+        except:
+            return dict()
+        
     def detail_rekap(self, jenis, start, freq):
         reldelta = self.get_query_frequency(freq)
         dt_start, dt_end = self.get_query_timespan(start,start)
@@ -1036,6 +1060,7 @@ class SolrAccessor:
         q, idx = self.get_query_category_and_index(jenis)
 
         response = self.request_solr_entry(HOST, startdate, q)
+
         docs = response['response']['docs']
 
         # ambill data 
@@ -1052,6 +1077,7 @@ class SolrAccessor:
                 for k in kname:
                     kat_name.append(k.capitalize())
             doc['kategori'] = kat_name
+            print("")
             doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
             doc['kategori'] = kat_name # override 
             doc['content'] = doc['content'][0]
@@ -1059,33 +1085,62 @@ class SolrAccessor:
 
         return docs
 
-
-class Solr_Accessor_Omed_Classified(SolrAccessor):
-    
-    def __init__(self):
-        super().__init__()
-
-    def request_solr_entry(self, host, startdate, q, rows=1000):
-        query = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, rows)
-        # print(test)
-        try:
-            connection = urllib2.urlopen(query)
-            return eval(connection.read())
-        except:
-            return dict()
-
 class Solr_Accessor_Telegram(SolrAccessor):
 
     def __init__(self):
         super().__init__()
 
-    def request_solr_entry(self, host, startdate, q, rows=1000):
+    def request_solr_entry(self, host, startdate, q, rows=100):
         query = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, rows)
         try:
             connection = urllib2.urlopen(query)
-            return eval(connection.read())
+            response =  eval(connection.read())
+
+            if response['response']['numFound'] > rows:
+                query = '{}solr/telegram/select?indent=on&q=date:{}%20AND%20{}&rows={}&wt=python'.format(
+                    HOST, startdate, q, response['response']['numFound']
+                    )
+                connection = urllib2.urlopen(query)
+                response =  eval(connection.read())
+            
+            return response
         except:
             return dict()
+
+    def detail_rekap(self, jenis, start, freq):
+        reldelta = self.get_query_frequency(freq)
+        dt_start, dt_end = self.get_query_timespan(start,start)
+        dt_end = dt_start + reldelta
+        startdate = self.get_query_time_converted(dt_start,dt_end)
+        q, idx = self.get_query_category_and_index(jenis)
+
+        response = self.request_solr_entry(HOST, startdate, q)
+   
+        docs = response['response']['docs']
+
+        # ambill data 
+        result = {}
+
+        for doc in docs:
+            kat = doc['kategori'][0]
+            katname = None
+            if kat == 0:
+                kat_name = ['Netral', 'Netral', 'Netral']
+            else:
+                kname = ALL_KAT_3[kat]
+                kat_name = []
+                for k in kname:
+                    kat_name.append(k.capitalize())
+            doc['kategori'] = kat_name
+            doc['date'] = str(doc['date'])[2:12] + " "+str(doc['date'])[13:21]
+            doc['kategori'] = kat_name # override 
+
+            try:
+                doc['gambar'] = doc['gambar']
+            except:
+                doc['gambar'] = []
+            
+        return docs
 
     def get_map(*args):
         pass

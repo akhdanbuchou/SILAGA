@@ -10,7 +10,7 @@ DATABASE = 'lapor'
 # dev 
 IP = 'localhost'
 USER = 'root'
-PASSWORD = None
+PASSWORD = '1234'
 DATABASE = 'poc219'
 
 def special_query(query):

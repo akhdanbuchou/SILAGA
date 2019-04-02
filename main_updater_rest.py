@@ -84,20 +84,8 @@ def updater_caller():
 @app.route("/update-periodic-entry/",methods=['GET'])
 @cross_origin()
 def update_periodic_entry():
-    # scheduler = BackgroundScheduler(standalone=True)
-    # job = scheduler.add_job(updater_caller, 'interval', minutes=2, id='id_scheduler')
-    # try:
-        # print("start")
-    #     scheduler.start()
-    # except (KeyboardInterrupt):
-    #     logger.debug('Got SIGTERM! Terminating...')
-    #     print("EXIT")
-    #     scheduler.remove_job('id_scheduler')
-    # ENTRY_UPDATER.periodic_updater_helper()
-    # updater.main_caller()
     resp = Response({}, status=200, mimetype='application/json') 
     return resp
-    # return
 
 
 
@@ -110,11 +98,13 @@ if __name__ == '__main__':
     # scheduler = BackgroundScheduler(standalone=True)
     job = scheduler.add_job(updater_caller, 'interval', minutes=1, id='id_scheduler')
     try:
-        # print("start")
         scheduler.start()
     except (KeyboardInterrupt):
         logger.debug('Got SIGTERM! Terminating...')
         print("EXIT")
     app.run(debug=True, port=PORT, host=IP, use_reloader=False)
-    # scheduler.remove_job('id_scheduler')
+    try:
+        scheduler.remove_job('id_scheduler')
+    except:
+        pass
     # print("EXIT 2")

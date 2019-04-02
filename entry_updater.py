@@ -504,38 +504,17 @@ class EntryUpdater:
 
             #3
             
-            '''uncomment later'''
             isi = hbase.get_isi_news(doc['id'])
             new_dict['content']=isi
             
             
-            # loc = []
             #4
             # add_or_update_to_omed_classified(new_dict) # store it in solr : omed_classified
             next_entry_id = doc['id']
             next_entry_time = doc['timestamp']
-        # print(next_entry_id, "entry id - entry time ", next_entry_time)
                 
+        return 
 
-        # selesai,lanjutkan ke start berikutnya dengan membawa loc sisa
-        # print('selesai, lanjutkan ke row {}'.format(start + ROW_PER_ITERATION))
-        # main_helper(start + ROW_PER_ITERATION, loc)
-        # return start + ROW_PER_ITERATION
-        return ##numFound, current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time
-
-    # def updater_helper(self):
-    #     next_entry_id = None
-    #     next_entry_time = None
-    #     current_first_entry_id = None
-    #     current_first_entry_time = None
-    #     condition = True
-    #     while condition:
-    #         numFound, current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time = self.update_entry(
-    #             current_first_entry_id, current_first_entry_time, next_entry_id, next_entry_time
-    #             )
-    #         condition = False if (numFound < self.MAX_ROWS_PER_QUERY) else True
-    #     self.latest_entry_id = current_first_entry_id
-    #     self.latest_entry_time = current_first_entry_time
 
     def updater_helper2(self, earlier_time_input, later_time_input, time_interval):
         self.allow_update()

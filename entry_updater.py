@@ -22,6 +22,7 @@ CORS(app)
 
 ROW_PER_ITERATION = 2
 current_row = 0
+DEFAULT_LOG_FILE_NAME = './log/log-classifier-'
 
 # DELAY = 5*60
 SOLR = 'http://localhost:8983/'
@@ -163,8 +164,8 @@ def periodic_call_helper():
 
 class EntryUpdater:
     HOST = 'http://localhost:8983'
-    MAX_ROWS_PER_QUERY = 10000
-    MAX_CHILDREN_ROWS_PER_QUERY = 10000
+    MAX_ROWS_PER_QUERY = 2
+    MAX_CHILDREN_ROWS_PER_QUERY = 2
 
     def __init__(self):
         self.latest_entry_time = None
@@ -182,6 +183,13 @@ class EntryUpdater:
 
     localhost:8983/solr/online_media/select?fl=*,[child parentFilter=keywords:* limit=100]&indent=on&q=id:b6fc135aa8ad5df17fee3b490832de01&wt=json
     '''
+
+    def set_latest_entry_time(self, input_date):
+        self.latest_entry_time = datetime.strptime(
+            input_date, '%Y-%m-%d %H:%M:%S'
+            )
+        return "success"
+
     def switch_update_off(self):
         self.permit_update = False
         return self.permit_update
@@ -412,26 +420,26 @@ class EntryUpdater:
             
         # print(response)
 
-        docs = None
-        numFound = None
+        # docs = None
+        # numFound = None
         try:
 
             numFound = response['response']['numFound']
 
             if numFound > self.MAX_ROWS_PER_QUERY:
                 URI = '{}/solr/online_media/select?fl=*,[child%20parentFilter=keywords:*limit=0]&indent=on{}&rows={}&wt=python&sort=timestamp%20{}'.format(
-                    self.HOST, q, numFound['numFound'], sort
+                    self.HOST, q, numFound, sort
                     )
                 connection = urllib2.urlopen(URI) 
                 response = eval(connection.read())
-
+                
+            print(URI)
+            print(numFound)
             docs = response['response']['docs']
             
         except: 
             pass
-        # print(numFound)
 
-        # loc = prev_loc
         for doc in docs:
             if  not self.on_updating:
                 return
@@ -447,13 +455,12 @@ class EntryUpdater:
             # print(doc['id'])
             q_parent_id = '&q=id:{}'.format(doc['id'])
             children_URI = '{}/solr/online_media/select?fl=[child%20parentFilter=keywords:*%20limit={}]&indent=on{}&wt=python'.format(
-            self.HOST, self.MAX_CHILDREN_ROWS_PER_QUERY, q_parent_id
-            )
-
-            # print(children_URI)
+                self.HOST, self.MAX_CHILDREN_ROWS_PER_QUERY, q_parent_id
+                )
 
             children_connection = urllib2.urlopen(children_URI) 
             children_responses = eval(children_connection.read())
+            
             # print(children_responses)
             children_docs = children_responses['response']['docs'][0]['_childDocuments_']
             # print(children_docs)
@@ -499,7 +506,7 @@ class EntryUpdater:
                 'content':''
             }
 
-            # print(new_dict['id'])
+
             print(doc['id'])
 
             #3
@@ -507,6 +514,7 @@ class EntryUpdater:
             isi = hbase.get_isi_news(doc['id'])
             new_dict['content']=isi
             
+            log_write(timespan, '-', doc['timestamp'], ':', doc['id'])
             
             #4
             # add_or_update_to_omed_classified(new_dict) # store it in solr : omed_classified
@@ -516,7 +524,7 @@ class EntryUpdater:
         return 
 
 
-    def updater_helper2(self, earlier_time_input, later_time_input, time_interval):
+    def updater_helper(self, earlier_time_input, later_time_input, time_interval):
         self.allow_update()
         self.switch_update_off()
 
@@ -579,4 +587,14 @@ class EntryUpdater:
         return
         
 
-        
+def log_write(*args):
+    current_time = datetime.now()
+    current_time_day = current_time.strftime('%Y-%m-%d')
+    current_time_clock = current_time.strftime('[%H:%M:%S]')
+    f= open(DEFAULT_LOG_FILE_NAME + current_time_day +'.txt',"a+")
+    log_input = "{} --- ".format(current_time_clock)
+    for arg in args:
+        log_input += arg + ' '
+    log_input += '\n'
+    f.write(log_input)
+    f.close() 

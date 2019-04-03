@@ -59,7 +59,7 @@ def stop_current_update():
 def allow_next_update():
     entry_status = ENTRY_UPDATER.allow_update()
     resp = Response(
-        json.dumps({'entry-status':entry_status}), 
+        json.dumps({'is-updating':entry_status}), 
         status=200, 
         mimetype='application/json'
         ) 
@@ -74,7 +74,7 @@ def stop_update():
     except:
         entry_status = 'Failed'
     resp = Response(
-        json.dumps({'entry-status':entry_status}), 
+        json.dumps({'is-updating':entry_status}), 
         status=200, 
         mimetype='application/json'
         ) 
@@ -85,7 +85,6 @@ def stop_update():
 def continue_update():
     try:
         job = scheduler.add_job(updater_caller, 'interval', minutes=1, id='id_scheduler')
-        # scheduler.start()
         entry_status = ENTRY_UPDATER.switch_update_on()
     except:
         entry_status = 'Failed'
@@ -104,7 +103,6 @@ def update_new_entry():
         input_request['later-time'],
         input_request['interval']
         )
-    # updater.main_caller()
     resp = Response({}, status=200, mimetype='application/json') 
     return resp
 
@@ -115,8 +113,6 @@ def stop_scheduler():
     resp = Response({}, status=200, mimetype='application/json') 
     return resp
 
-# def updater_caller():
-#     return ENTRY_UPDATER.periodic_updater_helper()
 
 @app.route("/update-periodic-entry/",methods=['GET'])
 @cross_origin()
@@ -130,10 +126,8 @@ def update_periodic_entry():
 if __name__ == '__main__':
     IP = '10.32.6.225'
     PORT = 18881
-    IP = '127.0.0.1'
-    PORT = 5002
-    # scheduler = BackgroundScheduler(standalone=True)
-    # job = scheduler.add_job(updater_caller, 'interval', minutes=1, id='id_scheduler')
+    # IP = '127.0.0.1'
+    # PORT = 5002
     try:
         scheduler.start()
     except (KeyboardInterrupt):
@@ -145,4 +139,3 @@ if __name__ == '__main__':
         scheduler.remove_job('id_scheduler')
     except:
         pass
-    # print("EXIT 2")

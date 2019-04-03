@@ -32,7 +32,6 @@ def classify(data):
 
     # cat3 adalah id dari kategori dengan counter tertinggi 
     cat3 = eval(max(categories, key=lambda k: categories[k]))
-    print(cat3)
     return cat3
     
 def get_category_name(cat):

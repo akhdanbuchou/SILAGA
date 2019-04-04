@@ -1145,3 +1145,8 @@ class Solr_Accessor_Telegram(SolrAccessor):
     def get_map(*args):
         pass
         
+def is_filtered_by_keywords():
+    if any(keyword in x for keyword in keywords):
+        return True
+    
+    return False

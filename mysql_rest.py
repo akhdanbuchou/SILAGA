@@ -14,7 +14,7 @@ DATABASE = 'lapor'
 '''
 IP = 'localhost'
 USER = 'root'
-PASSWORD = ''
+PASSWORD = '1234'
 DATABASE = 'poc219'
 
 # conn = mysql.connector.connect(host=IP, user=USER, passwd=PASSWORD, database=DATABASE)

@@ -475,6 +475,15 @@ def pieChartTelegram(jenis, start, end, keyword):
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 
+@app.route("/detail-rekap-telegram/<jenis>/<start>/<freq>")
+@cross_origin()
+def detailRekapBeritaTelegram(jenis, start, freq):
+    result = Solr_Accessor_Telegram().detail_rekap(
+        jenis, start, freq
+        )
+    resp = Response(json.dumps(result), status=200, mimetype='application/json') 
+    return resp
+
 
 if __name__ == '__main__':
     IP = '127.0.0.1'

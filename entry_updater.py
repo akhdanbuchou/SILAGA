@@ -78,7 +78,7 @@ class EntryUpdater:
         self.latest_entry_time = datetime.strptime(
             input_date, '%Y-%m-%d %H:%M:%S'
             )
-        return "success"
+        return "Success"
 
     def switch_update_off(self):
         self.permit_update = False
@@ -135,8 +135,7 @@ class EntryUpdater:
         #2 klasifikasi berita tsb 
         #3 ambil konten dari hbase : online_media
         #4 simpan di solr : omed_classified
-        #5 kalau datanya habis, ditandai dengan len(docs)<row_per_iterate -> jalanin dari awal lagi 
-        '''
+         '''
         #1
 
         if earlier_time > later_time:

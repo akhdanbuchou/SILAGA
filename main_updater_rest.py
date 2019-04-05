@@ -48,7 +48,7 @@ def set_latest_entrytime():
 def stop_current_update():
     entry_status = ENTRY_UPDATER.halt_update()
     resp = Response(
-        json.dumps({'entry-status':entry_status}), 
+        json.dumps({'is-updating':entry_status}), 
         status=200, 
         mimetype='application/json'
         ) 
@@ -74,7 +74,7 @@ def stop_update():
     except:
         entry_status = 'Failed'
     resp = Response(
-        json.dumps({'is-updating':entry_status}), 
+        json.dumps({'entry-status':entry_status}), 
         status=200, 
         mimetype='application/json'
         ) 
@@ -84,7 +84,7 @@ def stop_update():
 @cross_origin()
 def continue_update():
     try:
-        job = scheduler.add_job(updater_caller, 'interval', minutes=1, id='id_scheduler')
+        job = scheduler.add_job(updater_caller, 'interval', hours=1, id='id_scheduler')
         entry_status = ENTRY_UPDATER.switch_update_on()
     except:
         entry_status = 'Failed'
@@ -105,23 +105,6 @@ def update_new_entry():
         )
     resp = Response({}, status=200, mimetype='application/json') 
     return resp
-
-@app.route("/stop-scheduler/",methods=['GET'])
-@cross_origin()
-def stop_scheduler():
-    scheduler.remove_job('id_scheduler')
-    resp = Response({}, status=200, mimetype='application/json') 
-    return resp
-
-
-@app.route("/update-periodic-entry/",methods=['GET'])
-@cross_origin()
-def update_periodic_entry():
-    resp = Response({}, status=200, mimetype='application/json') 
-    return resp
-
-
-
 
 if __name__ == '__main__':
     IP = '10.32.6.225'

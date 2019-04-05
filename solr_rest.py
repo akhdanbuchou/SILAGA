@@ -11,6 +11,11 @@ import requests
 
 import hbase_rest as hbase
 import mysql_rest as mysql
+
+# TO DO:
+# erase later:
+import exclusion_keywords as excl_kw
+#
 '''
 ROW_NUM = 10000
 HOST = 'http://10.32.6.225:8983/'
@@ -20,6 +25,8 @@ HOST = 'http://10.32.6.225:8983/'
 HOST = 'http://localhost:8983/'
 
 ITER_NUM = 5
+KEYWORDS_INCLUSION = mysql.get_keywords_category()
+KEYWORDS_EXCLUSION = mysql.retrieve_exclusion_keywords()
 
 ALL_KAT_3 = mysql.get_kat_name()
 # solr : online_media RELATED
@@ -895,25 +902,6 @@ class SolrAccessor:
         
         n_dict = {}
 
-        '''
-        list_kategori = list(ALL_KAT_3.values())
-        unique_category = list()
-        common_category = list()
-
-        for category in list_kategori:
-            if category[0].capitalize() not in common_category:
-                common_category.append(category[0].capitalize())
-
-        if idx != 0:
-            sought_category = common_category[int(jenis)-1]
-            for category in list_kategori:
-                if category[0].capitalize() == sought_category and category[1].capitalize() not in unique_category:
-                    unique_category.append(category[1].capitalize())
-            
-        else:
-            unique_category = common_category
-        '''
-
         unique_category = self.get_category_list(list(ALL_KAT_3.values()), idx, jenis)
 
         # print(unique_category)
@@ -1144,9 +1132,11 @@ class Solr_Accessor_Telegram(SolrAccessor):
 
     def get_map(*args):
         pass
-        
-def is_filtered_by_keywords():
-    if any(keyword in x for keyword in keywords):
+
+def is_filtered_by_exclusion_keywords(content):
+    keywords_exclusion = mysql.retrieve_exclusion_keywords()
+    if any(keyword in content.lower() for keyword in KEYWORDS_EXCLUSION):
         return True
     
     return False
+

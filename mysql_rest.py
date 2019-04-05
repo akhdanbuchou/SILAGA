@@ -455,3 +455,27 @@ def get_all_keywords():
                         result.append(new_dict)
     return result
 
+def retrieve_exclusion_keywords():
+    query = ("SELECT * FROM exclusion_keywords")
+    response = special_query(query)
+    
+    response_dict = list()
+    for k,v in response:
+        response_dict.append(
+            {
+            'id':k,
+            'keywords':v
+            }
+        )       
+
+    return response_dict
+
+def create_exclusion_keyword(keyword):
+    query = ("INSERT INTO exclusion_keywords (keyword) values(\'{}\')".format(keyword))
+    execute_query(query)
+
+def delete_exclusion_keyword(id_keyword):
+    query = ("DELETE FROM exclusion_keywords WHERE id={}".format(id_keyword))
+    execute_query(query)
+
+

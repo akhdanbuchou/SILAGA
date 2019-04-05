@@ -484,6 +484,32 @@ def detailRekapBeritaTelegram(jenis, start, freq):
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
 
+@app.route("/get-all-exclusion-keyword/")
+@cross_origin()
+def getAllExclusionKeyword():
+    response = mysql.retrieve_exclusion_keywords()
+    print(response)
+    return Response(json.dumps(response), status=200, mimetype='application/json')  
+
+@app.route("/create-exclusion-keyword/", methods=['POST'])
+@cross_origin()
+def createExclusionKeyword():
+    input_request = request.get_json()
+    mysql.create_exclusion_keyword(
+        input_request['keyword']
+        )
+    resp = Response({}, status=200, mimetype='application/json') 
+    return resp
+
+@app.route("/delete-exclusion-keyword-by-id/", methods=['POST'])
+@cross_origin()
+def deleteExclusionKeywordbyId():
+    input_request = request.get_json()
+    mysql.delete_exclusion_keyword(
+        input_request['id']
+        )
+    resp = Response({}, status=200, mimetype='application/json') 
+    return resp
 
 if __name__ == '__main__':
     IP = '127.0.0.1'

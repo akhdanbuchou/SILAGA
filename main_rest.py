@@ -307,7 +307,7 @@ def validate():
 @cross_origin()
 def viewallNews(jumlah):
     s = time.time()
-    news = solr.get_all_omed_classified(jumlah) # mengambil berita di solr : omed_classified sejumlah <jumlah>
+    news = Solr_Accessor_Omed_Classified().get_all_omed_classified(jumlah) # mengambil berita di solr : omed_classified sejumlah <jumlah>
     e = time.time()
     print(e-s)
     resp = Response(json.dumps(news), status=200, mimetype='application/json') # solr

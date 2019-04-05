@@ -464,7 +464,7 @@ def retrieve_exclusion_keywords():
         response_dict.append(
             {
             'id':k,
-            'keywords':v
+            'keyword':v
             }
         )       
 

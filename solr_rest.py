@@ -12,10 +12,6 @@ import requests
 import hbase_rest as hbase
 import mysql_rest as mysql
 
-# TO DO:
-# erase later:
-import exclusion_keywords as excl_kw
-#
 '''
 ROW_NUM = 10000
 HOST = 'http://10.32.6.225:8983/'
@@ -895,6 +891,11 @@ class SolrAccessor:
 
         return unique_category
 
+    @abstractmethod
+    def filter_response(self, responses):
+        return
+
+
     def get_recap(self, jenis, start, end, keyword, freq):
         q, idx = self.get_query_category_and_index(jenis)    
         reldelta = self.get_query_frequency(freq)
@@ -920,6 +921,7 @@ class SolrAccessor:
             except:
                 docs = list()
             
+            docs = self.filter_response(docs)
             
             id_arr = []
             # ambil semua berita di interval tanggal ini , simpan di list id_arr
@@ -1016,6 +1018,12 @@ class SolrAccessor:
 
         return location
 
+    def is_contain_keywords(self, content, keywords_exclusion):
+        if any(keyword['keyword'] in content.lower() for keyword in keywords_exclusion):
+            return True
+        
+        return False
+
 
 class Solr_Accessor_Omed_Classified(SolrAccessor):
     
@@ -1024,7 +1032,7 @@ class Solr_Accessor_Omed_Classified(SolrAccessor):
 
     def request_solr_entry(self, host, startdate, q, rows=1000):
         query = '{}solr/omed_classified/select?indent=on&q=timestamp:{}%20AND%20{}&rows={}&wt=python'.format(HOST, startdate, q, rows)
-        print(query)
+        # print(query)
         try:
             connection = urllib2.urlopen(query)
             return eval(connection.read())
@@ -1039,6 +1047,42 @@ class Solr_Accessor_Omed_Classified(SolrAccessor):
             return response
         except:
             return dict()
+
+    def get_all_omed_classified(self, num):
+        '''
+        mengembalikan semua berita dari solr : omed_classified
+        '''
+        num = int(num)
+        connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
+        response = eval(connection.read())
+        docs = response['response']['docs']
+        docs = self.filter_response(docs)
+
+        requested_num = num
+        while len(docs) < num:
+            requested_num += 1
+            connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=' + str(requested_num) + '&wt=python')
+            response = eval(connection.read())
+            docs = response['response']['docs']
+            docs = self.filter_response(docs)
+
+        for doc in docs:
+            # print(doc['timestamp'])
+            # olah bagian kategori
+            kat = doc['kategori'][0]
+            katname = None
+            if kat == 0:
+                kat_name = ['Netral', 'Netral', 'Netral']
+            else:
+                kname = ALL_KAT_3[kat]
+                kat_name = []
+                for k in kname:
+                    kat_name.append(k.capitalize())
+            doc['timestamp'] = str(doc['timestamp'])[0:10] + " "+str(doc['timestamp'])[11:19]
+            doc['kategori'] = kat_name # override 
+            doc['content'] = doc['content'][0]
+            doc['title'] = doc['title'][0]
+        return docs
         
     def detail_rekap(self, jenis, start, freq):
         reldelta = self.get_query_frequency(freq)
@@ -1050,6 +1094,7 @@ class Solr_Accessor_Omed_Classified(SolrAccessor):
         response = self.request_solr_entry(HOST, startdate, q)
 
         docs = response['response']['docs']
+        docs = self.filter_response(docs)
 
         # ambill data 
         result = {}
@@ -1072,6 +1117,15 @@ class Solr_Accessor_Omed_Classified(SolrAccessor):
             doc['title'] = doc['title'][0]
 
         return docs
+
+    def filter_response(self, responses):
+        keywords_exclusion = mysql.retrieve_exclusion_keywords()
+        filtered_response = list()
+        for response in responses:        
+            if not self.is_contain_keywords(response['content'][0], keywords_exclusion):
+                filtered_response.append(response)
+        
+        return filtered_response
 
 class Solr_Accessor_Telegram(SolrAccessor):
 
@@ -1105,6 +1159,7 @@ class Solr_Accessor_Telegram(SolrAccessor):
         response = self.request_solr_entry(HOST, startdate, q)
    
         docs = response['response']['docs']
+        docs = self.filter_response(docs)
 
         # ambill data 
         result = {}
@@ -1133,10 +1188,16 @@ class Solr_Accessor_Telegram(SolrAccessor):
     def get_map(*args):
         pass
 
-def is_filtered_by_exclusion_keywords(content):
-    keywords_exclusion = mysql.retrieve_exclusion_keywords()
-    if any(keyword in content.lower() for keyword in KEYWORDS_EXCLUSION):
-        return True
-    
-    return False
+    def filter_response(self, responses):
+
+        keywords_exclusion = mysql.retrieve_exclusion_keywords()
+        filtered_response = list()
+        
+        for response in responses:    
+            if not self.is_contain_keywords(response['laporan'][0], keywords_exclusion):
+                filtered_response.append(response)
+        
+        return filtered_response
+
+
 

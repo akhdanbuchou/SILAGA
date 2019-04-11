@@ -12,6 +12,7 @@
         md12
       >
         <v-card>
+          <!--<p>{{isAttachment('6a4c66f6faab4c0198ccb684f9c657be')}}</p>-->
           <v-card-title class="font-weight-medium">
             Daftar Laporan Lapangan Telegram
             <v-spacer></v-spacer>
@@ -62,6 +63,11 @@
               <td class="text-xs-left">{{ props.item.timestamp }}</td>
               <td class="text-xs-left">{{ conciseReport(props.item.isi) }}</td>
               <td class="justify-left pl-3 layout px-0">
+                <v-icon
+                  small
+                  class="mr-2"
+                  color="red"
+                ></v-icon>
                 <v-icon 
                   small
                   class="mr-2"
@@ -81,6 +87,7 @@
 </template>
 
 <script>
+import axios from 'axios';
 import { mapGetters } from 'vuex';
 
 import ModalDetailLaporan from "@/components/utilities/laporan/ModalDetailLaporan.vue";
@@ -93,6 +100,7 @@ export default {
     loading: false,
     menuDate1: false,
     filterGangguan:'',
+    attachment:{},
     filterTanggal:'',
     modalDetail: false,
     selectedLaporan: {},
@@ -107,6 +115,11 @@ export default {
     ]
   }),
   methods:{
+    isAttachment(id){
+      return axios.get('http://5.79.64.131:18880/nontext/'+id).then(response => {
+        return response.data
+      })
+    },
     popDetail(laporan){
       this.selectedLaporan = laporan
       this.modalDetail = true
@@ -115,7 +128,7 @@ export default {
       this.modalDetail = event
     },
     conciseReport(text){
-        var result = text.substring(0,120) + "..."
+        var result = text.substring(0,20) + "..."
         return result
     },
     filterBy(list, filterGangguan, filterTanggal){
@@ -187,7 +200,7 @@ export default {
             kategori: tempKategori,
             timestamp: this.telegram[i].timestamp,
             tanggal: this.telegram[i].timestamp.substring(0,10),
-            isi: this.telegram[i].content
+            isi: this.telegram[i].content,
           }
           result.push(tempResult)
 

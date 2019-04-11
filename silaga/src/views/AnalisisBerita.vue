@@ -74,6 +74,14 @@
             </v-layout>
           </v-card-text>
         </v-card>
+
+        <v-dialog v-model="modalDetail" max-width="500px">
+          <ModalDetailBerita 
+          :selectedNews="selectedNews" 
+          :modalDetail="modalDetail" v-on:closeDetail="closeDetail($event)"
+          ></ModalDetailBerita>
+        </v-dialog>
+
         <material-card color="green darken-4" :title="titleLineChart"> 
           <v-progress-circular v-if="seriesLine.length == 0 || loadLineFlag" class="mb-3 ml-3"
               row wrap align-center justify-center
@@ -113,6 +121,7 @@
                   <v-icon 
                     small
                     class="mr-2"
+                    @click="popDetail(props.item)"
                     color="blue"
                   >
                     mdi-feature-search-outline
@@ -163,7 +172,7 @@
 </template>
 
 <script>
-
+import ModalDetailBerita from "@/components/utilities/berita/ModalDetailBerita.vue";
 import VueApexCharts from 'vue-apexcharts'
 import VueCsvDownloader from 'vue-csv-downloader';
 import { mapGetters } from 'vuex';
@@ -172,10 +181,13 @@ const defaultApi = "http://5.79.64.131:18880/"
 
 export default {
   components: {
+    ModalDetailBerita,
     apexchart: VueApexCharts,
     VueCsvDownloader
   },
      data: () => ({
+       modalDetail: false,
+       selectedNews:{},
         titleLineChart:'Analisis Linechart Gangguan ',
         titlePieChart:'Analisis Piechart Gangguan ',
         titleMap:'Analisis Pesebaran Gangguan ',
@@ -224,8 +236,15 @@ export default {
         ]
     }),
     methods: {
+      popDetail(berita){
+        this.selectedNews = berita
+        this.modalDetail = true
+      },
+      closeDetail(event){
+        this.modalDetail = event
+      },
       closePopTable(){
-        this.$store.commit('setLoadPopTableFlag',false)
+        this.$store.commit('setLoadPopTableBeritaFlag',false)
       },
       conciseNews(text){
         var result = text.substring(0,120) + "..."
@@ -419,8 +438,8 @@ export default {
           excelData:'getExcelData',
           csvHeader:'getCsvHeader',
           csvData:'getCsvData',
-          popTable: 'getPopTable',
-          loadPopTableFlag: 'getLoadPopTableFlag'
+          popTable: 'getPopTableBerita',
+          loadPopTableFlag: 'getLoadPopTableBeritaFlag'
       }),
       dropdownGangguan(){
         var result = []

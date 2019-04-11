@@ -23,6 +23,9 @@ export default {
   setKeywordTable(state,data){
         state.keywordTable = data
   },
+  setExKeywordTable(state,data){
+    state.exKeywordTable = data
+},
   setGangguanGol1(state,data){
         state.gangguanGol1 = data
   },
@@ -35,9 +38,12 @@ export default {
   setFilterLayer1(state,data){
         state.filterLayer1 = data
   },
-  setLoadPopTableFlag(state, data){
-        state.loadPopTableFlag = data
+  setLoadPopTableBeritaFlag(state, data){
+        state.loadPopTableBeritaFlag = data
   },
+  setLoadPopTableLaporanFlag(state, data){
+    state.loadPopTableLaporanFlag = data
+},
   setMedia(state, data){
       if(state.mediaGambar.length == 0){
         Array.prototype.push.apply(state.mediaGambar, data.list_gambar)
@@ -63,6 +69,7 @@ export default {
       state.mediaVideo = []
   },
   setLineChart(state, data){
+
     var frek = 'bulanan'
     if(state.frekuensiRekap != 'bulanan' && state.frekuensiRekap != ''){
         frek = state.frekuensiRekap
@@ -113,23 +120,35 @@ export default {
                 dataPointSelection: function(event, chartContext, config) {
 
                     var date = state.dateFilter[config.dataPointIndex]
-                    var nextDate = state.dateFilter[config.dataPointIndex + 1]
+                    var url = ''
+
+                    if(data.isBerita){
+                        url = 'http://5.79.64.131:18880/detail-rekap/'
+                        state.isBerita = true
+                    }else {
+                        url = 'http://5.79.64.131:18880/detail-rekap-telegram/'
+                        state.isBerita = false
+                    }
+
                     if(state.filterLayer1 == ''){
                         var kodeGangguan = config.seriesIndex + 1
-                        axios.get('http://5.79.64.131:18880/detail-rekap/' + kodeGangguan
+                        axios.get( url + kodeGangguan
                                 + '/' + date + '/' + frek)
                         .then(response => {
-                            state.popTable = response.data
-                            state.loadPopTableFlag = true
+                            if(state.isBerita){
+                                state.popTableBerita = response.data
+                                state.loadPopTableBeritaFlag = true
+                            }else{
+                                state.popTableLaporan = response.data
+                                state.loadPopTableLaporanFlag = true
+                            }
                         })
                     }else{
                         
                         var kodeGangguan = state.filterLayer1
-                        axios.get('http://5.79.64.131:18880/detail-rekap/' + kodeGangguan
+                        axios.get( url + kodeGangguan
                                 + '/' + date + '/' + frek)
                         .then(response => {
-
-                            state.loadPopTableFlag = true
                             var tempArray = []
                             var indexLayer1 = state.filterLayer1 - 1
                             var indexLayer2 = config.seriesIndex
@@ -139,14 +158,15 @@ export default {
                                     tempArray.push(response.data[i])
                                 }
                             }
-                            state.popTable = tempArray
+                            if(state.isBerita){
+                                state.popTableBerita = tempArray
+                                state.loadPopTableBeritaFlag = true
+                            }else{
+                                state.popTableLaporan = tempArray
+                                state.loadPopTableLaporanFlag = true
+                            }
                         })
                     }
-                    
-
-                    
-                    
-                    
                 }
             }
         },

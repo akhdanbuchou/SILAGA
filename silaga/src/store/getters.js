@@ -25,6 +25,9 @@ export default {
   getKeywordTable(state){
     return state.keywordTable
   },
+  getExKeywordTable(state){
+    return state.exKeywordTable
+  },
   getLineData(state){
     return state.lineData
   },
@@ -76,10 +79,16 @@ export default {
   getFrekuensiRekap(state){
     return state.frekuensiRekap
   },
-  getPopTable(state){
-    return state.popTable
+  getPopTableBerita(state){
+    return state.popTableBerita
   },
-  getLoadPopTableFlag(state){
-    return state.loadPopTableFlag
+  getLoadPopTableBeritaFlag(state){
+    return state.loadPopTableBeritaFlag
+  },
+  getPopTableLaporan(state){
+    return state.popTableLaporan
+  },
+  getLoadPopTableLaporanFlag(state){
+    return state.loadPopTableLaporanFlag
   }
 }

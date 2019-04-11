@@ -33,18 +33,34 @@
             <CategoryDetail :selectedCategory="selectedCategory" v-on:closeCategory="closeCategory($event)"></CategoryDetail>
           </v-dialog>
 
-          <v-dialog v-model="modalDelete" max-width="500px">
+          <v-dialog v-model="modalDeletePengguna" max-width="500px">
               <v-card>
                   <v-card-title>
-                      <span class="title">Apa anda yakin ingin menghapus pengguna dengan username: 
-                          <span class="title font-weight-black"> {{toDeletePengguna.username}} ? </span>
-                      </span>
+                      <span>Apa anda yakin ingin menghapus pengguna dengan username: </span>
+                      <br>
+                      <span class="title font-weight-black"> {{toDeletePengguna.username}} ? </span>
                   </v-card-title>
 
                   <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn class="font-weight-bold" color="blue darken-1" flat @click="closeDelete()">Batal</v-btn>
                       <v-btn class="font-weight-bold" color="red darken-1" flat @click="deletePengguna()">Hapus</v-btn>
+                  </v-card-actions>
+              </v-card>
+          </v-dialog>
+
+          <v-dialog v-model="modalDeleteExKeyword" max-width="500px">
+              <v-card>
+                  <v-card-title>
+                      <span>Apa anda yakin ingin menghapus keyword pengecualian: </span>
+                      <br>
+                      <span class="title font-weight-black"> {{toDeleteExKeyword.keyword}} ? </span>
+                  </v-card-title>
+
+                  <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn class="font-weight-bold" color="blue darken-1" flat @click="closeDelete()">Batal</v-btn>
+                      <v-btn class="font-weight-bold" color="red darken-1" flat @click="deleteExKeyword()">Hapus</v-btn>
                   </v-card-actions>
               </v-card>
           </v-dialog>
@@ -134,6 +150,47 @@
             </v-alert>
           </v-data-table>
         </v-card>
+
+        <v-card class="mt-4">
+          <v-card-title class="font-weight-medium">
+            Daftar Kata Kunci Pengecualian
+            <v-spacer></v-spacer>
+            <v-text-field
+              v-model="searchExKeyword"
+              label="Cari Kata Kunci"
+            ></v-text-field>
+            <v-icon>mdi-magnify</v-icon>
+            <CreateExKeyword></CreateExKeyword>
+          </v-card-title>
+          <v-progress-circular v-if="keywords.length == 0" class="mb-3 ml-3"
+            row wrap align-center justify-center
+            :width="3"
+            color="green"
+            indeterminate
+          ></v-progress-circular>
+          <v-data-table v-else
+            :headers="exKeywordHeaders"
+            :items="exKeywordTable(exKeywords, searchExKeyword)"
+          >
+            <template slot="items" slot-scope="props">
+              <td>{{ props.index + 1 }}</td>
+              <td class="text-xs-left">{{ props.item.keyword }}</td>
+              <td class="justify-left pl-3 layout px-0">
+                <v-icon
+                  small
+                  class="mr-2"
+                  @click="popDeleteEx(props.item)"
+                  color="red"
+                  >
+                  mdi-delete
+                </v-icon>
+              </td>
+            </template>
+            <v-alert slot="no-results" :value="true" color="error" icon="mdi-warning">
+              Your search for "{{ searchKeyword }}" found no results.
+            </v-alert>
+          </v-data-table>
+        </v-card>
       </v-flex>
     </v-layout>
 
@@ -143,6 +200,7 @@
 <script>
 import { mapGetters } from 'vuex';
 import CreateUser from "@/components/utilities/konfigurasi/CreateUser.vue"
+import CreateExKeyword from "@/components/utilities/konfigurasi/CreateExKeyword.vue"
 import UpdateUser from "@/components/utilities/konfigurasi/UpdateUser.vue"
 import ManageRole from "@/components/utilities/konfigurasi/ManageRole.vue"
 import CategoryDetail from "@/components/utilities/konfigurasi/CategoryDetail.vue"
@@ -152,15 +210,19 @@ export default {
       CreateUser,
       UpdateUser,
       ManageRole,
-      CategoryDetail
+      CategoryDetail,
+      CreateExKeyword
   },
   data: () => ({
     searchUser: '',
+    searchExKeyword:'',
     searchKeyword:'',
     selectedPengguna:{},
     selectedCategory:{},
     toDeletePengguna:{},
-    modalDelete: false,
+    toDeleteExKeyword:{},
+    modalDeletePengguna: false,
+    modalDeleteExKeyword: false,
     modalEdit: false,
     modalCategory: false,
     userHeaders: [
@@ -178,13 +240,19 @@ export default {
       { text: 'Jumlah Kata Kunci', value: 'keyCount' },
       { text: 'Action', value: 'action' }
     ],
+    exKeywordHeaders: [
+      { text: 'No', value: 'no'},
+      { text: 'Kata Kunci', value: 'keyword' },
+      { text: 'Action', value: 'action' },
+    ],
     urutan:1,
     }),
     computed: {
       ...mapGetters({
           users:'getUsers',
           roles:'getRoles',
-          tempKeywordTable:'getKeywordTable'
+          tempKeywordTable:'getKeywordTable',
+          tempExKeywordTable:'getExKeywordTable'
       }),
       formTitle () {
         return 'Buat Pengguna Baru'
@@ -217,6 +285,17 @@ export default {
             sgol: sgol,
             ssgol: ssgol,
             keyword: this.tempKeywordTable[i].keyword
+          }
+          result.push(temp)
+        }
+        return result
+      },
+      exKeywords(){
+        var result= []
+        for(var i = 0; i < this.tempExKeywordTable.length; i++){
+          var temp = {
+            id: this.tempExKeywordTable[i].id,
+            keyword: this.tempExKeywordTable[i].keyword
           }
           result.push(temp)
         }
@@ -254,6 +333,15 @@ export default {
           return list
         }
       },
+      exKeywordTable(list, keyword){
+        if(keyword != null){
+          return list.filter(element => {
+            return element.keyword.indexOf(keyword) > -1
+          });
+        }else {
+          return list
+        }
+      },
       popUpdateUser(pengguna){
         this.selectedPengguna = {
           id: pengguna.id,
@@ -272,15 +360,24 @@ export default {
         this.modalCategory = true
       },
       popDelete(pengguna){
-        this.modalDelete = true
+        this.modalDeletePengguna = true
         this.toDeletePengguna = pengguna
+      },
+      popDeleteEx(exKeyword){
+        this.modalDeleteExKeyword = true
+        this.toDeleteExKeyword = exKeyword
       },
       deletePengguna(){
         this.$store.dispatch('deleteUser', this.toDeletePengguna)
         this.closeDelete()
       },
+      deleteExKeyword(){
+        this.$store.dispatch('deleteExKeyword', this.toDeleteExKeyword)
+        this.closeDelete()
+      },
       closeDelete(){
-        this.modalDelete = false
+        this.modalDeletePengguna = false
+        this.modalDeleteExKeyword = false
       },
       closeUpdate(event){
         this.modalEdit = event
@@ -296,6 +393,7 @@ export default {
       this.$store.dispatch('getAllUsers')
       this.$store.dispatch('getAllRoles')
       this.$store.dispatch('getKeywordTable')
+      this.$store.dispatch('getExKeywordTable')
     }
 }
 </script>

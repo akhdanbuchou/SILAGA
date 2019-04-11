@@ -85,7 +85,6 @@ export default{
                 method: 'get',
                 url: defaultApi + 'getfile/' + video
             }).then(response => {
-                console.log(response.data)
                 this.video = response.data
             })
             return this.video

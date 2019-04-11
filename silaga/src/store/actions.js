@@ -194,7 +194,12 @@ export default {
         kategori3: objKeyword.kategori3
       }
     }).then(response => {
-      
+      axios({
+        method: 'get',
+        url: defaultApi + 'keywords'
+      }).then(response2 => {
+        commit('setKeywordTable', response2.data)
+      })
     })
   },
   deleteKeyword({commit}, idKey){
@@ -205,7 +210,53 @@ export default {
         idKeyword: idKey
       }
     }).then(response => {
-      
+      axios({
+        method: 'get',
+        url: defaultApi + 'keywords'
+      }).then(response2 => {
+        commit('setKeywordTable', response2.data)
+      })
+    })
+  },
+  getExKeywordTable({commit}){
+    axios({
+      method: 'get',
+      url: defaultApi + 'get-all-exclusion-keyword/'
+    }).then(response => {
+      commit('setExKeywordTable', response.data)
+    })
+  },
+  createExKeyword({commit}, newKey){
+    axios({
+      method: 'post',
+      url: defaultApi + 'create-exclusion-keyword/',
+      data:{
+        keyword: newKey,
+      }
+    }).then(response => {
+      axios({
+        method: 'get',
+        url: defaultApi + 'get-all-exclusion-keyword/'
+      }).then(response2 => {
+        commit('setExKeywordTable', response2.data)
+      })
+    })
+  },
+  deleteExKeyword({commit}, keyword){
+    console.log(keyword.id)
+    axios({
+      method: 'post',
+      url: defaultApi + 'delete-exclusion-keyword-by-id/',
+      data:{
+        id: keyword.id
+      }
+    }).then(response => {
+      axios({
+        method: 'get',
+        url: defaultApi + 'get-all-exclusion-keyword/'
+      }).then(response2 => {
+        commit('setExKeywordTable', response2.data)
+      })
     })
   },
   getDefaultBeritaLineChart({commit}){
@@ -213,6 +264,7 @@ export default {
       method: 'get',
       url: defaultApi + 'rekap/0/-/-/-/bulanan'
     }).then(response => {
+      response.data.isBerita = true
       commit('setLineChart',response.data)
     })
 
@@ -231,6 +283,7 @@ export default {
       method: 'get',
       url: defaultApi + 'rekap-telegram/0/-/-/-/bulanan'
     }).then(response => {
+      response.data.isBerita = false
       commit('setLineChart',response.data)
     })
 

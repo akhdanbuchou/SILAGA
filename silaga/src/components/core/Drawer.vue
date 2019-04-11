@@ -38,21 +38,6 @@
           color="purple"
         />
       </v-list-tile>
-      <!--<v-list-tile
-        v-for="(link, i) in links"
-        :key="i"
-        :to="link.to"
-        :active-class="color"
-        avatar
-        class="v-list-item"
-      >
-        <v-list-tile-action>
-          <v-icon>{{ link.icon }}</v-icon>
-        </v-list-tile-action>
-        <v-list-tile-title
-          v-text="link.text"
-        />
-      </v-list-tile>-->
       <v-list-tile
       to="/" :active-class="color" avatar class="v-list-item">
         <v-list-tile-action>
@@ -82,7 +67,7 @@
         <v-list-tile-action>
           <v-icon>mdi-telegram</v-icon>
         </v-list-tile-action>
-        <v-list-tile-title>Berita Lapangan</v-list-tile-title>
+        <v-list-tile-title>Laporan Lapangan</v-list-tile-title>
       </v-list-tile>
 
       <v-list-tile v-if="this.$session.get('user_config') == '1'"

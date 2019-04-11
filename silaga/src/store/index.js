@@ -24,11 +24,14 @@ const store = new Vuex.Store({
   state:{
     //dashboard
     frekuensiRekap:'',
-    loadPopTableFlag: false,
+    loadPopTableBeritaFlag: false,
+    loadPopTableLaporanFlag: false,
     flagLayer1:false,
     filterLayer1: '',
     dateFilter:[],
-    popTable:[],
+    popTableBerita:[],
+    popTableLaporan:[],
+    isBerita:false,
     csvHeader:[],
     csvData:[],
     excelHeader:{},
@@ -84,6 +87,7 @@ const store = new Vuex.Store({
     //Konfigurasi Sistem
     users: [],
     keywordTable:[],
+    exKeywordTable:[],
     keyword: [],
     categories: [],
     gangguanGol1:[],

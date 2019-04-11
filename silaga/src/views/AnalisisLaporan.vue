@@ -74,6 +74,14 @@
             </v-layout>
           </v-card-text>
         </v-card>
+
+        <v-dialog v-model="modalDetail" max-width="500px">
+          <ModalDetailLaporan
+          :selectedLaporan="selectedLaporan" 
+          :modalDetail="modalDetail" v-on:closeDetail="closeDetail($event)"
+          ></ModalDetailLaporan>
+        </v-dialog>
+
         <material-card color="green darken-4" :title="titleLineChart"> 
           <v-progress-circular v-if="seriesLine.length == 0 || loadLineFlag" class="mb-3 ml-3"
               row wrap align-center justify-center
@@ -98,21 +106,20 @@
             </v-card-title>
             <v-data-table 
               :headers="headers"
-              :items="popBerita"
+              :items="popLaporan"
               :search="search"
             >
               <template slot="items" slot-scope="props">
                 <td class="text-xs-left">{{ props.index + 1 }}</td>
-                <td class="text-xs-left">{{ props.item.title }}</td>
-                <td class="text-xs-left">{{ props.item.kategori3 }}</td>
-                <td class="text-xs-left">{{ props.item.lokasi }}</td>
-                <td class="text-xs-left">{{ props.item.waktu }}</td>
-                <td class="text-xs-left">{{ props.item.tempSitename }}</td>
+                <td class="text-xs-left">{{ props.item.pelapor }}</td>
+                <td class="text-xs-left">{{ props.item.kategori }}</td>
+                <td class="text-xs-left">{{ props.item.tanggal }}</td>
                 <td class="text-xs-left">{{ conciseNews(props.item.isi) }}</td>
                 <td class="justify-left pl-3 layout px-0">
                   <v-icon 
                     small
                     class="mr-2"
+                    @click="popDetail(props.item)"
                     color="blue"
                   >
                     mdi-feature-search-outline
@@ -152,7 +159,7 @@
 </template>
 
 <script>
-
+import ModalDetailLaporan from "@/components/utilities/laporan/ModalDetailLaporan.vue";
 import VueApexCharts from 'vue-apexcharts'
 import VueCsvDownloader from 'vue-csv-downloader';
 import { mapGetters } from 'vuex';
@@ -161,10 +168,13 @@ const defaultApi = "http://5.79.64.131:18880/"
 
 export default {
   components: {
+    ModalDetailLaporan,
     apexchart: VueApexCharts,
     VueCsvDownloader
   },
      data: () => ({
+        modalDetail: false,
+        selectedLaporan: {},
         titleLineChart:'Analisis Linechart Gangguan ',
         titlePieChart:'Analisis Piechart Gangguan ',
         titleMap:'Analisis Pesebaran Gangguan ',
@@ -184,14 +194,12 @@ export default {
         filterFrekuensi: 'bulanan',
         filterMap:'1',
         headers: [
-          { text: 'No', value: 'no' },
-          { text: 'Judul Berita', value: 'judul' },
+          { text: 'No', value:'no'},
+          { text: 'Pelapor', value: 'pelapor' },
           { text: 'Kategori', value: 'kategori' },
-          { text: 'Lokasi', value: 'lokasi' },
-          { text: 'Waktu', value: 'timestamp' },
-          { text: 'Sumber', value: 'sitename'},
-          { text: 'Isi Berita', value: 'isi' },
-          { text: 'Action', value: 'action' }
+          { text: 'Waktu Lapor', value: 'timestamp' },
+          { text: 'Isi', value: 'content' },
+          { text: '', value: 'action'}
         ],
         dropdownFrekuensi:[
           {
@@ -213,8 +221,15 @@ export default {
         ]
     }),
     methods: {
+      popDetail(laporan){
+        this.selectedLaporan = laporan
+        this.modalDetail = true
+      },
+      closeDetail(event){
+        this.modalDetail = event
+      },
       closePopTable(){
-        this.$store.commit('setLoadPopTableFlag',false)
+        this.$store.commit('setLoadPopTableLaporanFlag',false)
       },
       conciseNews(text){
         var result = text.substring(0,120) + "..."
@@ -321,8 +336,8 @@ export default {
           excelData:'getExcelData',
           csvHeader:'getCsvHeader',
           csvData:'getCsvData',
-          popTable: 'getPopTable',
-          loadPopTableFlag: 'getLoadPopTableFlag'
+          popTable: 'getPopTableLaporan',
+          loadPopTableFlag: 'getLoadPopTableLaporanFlag'
       }),
       dropdownGangguan(){
         var result = []
@@ -340,67 +355,31 @@ export default {
         }
         return result
       },
-      popBerita(){
-        var berita = []
-        var tempBerita
-          for(var i = 0; i < this.popTable.length; i++){
-            var tempKategori = ""
-            var tempLokasi = ""
-            var tempSitename = ""
-            var toLoopKategori = this.popTable[i].kategori
-            var toLoopLokasi =  this.popTable[i].lokasi
-            var toLoopSitename = this.popTable[i].sitename
+      popLaporan(){
+        var result = []
+        var tempResult
+        for(var i = 0; i< this.popTable.length; i++){
+          var tempKategori = ""
+          var toLoopKategori = this.popTable[i].kategori
 
-            for(var j = 0; j < toLoopKategori.length; j++){
+          for(var j = 0; j < toLoopKategori.length; j++){
               if(toLoopKategori.length - j == 1){
                 tempKategori += this.popTable[i].kategori[j]
               }else{
                 tempKategori += this.popTable[i].kategori[j] + " - "
               }
-            }
-
-            for(var j = 0; j < toLoopLokasi.length; j++){
-              if(toLoopLokasi.length - j == 1){
-                tempLokasi += this.popTable[i].lokasi[j]
-              }else{
-                tempLokasi += this.popTable[i].lokasi[j] + ", "
-              }
-            }
-
-            for(var j = 0; j < toLoopSitename.length; j++){
-              if(toLoopSitename.length - j == 1){
-                tempSitename += this.popTable[i].sitename[j]
-              }else{
-                tempSitename += this.popTable[i].sitename[j] + ", "
-              }
-            }
-
-            var tempDate = this.popTable[i].timestamp.split(' ')
-            var date = tempDate[0]
-            var tempClock = tempDate[1]
-            var clock = tempClock.substring(0,5)
-
-            tempBerita = {
-              id: this.popTable[i].id,
-              title: this.popTable[i].title,
-              location: toLoopLokasi,
-              idKategori: '',
-              language:'id',
-              kategori3: tempKategori,
-              lokasi: tempLokasi,
-              waktu: this.popTable[i].timestamp.replace(':00', ''),
-              tanggal: this.popTable[i].timestamp.substring(0, 10),
-              jam: clock,
-              date: date,
-              isi: this.popTable[i].content,
-              url: this.popTable[i].url,
-              tempSitename: tempSitename,
-              sitename: this.popTable[i].sitename,
-              author: this.popTable[i].author 
-            }
-            berita.push(tempBerita)
           }
-          return berita
+          tempResult = {
+            id: this.popTable[i].id,
+            pelapor: this.popTable[i].pelapor[0],
+            kategori: tempKategori,
+            tanggal: this.popTable[i].date.substring(0,10),
+            isi: this.popTable[i].laporan[0]
+          }
+          result.push(tempResult)
+
+        }
+        return result
       }
     },
     mounted(){

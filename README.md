@@ -8,14 +8,14 @@ SILAGA memberikan layanan untuk mengambil data Online Media, Online Media Classi
 - Buat virtual environment
 
 * Aktifkan virtual environment dengan:
-  '<nama folder environtment>/Script/activate'
+  `<nama folder environtment>/Script/activate`
   contoh:
-  'env/Script/activate'
+  `env/Script/activate`
 
 - Install dependency:
-  'pip install -r requirements.txt'
+  `pip install -r requirements.txt`
 - Jalankan dengan:
-  'python main_rest.py'
+  `python main_rest.py`
 
 ### Documentation
 
@@ -27,7 +27,7 @@ SILAGA memberikan layanan untuk mengambil data Online Media, Online Media Classi
 - Copy file dari lokal ke server
 - Sebelum menjalankan aplikasi pada server, **kill** proses aplikasi yang sama yang sedang berjalan pada server
 - Jalankan dengan aplikasi dengan:
-  'python main_rest.py'
+  `python main_rest.py`
 
 ## Built With
 

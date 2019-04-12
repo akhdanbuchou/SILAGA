@@ -29,14 +29,6 @@ IP = '5.79.64.131'
 PORT = 18880
 # dev 
 
-
-
-# def test_periodic_call():
-    # CLASSIFIER_HOST = 'http://127.0.0.1:5001'
-    # print("updating category ", time.ctime())
-    # query = '{}/update'.format(CLASSIFIER_HOST)
-    # response = eval(query.read())
-
 def periodic_call_helper():
     scheduler = BackgroundScheduler(standalone=True)
     job = scheduler.add_job(test_periodic_call, 'interval', minutes=1)
@@ -337,7 +329,7 @@ def createBerita():
     new_berita['id'] = id_news
     
     # also post to solr collection : omed_classified dengan id yang sama 
-    solr.add_or_update_to_omed_classified(new_berita)
+    Solr_Accessor_Omed_Classified().add_or_update_to_omed_classified(new_berita)
     return 'success'
 
 @app.route('/updateBerita',methods = ['POST']) 
@@ -365,7 +357,7 @@ def updateBerita():
     # hbase.put_online_media(new_berita) 
     
     # also post to solr collection : omed_classified dengan id yang sama 
-    solr.add_or_update_to_omed_classified(new_berita)
+    Solr_Accessor_Omed_Classified().add_or_update_to_omed_classified(new_berita)
     return 'success'
 
 @app.route('/deleteNews',methods = ['POST'])
@@ -381,7 +373,7 @@ def delete_news():
     hbase.delete_a_news(id_news)
 
     # delete from solr omed_classified
-    solr.delete_from_omed_classified(id_news)
+    Solr_Accessor_Omed_Classified().delete_from_omed_classified(id_news)
     return 'success'
 
 # CHART RELATED
@@ -431,7 +423,7 @@ def map(jenis, start, end, keyword):
 @app.route("/allreports")
 @cross_origin()
 def viewallReports():
-    report = solr.get_all_telegram_reports()
+    report = Solr_Accessor_Telegram().get_all_telegram_reports()
     resp = Response(json.dumps(report), status=200, mimetype='application/json')
     return resp
 
@@ -441,7 +433,7 @@ def getImageName(id_tel):
     '''
     report = hdfs.getfile(id_tel)
     '''
-    list_image = solr.get_telegram_medias(id_tel)
+    list_image = Solr_Accessor_Telegram().get_telegram_medias(id_tel)
     resp = Response(json.dumps(list_image), status=200, mimetype='application/json')
     return resp
 

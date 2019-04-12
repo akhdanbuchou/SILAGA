@@ -11,6 +11,7 @@ import requests
 
 import hbase_rest as hbase
 import mysql_rest as mysql
+from response_filter import Filter, OmedClassifiedFilter, TelegramFilter
 
 '''
 ROW_NUM = 10000
@@ -871,6 +872,10 @@ class SolrAccessor:
     def request_solr_entry(self, host, startdate, q, rows=1000):
         return
 
+    @abstractmethod
+    def filter_response(self, responses):
+        return
+
     def get_category_list(self, all_category, idx, jenis):
         list_kategori = all_category
         unique_category = list()
@@ -890,11 +895,6 @@ class SolrAccessor:
             unique_category = common_category
 
         return unique_category
-
-    @abstractmethod
-    def filter_response(self, responses):
-        return
-
 
     def get_recap(self, jenis, start, end, keyword, freq):
         q, idx = self.get_query_category_and_index(jenis)    
@@ -1018,13 +1018,6 @@ class SolrAccessor:
 
         return location
 
-    def is_contain_keywords(self, content, keywords_exclusion):
-        if any(keyword['keyword'] in content.lower() for keyword in keywords_exclusion):
-            return True
-        
-        return False
-
-
 class Solr_Accessor_Omed_Classified(SolrAccessor):
     
     def __init__(self):
@@ -1047,6 +1040,16 @@ class Solr_Accessor_Omed_Classified(SolrAccessor):
             return response
         except:
             return dict()
+
+    def getNumFound_omed_classified(self):
+        '''
+        mengembalikan jumlah dokumen di omed_classified
+        '''
+        connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=1&wt=python')
+        response = eval(connection.read())
+        numfound = response['response']['numFound']
+        return numfound
+
 
     def get_all_omed_classified(self, num):
         '''
@@ -1083,6 +1086,66 @@ class Solr_Accessor_Omed_Classified(SolrAccessor):
             doc['content'] = doc['content'][0]
             doc['title'] = doc['title'][0]
         return docs
+    
+    def add_or_update_to_omed_classified(self, bulk): # checked 
+        '''
+        fungsi insert atau update ke solr collection : omed_classified
+        param type : json
+        '''
+        data = {}
+        # memindakan data dari input web ke data yang akan dimasukkan ke solr : omed_classified
+        for k,v in bulk.items():
+            if k in ['id','kategori','url','sitename','lokasi','author','title','language','timestamp','content']:
+                data[k]=v
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        json_data = {
+            'id':data['id'],
+            'author':data['author'],
+            'kategori':data['kategori'],
+            'url':data['url'],
+            'sitename':data['sitename'],
+            'title':data['title'],
+            'language':data['language'],
+            'lokasi':data['lokasi'],
+            'timestamp':data['timestamp'],
+            'content':data['content']
+            }
+        print(json_data)
+        data = json.dumps(json_data)
+        response = requests.post(HOST + 'solr/omed_classified/update/json/docs', headers=headers, data=data)
+        print(response)
+        print()
+
+    def delete_from_omed_classified(self, id_berita): # checked
+        '''
+        fungsi delete row dengan id=id_berita dari solr collection : omed_classified
+        '''
+        headers = {
+            'Content-Type': 'text/xml',
+        }
+        params = (
+            ('commit', 'true'),
+        ) 
+        data = '<delete><id>'+id_berita+'</id></delete>'
+        response = requests.post(HOST + 'solr/omed_classified/update', headers=headers, params=params, data=data)
+        print(response)
+
+    def delete_all_omed_classified(self):
+        '''
+        menghapus semua data di omed_classified
+        '''
+        num = getNumFound_omed_classified()
+        lst = []
+        connection = urllib2.urlopen(HOST + 'solr/omed_classified/select?indent=on&q=*:*&rows=10'+str(num)+'&wt=python')
+        response = eval(connection.read())
+        docs = response['response']['docs']
+        for doc in docs:
+            lst.append(doc['id'])
+
+        for i in lst: #hapus
+            self.delete_from_omed_classified(i)
         
     def detail_rekap(self, jenis, start, freq):
         reldelta = self.get_query_frequency(freq)
@@ -1119,13 +1182,7 @@ class Solr_Accessor_Omed_Classified(SolrAccessor):
         return docs
 
     def filter_response(self, responses):
-        keywords_exclusion = mysql.retrieve_exclusion_keywords()
-        filtered_response = list()
-        for response in responses:        
-            if not self.is_contain_keywords(response['content'][0], keywords_exclusion):
-                filtered_response.append(response)
-        
-        return filtered_response
+        return Filter(responses, OmedClassifiedFilter())
 
 class Solr_Accessor_Telegram(SolrAccessor):
 
@@ -1149,6 +1206,99 @@ class Solr_Accessor_Telegram(SolrAccessor):
         except:
             return dict()
 
+    def getNumFound_telegram(self):
+        '''
+        mengembalikan jumlah dokumen di telegram
+        '''
+        connection = urllib2.urlopen(HOST + 'solr/telegram/select?indent=on&q=*:*&rows=1&wt=python')
+        response = eval(connection.read())
+        numfound = response['response']['numFound']
+        return numfound
+
+    def add_or_update_to_telegram(self, data): # ON PROGRESS 
+        '''
+        fungsi insert atau update ke solr collection : telegram
+        param type : json
+        '''
+        headers = {
+            'Content-Type': 'application/json',
+        }
+        print(data)
+        data = json.dumps(data)
+        response = requests.post(HOST + 'solr/telegram/update/json/docs', headers=headers, data=data)
+        print(response)
+
+    def get_all_telegram_reports(self):
+        '''
+        mengembalikan semua berita dari solr : telegram
+        '''
+        num = getNumFound_telegram()
+        connection = urllib2.urlopen(HOST + 'solr/telegram/select?indent=on&q=*:*&rows=' + str(num) + '&wt=python')
+        response = eval(connection.read())
+        docs = response['response']['docs']
+        result = []
+        for doc in docs:
+            res = {}
+            name = []
+            kat = doc['kategori'][0]
+            if kat==0:
+                name = ['Netral', 'Netral', 'Netral']
+            else:
+                lst = ALL_KAT_3[kat]
+                name = []
+                for i in lst:
+                    name.append(i.capitalize())
+
+
+            res['timestamp'] = str(doc['date'][0])[0:10] + " "+str(doc['date'][0])[11:19]
+            res['kategori'] = name # override 
+            res['pelapor'] = doc['pelapor'][0]
+            res['content'] = doc['laporan'][0]
+            res['id'] = doc['id']
+            result.append(res)
+        return result
+
+    def get_telegram_medias(self, id_tel):
+        '''
+        mengembalikan json berisi list nama image dan video sebuah report telegram 
+        '''
+        uri = '{}solr/telegram/select?indent=on&q=id:{}&rows=1&wt=python'.format(HOST, id_tel)
+        conn = urllib2.urlopen(uri)
+        response = eval(conn.read())
+        docs = response['response']['docs']
+        list_gambar = []
+        list_rekaman = []
+        # mencoba mengambil gambar 
+        try:
+            list_gambar = docs[0]['gambar'][0].split(',')
+        except Exception:
+            pass
+        # mencoba mengambil gambar 
+        try:
+            list_rekaman = docs[0]['rekaman'][0].split(',')
+        except Exception:
+            pass
+        
+        data = {
+            "list_gambar":list_gambar,
+            "list_rekaman":list_rekaman
+        }
+        return data
+
+    def delete_from_telegram(self, id_report):
+        '''
+        fungsi delete row dengan id=id_report dari solr collection : telegram
+        '''
+        headers = {
+            'Content-Type': 'text/xml',
+        }
+        params = (
+            ('commit', 'true'),
+        ) 
+        data = '<delete><id>'+id_report+'</id></delete>'
+        response = requests.post(HOST + 'solr/telegram/update', headers=headers, params=params, data=data)
+        print(response)
+    
     def detail_rekap(self, jenis, start, freq):
         reldelta = self.get_query_frequency(freq)
         dt_start, dt_end = self.get_query_timespan(start,start)
@@ -1189,15 +1339,7 @@ class Solr_Accessor_Telegram(SolrAccessor):
         pass
 
     def filter_response(self, responses):
-
-        keywords_exclusion = mysql.retrieve_exclusion_keywords()
-        filtered_response = list()
-        
-        for response in responses:    
-            if not self.is_contain_keywords(response['laporan'][0], keywords_exclusion):
-                filtered_response.append(response)
-        
-        return filtered_response
+        return Filter(responses, TelegramFilter())
 
 
 

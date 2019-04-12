@@ -29,15 +29,6 @@ IP = '5.79.64.131'
 PORT = 18880
 # dev 
 
-def periodic_call_helper():
-    scheduler = BackgroundScheduler(standalone=True)
-    job = scheduler.add_job(test_periodic_call, 'interval', minutes=1)
-    try:
-        scheduler.start()
-    except (KeyboardInterrupt):
-        logger.debug('Got SIGTERM! Terminating...')
-        print("EXIT")
-
 # LAPORAN RELATED
 @app.route('/cetak', methods=['GET','POST'])
 @cross_origin()
@@ -394,7 +385,6 @@ def rekapBerita(jenis, start, end, keyword, freq):
     result = Solr_Accessor_Omed_Classified().get_recap(
         jenis, start, end, keyword, freq
         )
-    # print(result)
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
@@ -454,7 +444,6 @@ def rekapBeritaTelegram(jenis, start, end, keyword, freq):
     result = Solr_Accessor_Telegram().get_recap(
         jenis, start, end, keyword, freq
         )
-    # print(result)
 
     resp = Response(json.dumps(result), status=200, mimetype='application/json') 
     return resp
@@ -506,6 +495,5 @@ def deleteExclusionKeywordbyId():
 if __name__ == '__main__':
     IP = '127.0.0.1'
     PORT = 5000
-    # periodic_call_helper()
 
     app.run(debug=True, port=PORT, host=IP, use_reloader=False)

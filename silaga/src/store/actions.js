@@ -109,6 +109,8 @@ export default {
         method: 'get',
         url: defaultApi + 'allnews'
         }).then(res => {
+            commit('setLoadPopTableBeritaFlag', false)
+            commit('setLoadPopTableLaporanFlag', false)
             commit('setAllNews', res.data)
         })
     })
@@ -134,6 +136,8 @@ export default {
         method: 'get',
         url: defaultApi + 'allnews'
         }).then(res => {
+            commit('setLoadPopTableBeritaFlag', false)
+            commit('setLoadPopTableLaporanFlag', false)
             commit('setAllNews', res.data)
         })
     })

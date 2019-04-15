@@ -1,6 +1,6 @@
 <template>
     <div class="CreateExKeyword">
-        <v-dialog v-model="modalCreateExKeyword" max-width="500px">
+        <v-dialog v-model="modalCreateExKeyword" max-width="600px">
             <v-btn slot="activator" color="green darken-1 " dark class="mb-2 ml-3">Tambah Kata Kunci Pengecualian</v-btn>
             <v-card>
             <v-card-title>
@@ -29,7 +29,7 @@
 
 <script>
 export default {
-    name:"CreateExKeywordr",
+    name:"CreateExKeyword",
     data(){
         return{
             modalCreateExKeyword: false,

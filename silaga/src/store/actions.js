@@ -238,6 +238,8 @@ export default {
         method: 'get',
         url: defaultApi + 'get-all-exclusion-keyword/'
       }).then(response2 => {
+        commit('setLoadPopTableBeritaFlag', false)
+        commit('setLoadPopTableLaporanFlag', false)
         commit('setExKeywordTable', response2.data)
       })
     })
@@ -255,6 +257,8 @@ export default {
         method: 'get',
         url: defaultApi + 'get-all-exclusion-keyword/'
       }).then(response2 => {
+        commit('setLoadPopTableBeritaFlag', false)
+        commit('setLoadPopTableLaporanFlag', false)
         commit('setExKeywordTable', response2.data)
       })
     })
